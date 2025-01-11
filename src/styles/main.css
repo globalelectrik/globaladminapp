@@ -1,0 +1,53 @@
+/* Ocultar la barra de desplazamiento lateral pero mantener el scroll */
+body {
+  /* Ancho negativo para ocultar la barra de desplazamiento vertical */
+  overflow-y: scroll;
+  scrollbar-width: none; /* Para navegadores Firefox */
+  overflow-x: scroll;
+  -ms-overflow-style: none; /* Para navegadores Internet Explorer y Microsoft Edge (versión antigua) */
+}
+
+/* Para navegadores basados en WebKit (Google Chrome, Safari) */
+/* Agrega tus propios estilos para la apariencia de la barra de desplazamiento si lo deseas */
+/* Aquí se muestra cómo hacerla transparente */
+body::-webkit-scrollbar {
+  width: 0;
+  background-color: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* Para navegadores basados en WebKit (Google Chrome, Safari) */
+.no-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra de desplazamiento */
+}
+
+.no-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* Color de la barra de desplazamiento */
+  border-radius: 0px; /* Redondeo de los bordes de la barra de desplazamiento */
+}
+
+.no-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* Color de la barra de desplazamiento al pasar el mouse */
+}
+
+/* body::-webkit-scrollbar {
+	width: 6px;
+	background-color: rgb(79 70 229);
+}
+
+body::-webkit-scrollbar-thumb {
+	background-color: rgb(67 56 202);
+} */
+
+input.no-spin-buttons::-webkit-inner-spin-button,
+input.no-spin-buttons::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.marek {
+  z-index: 100000;
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Dialog, Transition, Menu } from '@headlessui/react';
 import {
   Bars3Icon,
@@ -8,22 +8,30 @@ import {
   DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
+  UserCircleIcon,
   UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthContext } from '../../context/AuthContext';
+import { logout } from '../../utils/store/AccessTokenStore';
+import { Link } from 'react-router-dom';
+
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Clientes', href: '#', icon: UsersIcon, current: false },
-  { name: 'Pedidos', href: '#', icon: FolderIcon, current: false },
-  { name: 'Envíos', href: '#', icon: CalendarIcon, current: false },
-
+  { name: 'Dashboard', to: '/', icon: HomeIcon, current: true },
+  { name: 'Clientes', to: '#', icon: UsersIcon, current: false },
+  { name: 'Pedidos', to: '/orders', icon: FolderIcon, current: false },
+  { name: 'Envíos', to: '#', icon: CalendarIcon, current: false },
+  { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },
 ];
 const teams = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
+  { id: 1, name: 'Heroicons', to: '#', initial: 'H', current: false },
+  { id: 2, name: 'Tailwind Labs', to: '#', initial: 'T', current: false },
+  { id: 3, name: 'Workcation', to: '#', initial: 'W', current: false },
+];
+
+const navigationLogout = [
+  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
 ];
 
 const userNavigation = [
@@ -72,51 +80,54 @@ export default function Example({children}) {
                     className='h-8 w-auto'
                   />
                 </div>
-                <nav className='flex flex-1 flex-col'>
-                  <ul role='list' className='flex flex-1 flex-col gap-y-7'>
-                    <li>
-                      <ul role='list' className='-mx-2 space-y-1'>
-                        {navigation.map((item) => (
-                          <li key={item.name}>
-                            <a
-                              href={item.href}
-                              className={classNames(
-                                item.current
-                                  ? 'bg-gray-800 text-white'
-                                  : 'text-gray-400 hover:bg-gray-800 hover:text-white',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
-                              )}>
-                              <item.icon aria-hidden='true' className='size-6 shrink-0' />
-                              {item.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                    <li>
-                      <div className='text-xs/6 font-semibold text-gray-400'>Your teams</div>
-                      <ul role='list' className='-mx-2 mt-2 space-y-1'>
-                        {teams.map((team) => (
-                          <li key={team.name}>
-                            <a
-                              href={team.href}
-                              className={classNames(
-                                team.current
-                                  ? 'bg-gray-800 text-white'
-                                  : 'text-gray-400 hover:bg-gray-800 hover:text-white',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
-                              )}>
-                              <span className='flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white'>
-                                {team.initial}
-                              </span>
-                              <span className='truncate'>{team.name}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  </ul>
-                </nav>
+                {user ? (
+                  <nav className='flex flex-1 flex-col'>
+                    <ul role='list' className='flex flex-1 flex-col gap-y-7'>
+                      <li>
+                        <ul role='list' className='-mx-2 space-y-1'>
+                          {navigation.map((item) => (
+                            <Link 
+                                key={item.name}
+                                to={item.to}
+                                className={classNames(
+                                  item.current
+                                    ? 'bg-gray-800 text-white'
+                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                                  'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
+                                )}>
+                                <item.icon aria-hidden='true' className='size-6 shrink-0' />
+                                {item.name}
+                            </Link>
+                          ))}
+                        </ul>
+                      </li>
+                      <li>
+                        <div className='text-xs/6 font-semibold text-gray-400'>Your teams</div>
+                        <ul role='list' className='-mx-2 mt-2 space-y-1'>
+                          {teams.map((team) => (
+                            <li key={team.name}>
+                              <a
+                                href={team.href}
+                                className={classNames(
+                                  team.current
+                                    ? 'bg-gray-800 text-white'
+                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                                  'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
+                                )}>
+                                <span className='flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white'>
+                                  {team.initial}
+                                </span>
+                                <span className='truncate'>{team.name}</span>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    </ul>
+                  </nav>
+                ) : (
+                  <></>
+                )}
               </div>
             </Dialog.Panel>
           </div>
@@ -133,28 +144,46 @@ export default function Example({children}) {
                 className='h-8 w-auto'
               />
             </div>
+
             <nav className='flex flex-1 flex-col'>
               <ul role='list' className='flex flex-1 flex-col gap-y-7'>
                 <li>
                   <ul role='list' className='-mx-2 space-y-1'>
-                    {navigation.map((item) => (
-                      <li key={item.name}>
-                        <a
-                          href={item.href}
-                          className={classNames(
-                            item.current
-                              ? 'bg-gray-800 text-white'
-                              : 'text-gray-400 hover:bg-gray-800 hover:text-white',
-                            'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
-                          )}>
-                          <item.icon aria-hidden='true' className='size-6 shrink-0' />
-                          {item.name}
-                        </a>
-                      </li>
-                    ))}
+                    {user?.name
+                      ? navigation.map((item) => (
+                          <li key={item.name}>
+                            <Link 
+                                key={item.name}
+                                to={item.to}
+                                className={classNames(
+                                  item.current
+                                    ? 'bg-gray-800 text-white'
+                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                                  'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
+                                )}>
+                                <item.icon aria-hidden='true' className='size-6 shrink-0' />
+                                {item.name}
+                            </Link>
+                          </li>
+                        ))
+                      : navigationLogout.map((item) => (
+                          <li key={item.name}>
+                            <a
+                              href={item.href}
+                              className={classNames(
+                                item.current
+                                  ? 'bg-gray-800 text-white'
+                                  : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold'
+                              )}>
+                              <item.icon aria-hidden='true' className='size-6 shrink-0' />
+                              {item.name}
+                            </a>
+                          </li>
+                        ))}
                   </ul>
                 </li>
-                <li>
+                {/* <li>
                   <div className='text-xs/6 font-semibold text-gray-400'>Your teams</div>
                   <ul role='list' className='-mx-2 mt-2 space-y-1'>
                     {teams.map((team) => (
@@ -175,23 +204,66 @@ export default function Example({children}) {
                       </li>
                     ))}
                   </ul>
-                </li>
-                <li className='-mx-6 mt-auto'>
-                  <a
-                    href='#'
-                    className='flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-gray-800'>
-                    <span className='flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white'>
-                      {user ? user.name[0] : 'P'}
-                    </span>
-                    <span className='sr-only'>Your profile</span>
-                    <span aria-hidden='true'>{user ? user.name : 'Profile'}</span>
-                  </a>
+                </li> */}
+                <li className='mt-auto p-5'>
+                  <Menu as='div' className='relative'>
+                    <Menu.Button className='-m-1.5 flex items-center p-1.5'>
+                      <span className='sr-only'>Open user menu</span>
+                      <span className='inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-500'>
+                        {user ? (
+                          <span className='text-xs font-medium leading-none text-white'>
+                            {user.name?.slice(0, 1).toUpperCase()}
+                          </span>
+                        ) : (
+                          <UserCircleIcon className='h-5 w-5 text-white' aria-hidden='true' />
+                        )}
+                      </span>
+                      <span className='hidden lg:flex lg:items-center'>
+                        <span
+                          className='ml-4 text-sm font-semibold leading-6 text-white'
+                          aria-hidden='true'>
+                          {user ? user.name : 'Iniciar sesión'}
+                        </span>
+                        <ChevronDownIcon
+                          className='ml-2 h-5 w-5 text-gray-400'
+                          aria-hidden='true'
+                        />
+                      </span>
+                    </Menu.Button>
+                    <Transition
+                      as={Fragment}
+                      enter='transition ease-out duration-100'
+                      enterFrom='transform opacity-0 scale-95'
+                      enterTo='transform opacity-100 scale-100'
+                      leave='transition ease-in duration-75'
+                      leaveFrom='transform opacity-100 scale-100'
+                      leaveTo='transform opacity-0 scale-95'>
+                      <Menu.Items className='absolute bottom-full right-0 z-10 -mb-2.5 w-32 origin-bottom-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none'>
+                        {user ? (
+                          <Menu.Item>
+                            <Link
+                              onClick={() => logout()}
+                              className='block cursor-pointer px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-100'>
+                              Logout
+                            </Link>
+                          </Menu.Item>
+                        ) : (
+                          <Menu.Item>
+                            <Link
+                              to='/'
+                              className='block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-100'>
+                              Login
+                            </Link>
+                          </Menu.Item>
+                        )}
+                      </Menu.Items>
+                    </Transition>
+                  </Menu>
                 </li>
               </ul>
             </nav>
           </div>
         </div>
-
 
         <main className='py-10 lg:pl-72'>
           <div className='px-4 sm:px-6 lg:px-8'>{children}</div>

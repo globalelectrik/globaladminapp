@@ -7,16 +7,17 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import LoadingContext from './context/LoadingContext/LoadingContext';
 import LoadingSpin from './components/LoadingSpin/LoadingSpin';
 
-import Login from './pages/Login/Login';
+import Login from './pages/Login/Login.jsx'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
-import OrdersRoute from './pages/Orders/OrdersLis/route/OrdersListRoute';
-
+import OrdersListRoute from './pages/Orders/OrdersList/route/OrdersListRoute.jsx';
+import { useAuthContext } from './context/AuthContext.jsx';
+import CreateOrderRoute from './pages/Orders/CreateOrder/route/CreateOrderRoute.jsx';
+import CreateMaterialRoute from './pages/Materials/CreateMaterial/route/CreateMaterialRoute.jsx';
+import ConfigurationsListRoute from './pages/Configurations/ConfigurationsList/route/ConfigurationsListRoute.jsx';
 
 
 function App() {
   const { isLoadingContext } = useContext(LoadingContext);
-
-
 
   return (
     <>
@@ -26,7 +27,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Login />} />
           <Route
-            path='/dashboard'
+            path='/'
             element={
               <ProtectedRoute>
                 <Dashboard />
@@ -37,7 +38,31 @@ function App() {
             path='/orders'
             element={
               <ProtectedRoute>
-                <OrdersRoute />
+                <OrdersListRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/orders/newOrder'
+            element={
+              <ProtectedRoute>
+                <CreateOrderRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/material/createMaterial'
+            element={
+              <ProtectedRoute>
+                <CreateMaterialRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/configurations'
+            element={
+              <ProtectedRoute>
+                <ConfigurationsListRoute />
               </ProtectedRoute>
             }
           />

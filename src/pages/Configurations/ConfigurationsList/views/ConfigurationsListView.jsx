@@ -37,7 +37,7 @@ export default function ConfigurationsListView() {
   } = usePost();
 
   const getClassificationsHandler = async () => {
-    classificationsFetchGet('/classifications/getClassifications');
+    classificationsFetchGet('/classifications/getMaterialClassifications');
   };
 
   const getBrandsHandler = async () => {
@@ -45,15 +45,15 @@ export default function ConfigurationsListView() {
   };
 
   const createClassificationHandler = async () => {
-    if (newClassification.trim()) {
-      createClassificationFetchPost('/classifications/create', { name: newClassification });
+    if (newClassification !== "") {
+      createClassificationFetchPost('/classifications/createMaterialClassification', {classificationName: newClassification});
       setNewClassification(''); // Clear input
     }
   };
 
   const createBrandHandler = async () => {
-    if (newBrand.trim()) {
-      createBrandFetchPost('/brands/create', { name: newBrand });
+    if (newBrand !== '') {
+      createBrandFetchPost('/brands/createMaterialBrand', { brandName: newBrand});
       setNewBrand(''); // Clear input
     }
   };
@@ -61,64 +61,79 @@ export default function ConfigurationsListView() {
   return (
     <>
       <div className='mb-4 rounded border p-4'>
-        <h2 className='mb-2 text-lg font-semibold'>Classifications</h2>
-        <button
-          onClick={getClassificationsHandler}
-          className='rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600'>
-          {classificationsIsLoading ? 'Loading...' : 'Get Classifications'}
-        </button>
-        {classificationsError && <p className='text-red-500'>{classificationsError.message}</p>}
-        <ul className='mt-4'>
-          {classificationsData?.map((classification) => (
-            <li key={classification.id}>{classification.name}</li>
+        <h2 className='text-md mb-2 font-semibold'>Clasificaciones</h2>
+
+        <div>
+          <button
+            onClick={getClassificationsHandler}
+            className='mr-2 rounded bg-blue-500 px-2 py-2 text-sm text-white hover:bg-blue-600'>
+            Ver Clasificaciones
+          </button>
+
+          <button
+            onClick={createClassificationHandler}
+            className='mr-2 rounded bg-green-500 px-2 py-2 text-sm text-white hover:bg-green-600'>
+            Crear Clasificación
+          </button>
+
+          {classificationsError && <p className='text-red-500'>{classificationsError.message}</p>}
+          {createClassificationError && (<p className='text-red-500'>{createClassificationError.message}</p>)}
+
+        </div>
+
+        <ul className='mt-1'>
+          {classificationsData?.classifications.map((classification) => (
+            <li key={classification.id}>{classification.classificationName}</li>
           ))}
         </ul>
-        <div className='mt-4'>
+
+        <div className='mt-1'>
           <input
             type='text'
             value={newClassification}
             onChange={(e) => setNewClassification(e.target.value)}
-            placeholder='New Classification'
-            className='w-full rounded border p-2'
+            placeholder='Nueva Clasificación'
+            className='text-sm w-full rounded border p-2'
           />
-          <button
-            onClick={createClassificationHandler}
-            className='mt-2 rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600'>
-            {createClassificationIsLoading ? 'Creating...' : 'Create Classification'}
-          </button>
-          {createClassificationError && (
-            <p className='text-red-500'>{createClassificationError.message}</p>
-          )}
         </div>
       </div>
 
+
+
       <div className='rounded border p-4'>
-        <h2 className='mb-2 text-lg font-semibold'>Brands</h2>
-        <button
-          onClick={getBrandsHandler}
-          className='rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600'>
-          {brandsIsLoading ? 'Loading...' : 'Get Brands'}
-        </button>
-        {brandsError && <p className='text-red-500'>{brandsError.message}</p>}
-        <ul className='mt-4'>
-          {brandsData?.map((brand) => (
-            <li key={brand.id}>{brand.name}</li>
+        <h2 className='text-md mb-2 font-semibold'>Marcas</h2>
+        <div>
+          <button
+            onClick={getBrandsHandler}
+            className='mr-2 rounded bg-blue-500 px-2 py-2 text-sm text-white hover:bg-blue-600'>
+            Ver Marcas
+          </button>
+
+          <button
+            onClick={createBrandHandler}
+            className='mr-2 rounded bg-green-500 px-2 py-2 text-sm text-white hover:bg-green-600'>
+            Crear Marcas
+          </button>
+
+          {brandsError && <p className='text-red-500'>{brandsError.message}</p>}
+          {createClassificationError && (<p className='text-red-500'>{createClassificationError.message}</p>)}
+
+        </div>
+
+        <ul className='mt-1'>
+          {brandsData?.Brands.map((classification) => (
+            <li key={classification.id}>{classification.classificationName}</li>
           ))}
         </ul>
-        <div className='mt-4'>
+
+        <div className='mt-1'>
           <input
             type='text'
             value={newBrand}
             onChange={(e) => setNewBrand(e.target.value)}
-            placeholder='New Brand'
-            className='w-full rounded border p-2'
+            placeholder='Nueva Clasificación'
+            className='text-sm w-full rounded border p-2'
           />
-          <button
-            onClick={createBrandHandler}
-            className='mt-2 rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600'>
-            {createBrandIsLoading ? 'Creating...' : 'Create Brand'}
-          </button>
-          {createBrandError && <p className='text-red-500'>{createBrandError.message}</p>}
         </div>
       </div>
     </>

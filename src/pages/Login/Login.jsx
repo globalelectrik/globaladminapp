@@ -24,7 +24,6 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     setLoginStatus(null);
-    console.log(data);
     try {
       
       const { accessToken } = await userLogin(data);

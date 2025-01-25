@@ -1,0 +1,8 @@
+{
+  "short_name": "App",
+  "name": "Web App",
+  "display": "fullscreen",
+  "start_url": "/?homescreen=1",
+  "background_color": "#ffffff",
+  "theme_color": "#000000"
+}

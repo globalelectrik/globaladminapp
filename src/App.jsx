@@ -14,6 +14,9 @@ import { useAuthContext } from './context/AuthContext.jsx';
 import CreateOrderRoute from './pages/Orders/CreateOrder/route/CreateOrderRoute.jsx';
 import CreateMaterialRoute from './pages/Materials/CreateMaterial/route/CreateMaterialRoute.jsx';
 import ConfigurationsListRoute from './pages/Configurations/ConfigurationsList/route/ConfigurationsListRoute.jsx';
+import ClientsListRoute from './pages/Clients/ClientsList/route/ClientsListRoute.jsx';
+import CreateClientRoute from './pages/Clients/CreateClient/route/CreateClientRoute.jsx';
+import ClientDetailRoute from './pages/Clients/ClientDetail/route/ClientDetailRoute.jsx';
 
 
 function App() {
@@ -50,6 +53,31 @@ function App() {
               </ProtectedRoute>
             }
           />
+             <Route
+            path='/clients'
+            element={
+              <ProtectedRoute>
+                <ClientsListRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/clients/createClient'
+            element={
+              <ProtectedRoute>
+                <CreateClientRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/clients/clientDetail/:id'
+            element={
+              <ProtectedRoute>
+                <ClientDetailRoute />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path='/material/createMaterial'
             element={

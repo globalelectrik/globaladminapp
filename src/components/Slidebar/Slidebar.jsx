@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react';
 import { logout } from '../../utils/store/AccessTokenStore';
+import logo from '../../assets/logo.png';
+
+
 
 import {
   Bars3Icon,
@@ -32,8 +35,8 @@ export default function Slidebar({ children }) {
   ];
 
   const navigation = [
-    { name: 'Dashboard', to: '/', icon: HomeIcon, current: true },
-    { name: 'Clientes', to: '#', icon: UsersIcon, current: false },
+    { name: 'Dashboard', to: '/dashboard', icon: HomeIcon, current: true },
+    { name: 'Clientes', to: '/clients', icon: UsersIcon, current: false },
     { name: 'Pedidos', to: '/orders', icon: FolderIcon, current: false },
     { name: 'Envíos', to: '#', icon: CalendarIcon, current: false },
     { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },
@@ -92,11 +95,7 @@ export default function Slidebar({ children }) {
               {/* Sidebar component, swap this element with another sidebar if you like */}
               <div className='flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-2 ring-1 ring-white/10'>
                 <div className='flex h-16 shrink-0 items-center'>
-                  <img
-                    alt='Your Company'
-                    src='https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500'
-                    className='h-8 w-auto'
-                  />
+                  <img alt='Your Company' src={logo} className='h-8 w-auto' />
                 </div>
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -139,11 +138,7 @@ export default function Slidebar({ children }) {
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className='flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6'>
             <div className='flex h-16 shrink-0 items-center'>
-              <img
-                alt='Your Company'
-                src='https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500'
-                className='h-8 w-auto'
-              />
+             <img alt='Your Company' src={logo} className='h-8 w-auto' />
             </div>
 
           <nav className="flex flex-1 flex-col">
@@ -270,8 +265,8 @@ export default function Slidebar({ children }) {
 
 
 
-        <main className='py-10 lg:pl-72'>
-          <div className='px-4 sm:px-6 lg:px-8'>{ children }</div>
+        <main className='py-3 lg:pl-72'>
+          <div className='px-4 sm:px-3 lg:px-8'>{ children }</div>
         </main>
       </div>
     </>

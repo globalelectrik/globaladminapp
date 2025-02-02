@@ -15,7 +15,6 @@ export default function ClientsListView() {
     clientsFetchGet('/clients');
   };
 
-  console.log(clientsData);
 
   return (
     <>

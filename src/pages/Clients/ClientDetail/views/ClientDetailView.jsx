@@ -6,19 +6,35 @@ import usePut from '../../../../hooks/usePut/usePut';
 import AddCompanyModal from '../../../../components/ClientDetail/AddCompanyModal.jsx';
 import AddDeliveryAddressModal from '../../../../components/ClientDetail/AddDeliveryAddressModal.jsx';
 import EditDeliveryAddressModal from '../../../../components/ClientDetail/EditDeliveryAddressModal.jsx';
+import EditCompanyModal from '../../../../components/ClientDetail/EditCompanyModal.jsx';
+import ResultMessageBox from '../../../../components/MessageBox/ResultMessageBox.jsx';
 
 export default function ClientDetailView() {
   const [clientToEdit, setClientToEdit] = useState("");
+
   const [showDeliveryAddressModal, setShowDeliveryAddressModal] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
+
+  const [showEditCompanyModal, setShowEditCompanyModal] = useState(false);
+  const [showEditDeliveryAddressModal, setShowEditDeliveryAddressModal] = useState(false);
+  const [showResultMessageBox, setShowResultMessageBox] = useState(false);
+
   const [newAddress, setNewAddress] = useState({});
   const [newCompany, setNewCompany] = useState({});
+
   const [currentCompanyIndex, setCurrentCompanyIndex] = useState(null);
   const [currentAddressIndex, setCurrentAddressIndex] = useState(null); 
-  const { data: clientData, fetchGet: clientFetchGet } = useGet();
-  const { fetchPut: clientUpdateFetchPut } = usePut();
 
-  const [showEditDeliveryAddressModal, setShowEditDeliveryAddressModal] = useState(false);
+  const [backendMessage, setBackendMessage] = useState("");
+  const [backendResultType, setBackendResultType] = useState("")
+
+
+
+  
+  const { data: clientData, fetchGet: clientFetchGet } = useGet();
+  const { putResponse: updatedClientData, fetchPut: clientUpdateFetchPut } = usePut();
+
+  
 
   const params = useParams();
 
@@ -32,7 +48,7 @@ export default function ClientDetailView() {
     }
   }, [clientData]);
 
-  const openModal = (companyIndex) => {
+  const openNewDeliveryAddressModal = (companyIndex) => {
     setCurrentCompanyIndex(companyIndex);
     setNewAddress({
       deliveryContactName: "",
@@ -98,6 +114,7 @@ export default function ClientDetailView() {
 
   const saveClientChanges = async () => {
     await clientUpdateFetchPut(`/clients/clientUpdate/${params.id}`, clientToEdit);
+    // setBackendMessage(clientUpdateFetchPut.)
   };
 
   const saveEditedAddress = () => {
@@ -107,12 +124,39 @@ export default function ClientDetailView() {
     setShowEditDeliveryAddressModal(false); // Close the modal after saving
   };
 
-  const openEditModal = (companyIndex, addressIndex) => {
+  const saveEditedCompany = () => {
+    const updatedClient = { ...clientToEdit };
+    updatedClient.companyName[currentCompanyIndex] = newCompany;
+    setClientToEdit(updatedClient);
+    setShowEditCompanyModal(false)
+  };
+
+  const openEditAddressModal = (companyIndex, addressIndex) => {
     setCurrentCompanyIndex(companyIndex);
     setCurrentAddressIndex(addressIndex);
     setNewAddress(clientToEdit.companyName[companyIndex].deliveryAddresses[addressIndex]);
     setShowEditDeliveryAddressModal(true); // Show the modal
   };
+
+  const openEditCompanyModal = (companyIndex) => {
+    setCurrentCompanyIndex(companyIndex);
+    setNewCompany(clientToEdit.companyName[companyIndex])
+    setShowEditCompanyModal(true);
+  };
+
+
+  useEffect(()=> {
+    if(updatedClientData){
+      console.log("updatedClientData--> ", updatedClientData);
+      setBackendMessage(updatedClientData.message)
+      setShowResultMessageBox(true)
+    }
+  }, [updatedClientData])
+
+
+
+
+
 
   return (
     <div className="p-4 space-y-6">
@@ -153,6 +197,13 @@ export default function ClientDetailView() {
               <p className="text-base text-gray-800">
                 <span className="font-semibold">Número fiscal:</span> {company.vatNumber || "N/A"}
               </p>
+               <button
+                type="button"
+                onClick={() => openEditCompanyModal(index)}
+                className="mt-2 text-sm text-blue-500 hover:underline"
+              >
+                Editar Razón Social
+              </button>
             </div>
 
             {/* Delivery Addresses */}
@@ -192,7 +243,7 @@ export default function ClientDetailView() {
                 {/* Edit Delivery Address Button */}
                 <button
                   type="button"
-                  onClick={() => openEditModal(index, addressIndex)}  // Open edit modal for this address
+                  onClick={() => openEditAddressModal(index, addressIndex)}  // Open edit modal for this address
                   className="mt-4 text-sm text-blue-500 hover:underline"
                 >
                   Editar Dirección
@@ -203,7 +254,7 @@ export default function ClientDetailView() {
             {/* Add New Delivery Address Button */}
             <button
               type="button"
-              onClick={() => openModal(index)}
+              onClick={() => openNewDeliveryAddressModal(index)}
               className="mt-4 text-sm text-blue-500 hover:underline"
             >
               + Agregar Dirección de Entrega
@@ -232,16 +283,6 @@ export default function ClientDetailView() {
       </div>
 
       {/* Modals */}
-      {showCompanyModal && (
-        <AddCompanyModal
-          newCompany={newCompany}
-          showCompanyModal={showCompanyModal}
-          setShowCompanyModal={setShowCompanyModal}
-          closeCompanyModal={closeCompanyModal}
-          handleNewCompanyChange={handleNewCompanyChange}
-          addNewCompany={addNewCompany}
-        />
-      )}
 
       {showDeliveryAddressModal && (
         <AddDeliveryAddressModal
@@ -258,11 +299,42 @@ export default function ClientDetailView() {
         <EditDeliveryAddressModal
           newAddress={newAddress}
           showDeliveryAddressModal={showEditDeliveryAddressModal}
-          setShowEditDeliveryAddressModal={setShowEditDeliveryAddressModal} // <-- pass this here
+          setShowEditDeliveryAddressModal={setShowEditDeliveryAddressModal}
           handleNewAddressChange={handleNewAddressChange}
           saveEditedAddress={saveEditedAddress}
         />
       )}
+
+      {showCompanyModal && (
+        <AddCompanyModal
+          newCompany={newCompany}
+          showCompanyModal={showCompanyModal}
+          setShowCompanyModal={setShowCompanyModal}
+          closeCompanyModal={closeCompanyModal}
+          handleNewCompanyChange={handleNewCompanyChange}
+          addNewCompany={addNewCompany}
+        />
+      )}
+      
+      {showEditCompanyModal && (
+        <EditCompanyModal
+          newCompany={newCompany}
+          showEditCompanyModal={showEditCompanyModal}
+          setShowEditCompanyModal={setShowEditCompanyModal}
+          handleNewCompanyChange={handleNewCompanyChange}
+          saveEditedCompany={saveEditedCompany}
+        />
+      )}
+
+      {showResultMessageBox && ( 
+        <ResultMessageBox
+          backendMessage = {backendMessage}
+          backendResultType = {backendResultType}
+          showResultMessageBox= {showResultMessageBox}
+          setShowResultMessageBox= {setShowResultMessageBox}
+        />
+      )}
+
     </div>
   );
 }

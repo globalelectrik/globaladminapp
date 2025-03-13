@@ -53,23 +53,23 @@ export default function ConfigurationsListView() {
 
 
   const getClassificationsHandler = async () => {
-    classificationsFetchGet('/classifications/getMaterialClassifications');
+    classificationsFetchGet('/materials/getClassifications');
   };
 
   const getBrandsHandler = async () => {
-    brandsFetchGet('/brands/getBrands');
+    brandsFetchGet('/materials/getBrands');
   };
 
   const createClassificationHandler = async () => {
     if (newClassification !== "") {
-      createClassificationFetchPost('/classifications/createMaterialClassification', {classificationName: newClassification});
+      createClassificationFetchPost('/materials/createClassification', {classificationName: newClassification});
       setNewClassification(''); // Clear input
     }
   };
 
   const createBrandHandler = async () => {
     if (newBrand !== '') {
-      createBrandFetchPost('/brands/createMaterialBrand', { brandName: newBrand});
+      createBrandFetchPost('/materials/createBrand', { brandName: newBrand});
       setNewBrand(''); // Clear input
     }
   };

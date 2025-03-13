@@ -1,14 +1,17 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import usePost from './../../../../hooks/usePost/usePost';
+import useGet from '../../../../hooks/useGet/useGet';
 import { useAuthContext } from '../../../../context/AuthContext';
-import ClassificationsComboBox from './../../../../components/ClassificationsComboBox/ClassificationsComboBox';
+import ClassificationsComboBox from '../../../../components/CreateMaterials/ClassificationsComboBox/ClassificationsComboBox';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import BrandsComboBox from '../../../../components/CreateMaterials/BrandsComboBox/BrandsComboBox';
 
 
 export default function CreateMaterialView() {
 
 const [classificationSelected, setClassificationSelected] = useState(null);
+const [brandSelected, setBrandSelected] = useState(null);
 
 const { user } = useAuthContext();
 
@@ -23,6 +26,13 @@ const {
      isLoading: classificationsIsLoading,
      error: classificationsError,
      fetchGet: classificationsFetchGet,
+   } = useGet();
+
+      const {
+     data: brandsData,
+     isLoading: brandsIsLoading,
+     error: brandsError,
+     fetchGet: brandsFetchGet,
    } = useGet();
 
 const {
@@ -40,7 +50,8 @@ const {
 } = usePost();
 
   useEffect(() => {
-    classificationsFetchGet('/materials/classifications');
+    classificationsFetchGet('/materials/getClassifications');
+    brandsFetchGet('/materials/getBrands');
   }, []);
 
 
@@ -53,8 +64,6 @@ const {
    await createClassificationFetchPost('/createClassification', values);
  }
 
-
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className='rounded-lg bg-white pb-60 shadow'>
@@ -65,7 +74,7 @@ const {
                 <div className='col-span-full'>
                   <label
                     htmlFor='street-address'
-                    className='block text-lg font-medium leading-6 text-green-600'>
+                    className='block text-lg font-medium leading-6 text-indigo-600'>
                     Añadir Nuevo Material
                   </label>
                 </div>
@@ -83,7 +92,7 @@ const {
                       name='materialName'
                       id='materialName'
                       autoComplete='street-address'
-                      className='block w-full rounded-md border-0 py-1.5 text-gray-900 placeholder-slate-300 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-800 sm:max-w-xs sm:leading-6'
+                      className='block w-full rounded-md border-0 py-1.5 text-gray-900 placeholder-slate-300 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-800 sm:max-w-xs sm:leading-6'
                       placeholder='Servomotor 240V'
                     />
                   </div>
@@ -96,16 +105,12 @@ const {
                     className='block text-sm font-medium leading-6 text-gray-900'>
                     Marca
                   </label>
-                  <div className='mt-2'>
-                    <input
-                      {...register('materialBrand')}
-                      name='materialBrand'
-                      id='materialBrand'
-                      autoComplete='street-address'
-                      className='block w-full rounded-md border-0 py-1.5 text-gray-900 placeholder-slate-300 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-green-800 sm:max-w-xs sm:leading-6'
-                      placeholder='Schneider Electric'
-                    />
-                  </div>
+                  <BrandsComboBox
+                    className='w-2/3'
+                    brandsData={brandsData}
+                    brandSelected={brandSelected}
+                    setBrandSelected={setBrandSelected}
+                  />
                 </div>
               </div>             
               <div className='sm:col-start-1 sm:col-end-3 lg:col-start-1 lg:col-end-2'>
@@ -117,6 +122,7 @@ const {
                   </label>
                   <ClassificationsComboBox
                     className='w-2/3'
+                    classificationsData={classificationsData}
                     classificationSelected={classificationSelected}
                     setClassificationSelected={setClassificationSelected}
                   />
@@ -126,7 +132,7 @@ const {
                 <div className='col-span-full'>
                   <button
                     onClick={() => handleSubmit(onSubmit)}
-                    className='inline-flex items-center gap-x-1.5 rounded-md bg-green-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800'>
+                    className='inline-flex items-center gap-x-1.5 rounded-md bg-indigo-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-800'>
                     <CheckCircleIcon className='-ml-0.5 h-5 w-5' aria-hidden='true' />
                     Crear Material
                   </button>

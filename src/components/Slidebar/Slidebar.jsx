@@ -4,8 +4,6 @@ import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessu
 import { logout } from '../../utils/store/AccessTokenStore';
 import logo from '../../assets/logo.png';
 
-
-
 import {
   Bars3Icon,
   CalendarIcon,
@@ -15,6 +13,8 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
+  BuildingOffice2Icon, 
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import { useAuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -36,9 +36,10 @@ export default function Slidebar({ children }) {
 
   const navigation = [
     { name: 'Dashboard', to: '/dashboard', icon: HomeIcon, current: true },
-    { name: 'Clientes', to: '/clients', icon: UsersIcon, current: false },
+    { name: 'Clientes', to: '/clients', icon: BuildingOffice2Icon, current: false },
+    { name: 'Contactos', to: '/clients', icon: UsersIcon, current: false },
     { name: 'Pedidos', to: '/orders', icon: FolderIcon, current: false },
-    { name: 'Envíos', to: '#', icon: CalendarIcon, current: false },
+    { name: 'Envíos', to: '#', icon: PaperAirplaneIcon, current: false },
     { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },
   ];
 

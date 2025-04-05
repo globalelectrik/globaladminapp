@@ -37,7 +37,7 @@ export default function Slidebar({ children }) {
   const navigation = [
     { name: 'Dashboard', to: '/dashboard', icon: HomeIcon, current: true },
     { name: 'Clientes', to: '/clients', icon: BuildingOffice2Icon, current: false },
-    { name: 'Contactos', to: '/clients', icon: UsersIcon, current: false },
+    { name: 'Contactos', to: '/contacts', icon: UsersIcon, current: false },
     { name: 'Pedidos', to: '/orders', icon: FolderIcon, current: false },
     { name: 'Envíos', to: '#', icon: PaperAirplaneIcon, current: false },
     { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },

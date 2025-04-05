@@ -28,15 +28,23 @@ export default function ClientDetailView() {
   const [backendMessage, setBackendMessage] = useState("");
   const [backendResultType, setBackendResultType] = useState("")
 
-
+  const [showContacts, setShowContacts] = useState(false);
 
   
   const { data: clientData, fetchGet: clientFetchGet } = useGet();
   const { putResponse: updatedClientData, fetchPut: clientUpdateFetchPut } = usePut();
+  const { data: contactsData, fetchGet: contactsFetchGet } = useGet();
+  
+  
+  const params = useParams();
 
   
-
-  const params = useParams();
+const toggleContactsButtonHandler = () => {
+  if (!showContacts) {
+    contactsFetchGet(`/contacts/clientContacts/${params.id}`);
+  }
+  setShowContacts(!showContacts);
+};
 
   useEffect(() => {
     clientFetchGet(`/clients/clientDetail/${params.id}`);
@@ -51,7 +59,7 @@ export default function ClientDetailView() {
   const openNewDeliveryAddressModal = (companyIndex) => {
     setCurrentCompanyIndex(companyIndex);
     setNewAddress({
-      deliveryContactName: "",
+      aliasDeliveryAddress: "",
       deliveryContactPhone: "",
       deliveryAddress: "",
       deliveryCity: "",
@@ -147,7 +155,6 @@ export default function ClientDetailView() {
 
   useEffect(()=> {
     if(updatedClientData){
-      console.log("updatedClientData--> ", updatedClientData);
       setBackendMessage(updatedClientData.message)
       setShowResultMessageBox(true)
     }
@@ -179,11 +186,50 @@ export default function ClientDetailView() {
         <div>
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-gray-500">Cliente:</h3>
-            <EditIcon className="h-5 w-5 text-indigo-600" />
+            <button className="text-indigo-600 text-sm" onClick={toggleContactsButtonHandler}>
+              {showContacts ? "Ocultar Contactos" : "Ver Contactos"}
+            </button>
           </div>
-          <p className="text-xl font-bold text-gray-900 mt-1">
+          <p className="text-lg font-bold text-gray-900 mt-1">
             {clientToEdit?.commercialClientName || "N/A"}
           </p>
+          {showContacts && contactsData?.contacts && (
+            <div className="mt-1 border-t pt-2">
+              <h3 className="text-md font-medium text-gray-500 mb-2">Contactos Relacionados</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full border rounded shadow-sm bg-white">
+                  <thead className="bg-gray-100 text-left">
+                    <tr className='text-sm'>
+                      <th className="p-3">Nombre</th>
+                      <th className="p-3">Correo</th>
+                      <th className="p-3">Móvil</th>
+                      <th className="p-3">Teléfono</th>
+                      <th className="p-3">Cargo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contactsData.contacts.map((contact) => (
+                      <tr key={contact.id} className="border-t text-sm">
+                        <td className="p-3">{contact.contactName}</td>
+                        <td className="p-3">{contact.email}</td>
+                        <td className="p-3">{contact.mobile}</td>
+                        <td className="p-3">{contact.telephone}</td>
+                        <td className="p-3">{contact.position}</td>
+                      </tr>
+                    ))}
+                    {!contactsData.contacts.length && (
+                      <tr>
+                        <td colSpan="5" className="p-3 text-center text-gray-500">
+                          No hay contactos asociados a este cliente.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Company Information */}
@@ -215,8 +261,8 @@ export default function ClientDetailView() {
                 <div className="space-y-1 lg:flex lg:justify-left lg: space-x-10">
                   <div>
                     <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Contacto:</span>{" "}
-                      {address.deliveryContactName || "N/A"}
+                      <span className="font-semibold">Alias:</span>{" "}
+                      {address.aliasDeliveryAddress || "N/A"}
                     </p>
                     <p className="text-sm text-gray-800">
                       <span className="font-semibold">Dirección:</span>{" "}

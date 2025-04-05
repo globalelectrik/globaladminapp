@@ -4,12 +4,14 @@ import useGet from "./../../../../hooks/useGet/useGet";
 import ClientsComboBox from '../../../../components/Clients/ClientsComboBox/ClientsComboBox';
 import CompaniesComboBox from '../../../../components/Clients/CompaniesComboBox/CompaniesComboBox';
 import { formatCurrency } from './../../../../helpers/formatCurrency';
-import MaterialsTable from '../../../../components/CreateOrder/MaterialsTable';
+import MaterialsTable from '../../../../components/CreateOrder/MaterialsTable/MaterialsTable';
+import ContactsComboBox from './../../../../components/Contacts/ContactsComboBox/ContactsComboBox';
 
 export default function CreateOrderView() {
 
   const [clientSelected, setClientSelected] = useState(null);
   const [companySelected, setCompanySelected] = useState(null);
+  const [contactSelected, setContactSelected] = useState(null);
 
 
   const [quotNumGlobal, setQuotNumGlobal] = useState('');
@@ -45,17 +47,21 @@ export default function CreateOrderView() {
     error: brandsError,
     fetchGet: brandsFetchGet,
   } = useGet();
-
-
-
-
+  
+  const { 
+    data: contactsData, 
+    fetchGet: contactsFetchGet
+   } = useGet();
+  
   useEffect(() => {
     clientsFetchGet("/clients");
   }, []);
 
   useEffect(() => {
     setCompanySelected("")
+    setContactSelected("")
     classificationsFetchGet('/materials/getClassifications');
+    contactsFetchGet(`/contacts/clientContacts/${clientSelected?.id}`);
     brandsFetchGet('/materials/getBrands');
   }, [clientSelected]);
   
@@ -67,7 +73,7 @@ export default function CreateOrderView() {
     <>
       <div>
         <div className='pb-2'>
-          <p className='text-2xl text-indigo-600'>Crear Pedido</p>
+          <p className='text-xl text-indigo-600'>Crear Pedido</p>
         </div>
 
         {/* Client and Company Selection */}
@@ -151,8 +157,20 @@ export default function CreateOrderView() {
               <p>Total+IVA: {formatCurrency(orderTotalPlusTax)}</p>
             </div>
           </div>
+          
+           {/* Contacto de entrega del paquete*/}
+          <div className='flex items-center space-x-2'>
+            <label className='inline-block w-1/3'>Contacto entrega</label>
+              <ContactsComboBox
+                contacts={contactsData?.contacts}
+                contactSelected={contactSelected}
+                setContactSelected={setContactSelected}
+              />
+          </div>
 
         </div>
+
+
             {/* Materials Table Component */}
            <MaterialsTable 
             materials={materials} 

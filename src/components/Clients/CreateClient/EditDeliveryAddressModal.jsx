@@ -18,8 +18,8 @@ export default function EditDeliveryAddressModal({
           type="text"
           placeholder="Contacto"
           className="w-full border rounded px-3 py-2"
-          value={newAddress?.deliveryContactName || ""}
-          onChange={(e) => handleNewAddressChange("deliveryContactName", e.target.value)}
+          value={newAddress?.aliasDeliveryAddress || ""}
+          onChange={(e) => handleNewAddressChange("aliasDeliveryAddress", e.target.value)}
         />
         <input
           type="text"

@@ -17,7 +17,8 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
         materialReference: "",
         materialClassification: "",
         materialStatus: "Nuevo",
-        materialClientReference: "x"
+        materialClientReference: "x",
+        materialSerialNumber: "N/A"
       },
     ]);
   };
@@ -50,25 +51,26 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
 
   return (
     <div className="mt-6 relative"> {/* ✅ Table Wrapper */}
-      <h2 className="text-lg font-semibold text-indigo-600">Materiales a Entregar</h2>
+      <h2 className="text-md font-semibold text-indigo-600">Materiales a Entregar</h2>
 
       <div className="overflow-x-auto">
         <table className="w-full mt-2 border border-gray-300 min-w-[800px]">
           <thead>
-            <tr className="bg-gray-100 text-left">
+            <tr className="bg-gray-100 text-left text-sm">
               <th className="p-2 border border-gray-300 w-10"></th>
               <th className="p-2 border border-gray-300">Nombre del Material</th>
               <th className="p-2 border border-gray-300">Referencia</th>
-              <th className="p-2 border border-gray-300">Cantidad</th>
+              <th className="p-2 border border-gray-300">Cant</th>
               <th className="p-2 border border-gray-300">Marca</th>
               <th className="p-2 border border-gray-300">Clasificación</th>
               <th className="p-2 border border-gray-300">Estado</th>
               <th className="p-2 border border-gray-300">Referencia Cliente</th>
+              <th className="p-2 border border-gray-300">Num de Serie</th>
             </tr>
           </thead>
           <tbody>
             {materials.map((material, index) => (
-              <tr key={index} className="border border-gray-300 relative">
+              <tr key={index} className="border border-gray-300 relative text-sm">
                 <td className="p-2 border border-gray-300 text-center">
                   <button onClick={() => deleteMaterial(index)}>
                     <XCircleIcon className="h-6 w-6 text-red-600 hover:text-red-800 cursor-pointer" />
@@ -93,7 +95,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                 <td className="p-2 border border-gray-300">
                   <input
                     type="number"
-                    className="w-16 border border-gray-300 p-1 rounded"
+                    className="w-12 border border-gray-300 p-1 rounded"
                     value={material.quantity}
                     onChange={(e) => updateMaterial(index, "quantity", e.target.value)}
                   />
@@ -102,7 +104,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                 {/* Marca (Brand) Dropdown */}
                 <td className="p-2 border border-gray-300 relative">
                   <div
-                    className="w-full border border-gray-300 p-1 rounded bg-white cursor-pointer"
+                    className="w-full border border-gray-300 p-1 rounded bg-white cursor-pointer text-sm"
                     onClick={(e) => openDropdown(index, "brand", e)}
                   >
                     {material.materialBrand || "Seleccione una marca"}
@@ -121,7 +123,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
 
                 <td className="p-2 border border-gray-300">
                   <select
-                    className="w-full border border-gray-300 p-1 rounded"
+                    className="w-full border border-gray-300 p-1 rounded text-sm"
                     value={material.materialStatus}
                     onChange={(e) => updateMaterial(index, "materialStatus", e.target.value)}
                   >
@@ -137,6 +139,14 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     onChange={(e) => updateMaterial(index, "materialClientReference", e.target.value)}
                   />
                 </td>
+                <td className="p-2 border border-gray-300">
+                  <input
+                    type="text"
+                    className="w-20 border border-gray-300 p-1 rounded"
+                    value={material.materialSerialNumber}
+                    onChange={(e) => updateMaterial(index, "materialClientReference", e.target.value)}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -144,7 +154,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
       </div>
 
       <button
-        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm"
         onClick={addMaterial}
       >
         + Agregar Material
@@ -166,7 +176,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
               ? brandsData?.brands?.map((brand) => (
                   <li
                     key={brand.id}
-                    className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer"
+                    className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer text-xs"
                     onClick={() => updateMaterial(dropdownData.index, "materialBrand", brand.brandName)}
                   >
                     {brand.brandName}
@@ -175,7 +185,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
               : classificationsData?.classifications?.map((classification) => (
                   <li
                     key={classification.id}
-                    className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer"
+                    className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer text-xs"
                     onClick={() => updateMaterial(dropdownData.index, "materialClassification", classification.classificationName)}
                   >
                     {classification.classificationName}

@@ -22,7 +22,7 @@ export default function ClientsListView() {
         {/* Clients Section */}
         <div className="rounded border p-4 bg-white shadow-sm">
           <div className="flex justify-between my-3">
-            <h2 className="text-sm font-semibold mb-2">CLIENTES</h2>
+            <h2 className="text-2xl font-bold">CLIENTES</h2>
             <Link
               className="rounded text-xs bg-indigo-500 px-2 py-2 text-white hover:bg-indigo-600"
               to="/clients/createClient"

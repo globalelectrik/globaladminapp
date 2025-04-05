@@ -17,6 +17,8 @@ import ConfigurationsListRoute from './pages/Configurations/ConfigurationsList/r
 import ClientsListRoute from './pages/Clients/ClientsList/route/ClientsListRoute.jsx';
 import CreateClientRoute from './pages/Clients/CreateClient/route/CreateClientRoute.jsx';
 import ClientDetailRoute from './pages/Clients/ClientDetail/route/ClientDetailRoute.jsx';
+import ContactsListRoute from './pages/Contacts/ContactsList/route/ContactsListRoute.jsx';
+import CreateContactRoute from './pages/Contacts/CreateContact/route/CreateContactRoute.jsx';
 
 
 function App() {
@@ -53,6 +55,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+
+
              <Route
             path='/clients'
             element={
@@ -77,6 +82,27 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+
+
+           <Route
+            path='/contacts'
+            element={
+              <ProtectedRoute>
+                <ContactsListRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/contacts/newContact'
+            element={
+              <ProtectedRoute>
+                <CreateContactRoute />
+              </ProtectedRoute>
+            }
+          />
+
+
 
           <Route
             path='/material/createMaterial'

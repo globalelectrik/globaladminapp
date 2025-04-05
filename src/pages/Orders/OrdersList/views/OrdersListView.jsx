@@ -6,7 +6,7 @@ export default function OrdersListView() {
 
   return (
     <>
-      <p>Hola mundo</p>
+    <div>
       <NavLink
         onClick={() => setSidebarOpen(false)}
         to={'/orders/newOrder'}
@@ -19,6 +19,7 @@ export default function OrdersListView() {
         />
         Nuevo Pedido
       </NavLink>
+    </div>
     </>
   );
 }

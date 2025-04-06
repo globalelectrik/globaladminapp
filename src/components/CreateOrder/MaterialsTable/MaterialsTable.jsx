@@ -144,7 +144,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     type="text"
                     className="w-20 border border-gray-300 p-1 rounded"
                     value={material.materialSerialNumber}
-                    onChange={(e) => updateMaterial(index, "materialClientReference", e.target.value)}
+                    onChange={(e) => updateMaterial(index, "materialSerialNumber", e.target.value)}
                   />
                 </td>
               </tr>
@@ -179,14 +179,14 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer text-xs"
                     onClick={() => updateMaterial(dropdownData.index, "materialBrand", brand.brandName)}
                   >
-                    {brand.brandName}
+                    {brandsData.brandName}
                   </li>
                 ))
               : classificationsData?.classifications?.map((classification) => (
                   <li
                     key={classification.id}
                     className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer text-xs"
-                    onClick={() => updateMaterial(dropdownData.index, "materialClassification", classification.classificationName)}
+                    onClick={() => updateMaterial(dropdownData.index, "materialClassification", classification.id)}
                   >
                     {classification.classificationName}
                   </li>

@@ -6,6 +6,8 @@ import CompaniesComboBox from '../../../../components/Clients/CompaniesComboBox/
 import { formatCurrency } from './../../../../helpers/formatCurrency';
 import MaterialsTable from '../../../../components/CreateOrder/MaterialsTable/MaterialsTable';
 import ContactsComboBox from './../../../../components/Contacts/ContactsComboBox/ContactsComboBox';
+import { Link } from 'react-router-dom';
+import DeliveryAddressComboBox from '../../../../components/CreateOrder/DeliveryAddressComboBox/DeliveryAddressComboBox';
 
 export default function CreateOrderView() {
 
@@ -13,16 +15,17 @@ export default function CreateOrderView() {
   const [companySelected, setCompanySelected] = useState(null);
   const [contactSelected, setContactSelected] = useState(null);
 
-
+  const [orderNumGlobal, setOrderNumGlobal] = useState('');
   const [quotNumGlobal, setQuotNumGlobal] = useState('');
   const [datePOClient, setDatePOClient] = useState('');
   const [pOClientNumber, setPOClientNumber] = useState('');
   const [clientCreditDays, setClientCreditDays] = useState('');
-  
-  
+  const [deliverInDays, setDeliverInDays] = useState(12);
+  const [deliveryAddresses, setDeliveryAddresses] = useState("")
+  const [deliveryAddressSelected, setDeliveryAddressSelected] = useState("")
+
   const [orderTotal, setOrderTotal] = useState('');
   const [orderTotalPlusTax, setOrderTotalPlusTax] = useState('');
-
 
   const [materials, setMaterials] = useState([]);
 
@@ -52,10 +55,37 @@ export default function CreateOrderView() {
     data: contactsData, 
     fetchGet: contactsFetchGet
    } = useGet();
+
+  const {
+    postResponse: createOrderPostResponse,
+    isLoading: createOrderIsLoading,
+    error: createOrderError,
+    fetchPost: createOrderFetchPost,
+  } = usePost();
   
   useEffect(() => {
     clientsFetchGet("/clients");
   }, []);
+
+  const handleCreateOrder = async () => {
+
+    const dataToSend = {
+      orderNumGlobal:orderNumGlobal, 
+      quotNumGlobal: quotNumGlobal,
+      datePOClient: datePOClient,
+      pOClientNumber:pOClientNumber,
+      client:clientSelected,
+      companySelected: companySelected,
+      deliveryAddress: deliveryAddressSelected,
+      deliverInDays: 12,
+      orderTotal:orderTotal,
+        materials: materials,
+      clientCreditDays:clientCreditDays,
+    }
+
+    console.log(dataToSend);
+    await createOrderFetchPost("/orders/createOrder", dataToSend)
+  }
 
   useEffect(() => {
     setCompanySelected("")
@@ -64,6 +94,11 @@ export default function CreateOrderView() {
     contactsFetchGet(`/contacts/clientContacts/${clientSelected?.id}`);
     brandsFetchGet('/materials/getBrands');
   }, [clientSelected]);
+
+  useEffect(() => {
+    setDeliveryAddressSelected("")
+    setDeliveryAddresses(companySelected?.deliveryAddresses)
+  }, [companySelected]);
   
   useEffect(() => {
     setOrderTotalPlusTax(parseFloat((orderTotal * 1.16).toFixed(2)));
@@ -72,8 +107,11 @@ export default function CreateOrderView() {
   return (
     <>
       <div>
-        <div className='pb-2'>
+        <div className='flex justify-between pb-2'>
           <p className='text-xl text-indigo-600'>Crear Pedido</p>
+           <Link className="rounded bg-indigo-500 px-2 py-1.5 text-xs text-white hover:bg-indigo-600" to="/orders">
+              Ir a Pedidos
+            </Link>
         </div>
 
         {/* Client and Company Selection */}
@@ -99,7 +137,43 @@ export default function CreateOrderView() {
           </div>
         </div>
 
+        <div className='grid grid-cols-1 lg:grid-cols-2 mt-4'>
+          <div className='flex items-center'>
+            <label className='inline-block w-1/3'>Dirección de Entrega</label>
+            <DeliveryAddressComboBox
+              className='w-2/3'
+              deliveryAddresses={deliveryAddresses}
+              deliveryAddressSelected={deliveryAddressSelected}
+              setDeliveryAddressSelected={setDeliveryAddressSelected}
+            />
+          </div>
+          <div className='align-middle rounded-md bg-slate-50 p-3 shadow-sm border-slate-200 border'>
+            { deliveryAddressSelected ? (
+              <div className='text-sm align-middle'>
+                <div className='flex justify-between'><p className='font-bold'>Alias:</p> <p className='text-right'>{deliveryAddressSelected.aliasDeliveryAddress}</p></div>
+                <div className='flex justify-between'><p className='font-bold'>Dirección:</p> <p className='text-right'>{deliveryAddressSelected.deliveryAddress}</p></div>
+                <div className='flex justify-between'><p className='font-bold'>Ciudad:</p> <p className='text-right'>{deliveryAddressSelected.deliveryCity}</p></div>
+                <div className='flex justify-between'><p className='font-bold'>Estado:</p> <p className='text-right'>{deliveryAddressSelected.deliveryState}</p></div>
+                <div className='flex justify-between'><p className='font-bold'>C.P.:</p> <p className='text-right'>{deliveryAddressSelected.deliveryZipCode}</p></div>
+              </div>
+                
+                ) : 
+            (<p className='text-sm align-middle'> Selecciona una dirección de entrega </p>)}
+          </div>
+        </div>
+
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4'>
+          {/* Número de orden */}
+          <div className='flex items-center space-x-2'>
+            <label className='inline-block w-1/3'>Número de orden GE</label>
+            <input
+              type='text'
+              className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'
+              value={orderNumGlobal}
+              onChange={(e) => setOrderNumGlobal(e.target.value)}
+            />
+          </div>
+
           {/* Número de cotización */}
           <div className='flex items-center space-x-2'>
             <label className='inline-block w-1/3'>Número de cotización GE</label>
@@ -133,6 +207,17 @@ export default function CreateOrderView() {
             />
           </div>
 
+           {/* Pedido del cliente */}
+          <div className='flex items-center space-x-2'>
+            <label className='inline-block w-1/3'>Días Entrega Promesa</label>
+            <input
+              type='text'
+              className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'
+              value={deliverInDays}
+              onChange={(e) => setDeliverInDays(e.target.value)}
+            />
+          </div>
+
           {/* Días de crédito */}
           <div className='flex items-center space-x-2'>
             <label className='inline-block w-1/3'>Días de crédito</label>
@@ -154,7 +239,7 @@ export default function CreateOrderView() {
                 value={orderTotal}
                 onChange={(e) => setOrderTotal(e.target.value)}
               />
-              <p>Total+IVA: {formatCurrency(orderTotalPlusTax)}</p>
+              <p>Total+IVA (16%) {formatCurrency(orderTotalPlusTax)}</p>
             </div>
           </div>
           
@@ -170,7 +255,6 @@ export default function CreateOrderView() {
 
         </div>
 
-
             {/* Materials Table Component */}
            <MaterialsTable 
             materials={materials} 
@@ -178,6 +262,15 @@ export default function CreateOrderView() {
             classificationsData={classificationsData}
             brandsData={brandsData}
             />
+
+            
+        <div className='flex justify-end'>
+           <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm" onClick={handleCreateOrder}>
+            Crear Pedido
+          </button>
+        </div>
+
+         
       </div>
     </>
   );

@@ -6,7 +6,6 @@ import { useState } from 'react'
 export default function ClassificationsComboBox({classificationsData, classificationSelected, setClassificationSelected}) {
   const [query, setQuery] = useState('')
 
-    console.log("las classificationsData --->> ", classificationsData);
 
   return (
     <Combobox
@@ -28,14 +27,14 @@ export default function ClassificationsComboBox({classificationsData, classifica
         </Combobox.Button>
 
         {classificationsData?.classifications?.length > 0 && (
-          <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          <Combobox.Options className="absolute z-50 bottom-full mb-1 max-h-20 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
             {classificationsData?.classifications?.map((classification) => (
               <Combobox.Option
                 key={classification.id}
                 value={classification}
                 className="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-[focus]:bg-indigo-800 data-[focus]:text-white"
               >
-                <span className="block truncate group-data-[selected]:font-semibold">{classification.classificationName}</span>
+                <span className="block truncate group-data-[selected]:font-semibold text-xs">{classification.classificationName}</span>
                 <span className="absolute inset-y-0 right-0 hidden items-center pr-4 text-indigo-800 group-data-[selected]:flex group-data-[focus]:text-white">
                   <CheckIcon className="h-5 w-5" aria-hidden="true" />
                 </span>

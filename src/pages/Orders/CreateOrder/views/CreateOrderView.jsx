@@ -8,6 +8,7 @@ import MaterialsTable from '../../../../components/CreateOrder/MaterialsTable/Ma
 import ContactsComboBox from './../../../../components/Contacts/ContactsComboBox/ContactsComboBox';
 import { Link } from 'react-router-dom';
 import DeliveryAddressComboBox from '../../../../components/CreateOrder/DeliveryAddressComboBox/DeliveryAddressComboBox';
+import { useAuthContext } from '../../../../context/AuthContext';
 
 export default function CreateOrderView() {
 
@@ -29,6 +30,7 @@ export default function CreateOrderView() {
 
   const [materials, setMaterials] = useState([]);
 
+  const { user } = useAuthContext()
 
   const {
     data: clientsData,
@@ -75,12 +77,13 @@ export default function CreateOrderView() {
       datePOClient: datePOClient,
       pOClientNumber:pOClientNumber,
       client:clientSelected,
-      companySelected: companySelected,
+      company: companySelected,
       deliveryAddress: deliveryAddressSelected,
       deliverInDays: 12,
       orderTotal:orderTotal,
         materials: materials,
       clientCreditDays:clientCreditDays,
+      user: user.id
     }
 
     console.log(dataToSend);
@@ -106,7 +109,7 @@ export default function CreateOrderView() {
 
   return (
     <>
-      <div>
+      <div className='relative overflow-visible'>
         <div className='flex justify-between pb-2'>
           <p className='text-xl text-indigo-600'>Crear Pedido</p>
            <Link className="rounded bg-indigo-500 px-2 py-1.5 text-xs text-white hover:bg-indigo-600" to="/orders">
@@ -165,7 +168,7 @@ export default function CreateOrderView() {
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4'>
           {/* Número de orden */}
           <div className='flex items-center space-x-2'>
-            <label className='inline-block w-1/3'>Número de orden GE</label>
+            <label className='inline-block w-1/3'>Orden GE</label>
             <input
               type='text'
               className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'

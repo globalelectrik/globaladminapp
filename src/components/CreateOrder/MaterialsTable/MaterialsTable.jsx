@@ -1,12 +1,12 @@
 import { useState, useRef } from "react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
-import { createPortal } from "react-dom";
+import ClassificationsComboBox from './../../CreateMaterials/ClassificationsComboBox/ClassificationsComboBox';
+import BrandsComboBox from "../../CreateMaterials/BrandsComboBox/BrandsComboBox";
 
 export default function MaterialsTable({ materials, setMaterials, brandsData, classificationsData }) {
-  const [dropdownData, setDropdownData] = useState(null); // Stores dropdown info
+  const [dropdownData, setDropdownData] = useState(null); // Not used now but kept if needed
   const dropdownRef = useRef(null);
 
-  // Function to add a new material row
   const addMaterial = () => {
     setMaterials([
       ...materials,
@@ -27,7 +27,6 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
     const updatedMaterials = [...materials];
     updatedMaterials[index][field] = value;
     setMaterials(updatedMaterials);
-    setDropdownData(null); // Close dropdown after selection
   };
 
   const deleteMaterial = (index) => {
@@ -35,26 +34,10 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
     setMaterials(updatedMaterials);
   };
 
-  // Function to open dropdown at the right position
-  const openDropdown = (index, type, event) => {
-    const rect = event.target.getBoundingClientRect();
-    setDropdownData({
-      index,
-      type,
-      position: {
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width
-      }
-    });
-  };
-
   return (
-    <div className="mt-6 relative"> {/* ✅ Table Wrapper */}
-      <h2 className="text-md font-semibold text-indigo-600">Materiales a Entregar</h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full mt-2 border border-gray-300 min-w-[800px]">
+    <div className="mt-5 relative">
+      <div className="w-full pb-20 overflow-auto relative">
+        <table className="w-full mt-2 border border-gray-300 z-50">
           <thead>
             <tr className="bg-gray-100 text-left text-sm">
               <th className="p-2 border border-gray-300 w-10"></th>
@@ -101,24 +84,22 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   />
                 </td>
 
-                {/* Marca (Brand) Dropdown */}
-                <td className="p-2 border border-gray-300 relative">
-                  <div
-                    className="w-full border border-gray-300 p-1 rounded bg-white cursor-pointer text-sm"
-                    onClick={(e) => openDropdown(index, "brand", e)}
-                  >
-                    {material.materialBrand || "Seleccione una marca"}
-                  </div>
+                {/* Marca (Brand) ComboBox */}
+                <td className="relative p-2 border border-gray-300 w-60">
+                  <BrandsComboBox
+                    brandsData={brandsData}
+                    brandSelected={material.materialBrand}
+                    setBrandSelected={(value) => updateMaterial(index, "materialBrand", value)}
+                  />
                 </td>
 
-                {/* Clasificación Dropdown */}
-                <td className="p-2 border border-gray-300 relative">
-                  <div
-                    className="w-full border border-gray-300 p-1 rounded bg-white cursor-pointer"
-                    onClick={(e) => openDropdown(index, "classification", e)}
-                  >
-                    {material.materialClassification || "Seleccione una clasificación"}
-                  </div>
+                {/* Clasificación ComboBox */}
+                <td className="relative p-2 border border-gray-300 w-60">
+                  <ClassificationsComboBox
+                    classificationsData={classificationsData}
+                    classificationSelected={material.materialClassification}
+                    setClassificationSelected={(value) => updateMaterial(index, "materialClassification", value)}
+                  />
                 </td>
 
                 <td className="p-2 border border-gray-300">
@@ -159,41 +140,6 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
       >
         + Agregar Material
       </button>
-
-      {/* 🔥 Render Dropdown Outside the Table */}
-      {dropdownData &&
-        createPortal(
-          <ul
-            ref={dropdownRef}
-            className="absolute z-50 bg-white border border-gray-300 shadow-md max-h-40 overflow-y-auto rounded w-48"
-            style={{
-              top: dropdownData.position.top,
-              left: dropdownData.position.left,
-              width: dropdownData.position.width,
-            }}
-          >
-            {dropdownData.type === "brand"
-              ? brandsData?.brands?.map((brand) => (
-                  <li
-                    key={brand.id}
-                    className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer text-xs"
-                    onClick={() => updateMaterial(dropdownData.index, "materialBrand", brand.brandName)}
-                  >
-                    {brandsData.brandName}
-                  </li>
-                ))
-              : classificationsData?.classifications?.map((classification) => (
-                  <li
-                    key={classification.id}
-                    className="p-2 hover:bg-indigo-600 hover:text-white cursor-pointer text-xs"
-                    onClick={() => updateMaterial(dropdownData.index, "materialClassification", classification.id)}
-                  >
-                    {classification.classificationName}
-                  </li>
-                ))}
-          </ul>,
-          document.body
-        )}
     </div>
   );
 }

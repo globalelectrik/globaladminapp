@@ -19,6 +19,7 @@ import CreateClientRoute from './pages/Clients/CreateClient/route/CreateClientRo
 import ClientDetailRoute from './pages/Clients/ClientDetail/route/ClientDetailRoute.jsx';
 import ContactsListRoute from './pages/Contacts/ContactsList/route/ContactsListRoute.jsx';
 import CreateContactRoute from './pages/Contacts/CreateContact/route/CreateContactRoute.jsx';
+import OrderDetailRoute from './pages/Orders/OrderDetail/route/OrderDetailRoute.jsx';
 
 
 function App() {
@@ -39,6 +40,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+
+{/* Orders */}
+
           <Route
             path='/orders'
             element={
@@ -55,16 +60,24 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path='/orders/orderDetail/:id'
+            element={
+              <ProtectedRoute>
+                <OrderDetailRoute />
+              </ProtectedRoute>
+            }
+          />
 
+{/* Clients */}
 
-
-             <Route
+          <Route
             path='/clients'
             element={
               <ProtectedRoute>
                 <ClientsListRoute />
               </ProtectedRoute>
-            }
+          }
           />
           <Route
             path='/clients/createClient'
@@ -83,8 +96,7 @@ function App() {
             }
           />
 
-
-
+{/* Contacts */}
            <Route
             path='/contacts'
             element={
@@ -102,6 +114,7 @@ function App() {
             }
           />
 
+{/* Materials */}
 
 
           <Route
@@ -112,6 +125,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+
+{/* Configurations */}
+
           <Route
             path='/configurations'
             element={

@@ -4,10 +4,10 @@ import useGet from "./../../../../hooks/useGet/useGet";
 import ClientsComboBox from '../../../../components/Clients/ClientsComboBox/ClientsComboBox';
 import CompaniesComboBox from '../../../../components/Clients/CompaniesComboBox/CompaniesComboBox';
 import { formatCurrency } from './../../../../helpers/formatCurrency';
-import MaterialsTable from '../../../../components/CreateOrder/MaterialsTable/MaterialsTable';
+import MaterialsTable from '../../../../components/Orders/CreateOrder/MaterialsTable/MaterialsTable';
 import ContactsComboBox from './../../../../components/Contacts/ContactsComboBox/ContactsComboBox';
 import { Link } from 'react-router-dom';
-import DeliveryAddressComboBox from '../../../../components/CreateOrder/DeliveryAddressComboBox/DeliveryAddressComboBox';
+import DeliveryAddressComboBox from '../../../../components/Orders/CreateOrder/DeliveryAddressComboBox/DeliveryAddressComboBox';
 import { useAuthContext } from '../../../../context/AuthContext';
 
 export default function CreateOrderView() {

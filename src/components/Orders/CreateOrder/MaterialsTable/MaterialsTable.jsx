@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
-import ClassificationsComboBox from './../../CreateMaterials/ClassificationsComboBox/ClassificationsComboBox';
-import BrandsComboBox from "../../CreateMaterials/BrandsComboBox/BrandsComboBox";
+import ClassificationsComboBox from './../../../CreateMaterials/ClassificationsComboBox/ClassificationsComboBox';
+import BrandsComboBox from './../../../CreateMaterials/BrandsComboBox/BrandsComboBox';
 
 export default function MaterialsTable({ materials, setMaterials, brandsData, classificationsData }) {
   const [dropdownData, setDropdownData] = useState(null); // Not used now but kept if needed

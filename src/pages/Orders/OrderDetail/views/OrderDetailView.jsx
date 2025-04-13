@@ -12,14 +12,15 @@ export default function OrderDetailView() {
   const { id } = useParams();
   const [orderSelected, setOrderSelected] = useState("")
   const [openEditRowModal, setOpenEditRowModal] = useState(false);
-  const [selectedMaterialRow, setSelectedMaterialRow] = useState(null);
+  const [selectedMaterialRow, setSelectedMaterialRow] = useState(null)
+  const [editMaterialIndex, setEditMaterialIndex] = useState(null)
 
-  
-   const { 
-    putResponse: orderUpdatedData,
-    isLoading: orderUpdateIsLoading,
-    error: orderUpdateError,
-    fetchPut: orderUpdateFetchPut,
+
+  const { 
+    putResponse: orderMaterialUpdatedData,
+    isLoading: orderMaterialUpdateIsLoading,
+    error: orderMaterialUpdateError,
+    fetchPut: orderMaterialUpdateFetchPut,
    } = usePut();
 
   const {
@@ -28,6 +29,7 @@ export default function OrderDetailView() {
     error: orderError,
     fetchGet: orderFetchGet,
   } = useGet();
+
 
   useEffect(() => {
     orderFetchGet(`/orders/orderDetail/${id}`);
@@ -40,28 +42,31 @@ export default function OrderDetailView() {
   }, [orderData]);
 
   useEffect(() => {
-    if(orderUpdatedData){
-      setOrderSelected(orderUpdatedData.order)
+    if(orderMaterialUpdatedData){
+      setOrderSelected(orderMaterialUpdatedData.order)
     }
-  }, [orderUpdatedData]);
+  }, [orderMaterialUpdatedData]);
 
-  const saveOrderChanges = async () => {
-    await orderUpdateFetchPut(`/orders/orderUpdate/${id}`, orderSelected);
+
+
+  // hacercambios aqui, antes de enviar todo al back se deberá de popular para que se hagan bien los cambios
+   const saveMaterialOrderChanges = async () => {
+   // con IndexedOrder sabrá el backend qué línea deberá updatear
+    const indexedOrder = {
+        ...orderSelected, 
+          editMaterialIndex: editMaterialIndex
+        }
+
+    await orderMaterialUpdateFetchPut(`/orders/updateOrderMaterials/${id}`, indexedOrder);
   };
-
-  useEffect(()=> {
-    if(orderUpdatedData){
-      setOrderSelected(orderUpdatedData.order)
-    }
-  }, [orderUpdatedData])
 
 
   return (
     <div className="py-4 space-y-3 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
 
-        <h1 className="text-2xl font-bold">Order: {orderSelected?.orderNumGlobal}</h1>
-        <EditIcon className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-900" />
+        <h1 className="text-2xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
+       
       </div>
 
       {/* General Info */}
@@ -99,26 +104,28 @@ export default function OrderDetailView() {
 
       {/* Materials */}
       <section className="bg-white p-4 shadow rounded-xl">
-        <h2 className="text-lg font-semibold mb-4">Materials</h2>
+        <h2 className="text-lg font-semibold mb-4">Materiales</h2>
         <OrderMaterialsTable
           orderSelected={orderSelected}
           setOrderSelected={setOrderSelected}
           setOpenEditRowModal={setOpenEditRowModal}
           setSelectedMaterialRow={setSelectedMaterialRow}
+          editMaterialIndex={editMaterialIndex}
+          setEditMaterialIndex={setEditMaterialIndex}
         />
       </section>
 
      
       {/* Incidences */}
       <section className="bg-white p-4 shadow rounded-xl">
-        <h2 className="text-lg font-semibold mb-2">Incidences</h2>
+        <h2 className="text-lg font-semibold mb-2">Incidencias</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <strong>Supplier Incidence:</strong> {orderSelected?.incidenceSupplier ? 'Yes' : 'No'}
+            <strong>Incidencia Proveedor:</strong> {orderSelected?.incidenceSupplier ? 'Yes' : 'No'}
             {orderSelected?.incidenceSupplierCause && <div><strong>Cause:</strong> {orderSelected.incidenceSupplierCause}</div>}
           </div>
           <div>
-            <strong>GE Incidence:</strong> {orderSelected?.incidenceGE ? 'Yes' : 'No'}
+            <strong>Incidencia GE:</strong> {orderSelected?.incidenceGE ? 'Yes' : 'No'}
             {orderSelected?.incidenceGECause && <div><strong>Cause:</strong> {orderSelected.incidenceGECause}</div>}
           </div>
         </div>
@@ -126,9 +133,9 @@ export default function OrderDetailView() {
 
       {/* Invoice */}
       <section className="bg-white p-4 shadow rounded-xl">
-        <h2 className="text-lg font-semibold mb-2">Invoice</h2>
+        <h2 className="text-lg font-semibold mb-2">Factura</h2>
         <div className="space-y-1 text-sm">
-          <div><strong>GE Invoice #:</strong> {orderSelected?.invoiceNumGE}</div>
+          <div><strong>Factura GE #:</strong> {orderSelected?.invoiceNumGE}</div>
           <div><strong>PDF:</strong> {orderSelected?.invoiceNumGEPdf}</div>
           <div><strong>XML:</strong> {orderSelected?.invoiceNumGEXml}</div>
         </div>
@@ -137,10 +144,10 @@ export default function OrderDetailView() {
 
        {/* Comments */}
       <section className="bg-white p-4 shadow rounded-xl">
-        <h2 className="text-lg font-semibold mb-2">Comments</h2>
+        <h2 className="text-lg font-semibold mb-2">Comentarios</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <strong>Private Comments</strong>
+            <strong>Comentarios Privados</strong>
             <ul className="list-disc ml-5 mt-1 text-sm text-gray-700">
               {orderSelected?.privateComments?.map((comment, i) => (
                 <li key={i}>{comment.privateComment}</li>
@@ -148,7 +155,7 @@ export default function OrderDetailView() {
             </ul>
           </div>
           <div>
-            <strong>Public Comments</strong>
+            <strong>Comentarios Públicos</strong>
             <ul className="list-disc ml-5 mt-1 text-sm text-gray-700">
               {orderSelected?.publicComments?.map((comment, i) => (
                 <li key={i}>{comment.publicComment}</li>
@@ -164,7 +171,7 @@ export default function OrderDetailView() {
         materialData={selectedMaterialRow}
         orderSelected={orderSelected}
         setOrderSelected={setOrderSelected}
-        saveOrderChanges={saveOrderChanges}
+        saveMaterialOrderChanges={saveMaterialOrderChanges}
       />       
 
     </div>

@@ -20,6 +20,10 @@ import { useAuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 
+import { useMsal } from '@azure/msal-react';
+import { CpuChipIcon } from '@heroicons/react/20/solid';
+
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
@@ -27,36 +31,54 @@ function classNames(...classes) {
 export default function Slidebar({ children }) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuthContext();
+  const { user, logoutUser } = useAuthContext();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [userMicrosoft, setUserMicrosoft] = useState();
+
+  const { accounts } = useMsal();
+
+   useEffect(() => {
+    if (accounts.length > 0) {
+      setUserMicrosoft(accounts[0]);
+    }
+  }, [accounts]);
   
   const navigationLogout = [
-    { name: 'Dashboard', to: '/', icon: HomeIcon, current: true },
+    { name: 'Login', to: '/', icon: HomeIcon, current: true },
   ];
 
   const navigation = [
     { name: 'Dashboard', to: '/dashboard', icon: HomeIcon, current: true },
     { name: 'Clientes', to: '/clients', icon: BuildingOffice2Icon, current: false },
     { name: 'Contactos', to: '/contacts', icon: UsersIcon, current: false },
+    { name: 'Materiales', to: '/materials', icon: CpuChipIcon, current: false },
     { name: 'Pedidos', to: '/orders', icon: FolderIcon, current: false },
     { name: 'Envíos', to: '#', icon: PaperAirplaneIcon, current: false },
     { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },
   ];
 
   const [navigationToShow, setNavigationToShow] = useState(navigationLogout)
-  
-  const navigate = useNavigate();
 
+  
   const handleLogout = () => {
-    logout(); // Clear token
-    setNavigationToShow(navigationLogout)
-  };
+    logoutUser(); // ✅ This clears token and context state
+
+    if (user?.source === 'microsoft') {
+      instance.logoutRedirect({
+        postLogoutRedirectUri: '/',
+      });
+    } else {
+      setNavigationToShow(navigationLogout);
+    }
+};
 
   useEffect(() => {
       if(user){
         setNavigationToShow(navigation)
       }
     }, [user]); // Adjust the delay as needed
+
+
 
 
   return (

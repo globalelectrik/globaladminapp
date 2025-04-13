@@ -20,6 +20,7 @@ import ClientDetailRoute from './pages/Clients/ClientDetail/route/ClientDetailRo
 import ContactsListRoute from './pages/Contacts/ContactsList/route/ContactsListRoute.jsx';
 import CreateContactRoute from './pages/Contacts/CreateContact/route/CreateContactRoute.jsx';
 import OrderDetailRoute from './pages/Orders/OrderDetail/route/OrderDetailRoute.jsx';
+import MaterialDetailRoute from './pages/Materials/MaterialDetail/route/MaterialDetailRoute.jsx';
 
 
 function App() {
@@ -31,9 +32,14 @@ function App() {
 
       <Slidebar>
         <Routes>
-          <Route path='/' element={<Login />} />
+          <Route path='/'
+           element={<Login />} 
+
+           />
+          
+          
           <Route
-            path='/'
+            path='/dashboard'
             element={
               <ProtectedRoute>
                 <Dashboard />
@@ -116,9 +122,18 @@ function App() {
 
 {/* Materials */}
 
+          <Route
+            path='/materials/materialDetail/:id'
+            element={
+              <ProtectedRoute>
+                <MaterialDetailRoute />
+              </ProtectedRoute>
+            }
+          />
+
 
           <Route
-            path='/material/createMaterial'
+            path='/materials/createMaterial'
             element={
               <ProtectedRoute>
                 <CreateMaterialRoute />

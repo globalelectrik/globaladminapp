@@ -83,7 +83,7 @@ export default function CreateOrderView() {
       orderTotal:orderTotal,
         materials: materials,
       clientCreditDays:clientCreditDays,
-      user: user.id
+      user: user.email  // Como estamos haciendo login con Custom y con Microsoft, optamos por ir a buscar el user por el correo
     }
 
     console.log(dataToSend);

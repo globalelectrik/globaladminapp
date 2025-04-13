@@ -6,6 +6,8 @@ import { useContext, useState } from 'react';
 import logo from '../../assets/logo.png';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema } from '../../utils/validators/loginValidator';
+import { ShieldCheck } from 'lucide-react';
+import { MicrosoftLoginButton } from '../../components/Login/MicrosoftLoginButton';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,7 +27,6 @@ export default function Login() {
   const onSubmit = async (data) => {
     setLoginStatus(null);
     try {
-      
       const { accessToken } = await userLogin(data);
       login(accessToken);
       navigate('/dashboard');
@@ -96,6 +97,9 @@ export default function Login() {
                   className='flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
                   Login
                 </button>
+                <div className='flex mt-2'>
+                  <MicrosoftLoginButton/>
+               </div>
               </div>
             </form>
           </div>

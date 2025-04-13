@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react"; // puedes usar modal propio si no usas HeadlessUI
 import useGet from "../../../hooks/useGet/useGet";
 import usePost from './../../../hooks/usePost/usePost';
+import usePut from "../../../hooks/usePut/usePut";
 
 export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, setOrderSelected }) {
   
@@ -29,14 +30,21 @@ export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, 
       fetchGet: brandsFetchGet,
     } = useGet();
 
+    const { 
+      putResponse: orderAddMaterialUpdatedData,
+      isLoading: orderAddMaterialUpdateIsLoading,
+      error: orderAddMaterialUpdateError,
+      fetchPut: orderAddMaterialUpdateFetchPut,
+      } = usePut();
+  
+
+
   const { fetchPost } = usePost();
 
- // --->>>>> CREAR EL OPEN MODAL, HACER EL USEPOST EN EL ORDERDETAILVIEW
-
   useEffect(() => {
-    if (isOpen) {
-      brandsFetchGet("/materials/materialBrands");
-      classificationsFetchGet("/materials/materialClassifications");
+    if(isOpen){
+      brandsFetchGet("/materials/getBrands");
+      classificationsFetchGet("/materials/getClassifications");
     }
   }, [isOpen]);
 
@@ -50,7 +58,7 @@ export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, 
     const { quantity, materialClientReference, ...newMaterialData } = materialData;
 
     // Crear el nuevo material
-    const response = await fetchPost("/materials", newMaterialData);
+    const response = await orderAddMaterialUpdateFetchPut(`/orders/updateAddMaterialToOrder/${orderSelected.id}`, newMaterialData);
     const createdMaterial = response?.material;
 
     if (!createdMaterial) return alert("Error al crear el material");
@@ -83,16 +91,15 @@ export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, 
           <input name="materialName" value={materialData.materialName} onChange={handleChange} placeholder="Nombre del material" className="border px-3 py-2 rounded" />
           <input name="materialReference" value={materialData.materialReference} onChange={handleChange} placeholder="Referencia" className="border px-3 py-2 rounded" />
 
-          <select name="materialBrand" value={materialData.materialBrand} onChange={handleChange} className="border px-3 py-2 rounded">
-            <option value="">Marca</option>
-            {(brandsData?.materialBrands || []).map((b) => (
+          <select name="materialBrand" value={materialData.materialBrand} onChange={handleChange} className="border px-3 py-2 rounded" size={3}>
+            {brandsData?.brands?.map((b) => (
               <option key={b.id} value={b.id}>{b.brandName}</option>
             ))}
           </select>
 
-          <select name="materialClassification" value={materialData.materialClassification} onChange={handleChange} className="border px-3 py-2 rounded">
-            <option value="">Clasificación</option>
-            {(classificationsData?.materialClassifications || []).map((c) => (
+          <select name="materialClassification" value={materialData.materialClassification} onChange={handleChange} className="border px-3 py-2 rounded" size={3} >
+           
+            {classificationsData?.classifications?.map((c) => (
               <option key={c.id} value={c.id}>{c.classificationName}</option>
             ))}
           </select>

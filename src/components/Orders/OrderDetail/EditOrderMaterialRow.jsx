@@ -1,32 +1,34 @@
 import React, { useEffect, useState } from 'react'; import { Link } from 'react-router-dom';
 
 export default function EditOrderMaterialRow({ 
-    isOpen, onClose, materialData, saveMaterialOrderChanges }) { 
+    isOpen, 
+    onClose, 
+    selectedMaterialRow, 
+    setSelectedMaterialRow,
+    orderSelected,
+    setOrderSelected,
+    saveMaterialOrderChanges,
+    editMaterialIndex 
+  }) { 
       
-const [editedRow, setEditedRow] = useState(null);
-
-useEffect(() => { 
-  if (materialData) { 
-    setEditedRow({ ...materialData }); } 
-  }, [materialData]);
 
 const handleAddSerial = () => { 
-  setEditedRow((prev) => (
+  setSelectedMaterialRow((prev) => (
     { ...prev, materialSerialNumber: [ ...(prev.materialSerialNumber || []), { serialNumber: '' } ], }));
    };
 
 const handleChangeSerial = (index, value) => { 
-  const updated = [...(editedRow.materialSerialNumber || [])]; 
-  updated[index].serialNumber = value; setEditedRow((prev) => ({ ...prev, materialSerialNumber: updated, })); };
+  const updated = [...(selectedMaterialRow.materialSerialNumber || [])]; 
+  updated[index].serialNumber = value; setSelectedMaterialRow((prev) => ({ ...prev, materialSerialNumber: updated, })); };
 
 const handleRemoveSerial = (index) => { 
-  const updated = [...(editedRow.materialSerialNumber || [])]; updated.splice(index, 1); 
-  setEditedRow((prev) => ({ ...prev, materialSerialNumber: updated, })); };
+  const updated = [...(selectedMaterialRow.materialSerialNumber || [])]; updated.splice(index, 1); 
+  setSelectedMaterialRow((prev) => ({ ...prev, materialSerialNumber: updated, })); };
 
 const handleChange = (e) => { 
-  const { name, value } = e.target; setEditedRow((prev) => ({ ...prev, [name]: value, })); };
+  const { name, value } = e.target; setSelectedMaterialRow((prev) => ({ ...prev, [name]: value, })); };
 
-if (!isOpen || !editedRow) return null;
+if (!isOpen || !selectedMaterialRow) return null;
 
 return ( 
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"> <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-lg space-y-2"> 
@@ -36,13 +38,13 @@ return (
               <div className="flex-1">
                 <label className="block text-sm font-medium">Referencia</label>
                 <p className="px-3 py-1 border rounded bg-gray-100">
-                  {editedRow.material?.materialReference}
+                  {selectedMaterialRow.material?.materialReference}
                 </p>
               </div>
               <div className="flex-1">
                 <label className="block text-sm font-medium">Nombre del Material</label>
                 <p className="px-3 py-1 border rounded bg-gray-100">
-                  {editedRow.material?.materialName}
+                  {selectedMaterialRow.material?.materialName}
                 </p>
               </div>
             </div>
@@ -52,7 +54,7 @@ return (
               <input
                 type="number"
                 name="quantity"
-                value={editedRow.quantity}
+                value={selectedMaterialRow.quantity}
                 onChange={handleChange}
                 className="w-full px-3 py-1 border rounded"
               />
@@ -61,7 +63,7 @@ return (
             <div>
               <label className="block text-sm font-medium">Números de Serie</label>
               <div className="space-y-2">
-                {(editedRow.materialSerialNumber || []).map((entry, idx) => (
+                {(selectedMaterialRow.materialSerialNumber || []).map((entry, idx) => (
                   <div key={idx} className="flex space-x-2">
                     <input
                       type="text"
@@ -93,7 +95,7 @@ return (
             <div>
               <Link
                 className="text-indigo-600"
-                to={`/materials/materialDetail/${editedRow.material.id}`}
+                to={`/materials/materialDetail/${selectedMaterialRow.material.id}`}
               >
                 Avanzado
               </Link>

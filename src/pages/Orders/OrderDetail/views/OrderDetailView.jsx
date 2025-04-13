@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import { EditIcon } from 'lucide-react';
 import useGet from '../../../../hooks/useGet/useGet.jsx';
 import usePut from './../../../../hooks/usePut/usePut';
@@ -7,13 +7,16 @@ import { formatCurrency } from '../../../../helpers/formatCurrency.js';
 import { formatDateToReadable } from '../../../../utils/helpers/formatDateToReadable.js';
 import OrderMaterialsTable from '../../../../components/Orders/OrderDetail/OrderMaterialsTable.jsx';
 import EditOrderMaterialRow from '../../../../components/Orders/OrderDetail/EditOrderMaterialRow.jsx';
+import AddOrderMaterialModal from '../../../../components/Orders/OrderDetail/AddOrderMaterialModal.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();
   const [orderSelected, setOrderSelected] = useState("")
   const [openEditRowModal, setOpenEditRowModal] = useState(false);
   const [selectedMaterialRow, setSelectedMaterialRow] = useState(null)
-  const [editMaterialIndex, setEditMaterialIndex] = useState(null)
+  const [editMaterialIndex, setEditMaterialIndex] = useState(null);
+  const [openAddMaterialModal, setOpenAddMaterialModal] = useState(false);
+  
 
 
   const { 
@@ -22,6 +25,15 @@ export default function OrderDetailView() {
     error: orderMaterialUpdateError,
     fetchPut: orderMaterialUpdateFetchPut,
    } = usePut();
+
+
+  const { 
+    putResponse: orderNewMaterialUpdatedData,
+    isLoading: orderNewMaterialUpdateIsLoading,
+    error: orderNewMaterialUpdateError,
+    fetchPut: orderNewMaterialUpdateFetchPut,
+   } = usePut();
+
 
   const {
     data: orderData,
@@ -48,17 +60,22 @@ export default function OrderDetailView() {
   }, [orderMaterialUpdatedData]);
 
 
+const saveMaterialOrderChanges = async () => {
+  const updatedMaterials = [...orderSelected.materials];
+  updatedMaterials[editMaterialIndex] = { ...selectedMaterialRow };
 
-  // hacercambios aqui, antes de enviar todo al back se deberá de popular para que se hagan bien los cambios
-   const saveMaterialOrderChanges = async () => {
-   // con IndexedOrder sabrá el backend qué línea deberá updatear
-    const indexedOrder = {
-        ...orderSelected, 
-          editMaterialIndex: editMaterialIndex
-        }
-
-    await orderMaterialUpdateFetchPut(`/orders/updateOrderMaterials/${id}`, indexedOrder);
+  const updatedOrder = {
+    ...orderSelected,
+    materials: updatedMaterials,
   };
+  setOrderSelected(updatedOrder);
+  await orderMaterialUpdateFetchPut(`/orders/updateOrderMaterials/${id}`, updatedOrder); 
+  setOpenEditRowModal(false)
+};
+
+  const saveNewMaterialOrderChanges = async () => {
+    
+  }
 
 
   return (
@@ -66,6 +83,7 @@ export default function OrderDetailView() {
       <div className="flex items-center justify-between">
 
         <h1 className="text-2xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
+         <NavLink className="rounded bg-indigo-500 px-4 py-2 text-white hover:bg-indigo-600" to={'/orders'}> Pedidos </NavLink>
        
       </div>
 
@@ -104,11 +122,24 @@ export default function OrderDetailView() {
 
       {/* Materials */}
       <section className="bg-white p-4 shadow rounded-xl">
-        <h2 className="text-lg font-semibold mb-4">Materiales</h2>
+        <div className='flex justify-between'>
+          <div>
+            <h2 className="text-lg font-semibold mb-4">Materiales</h2>
+          </div>
+          <div>
+            <button
+              className="rounded bg-indigo-500 px-4 py-1 text-white hover:bg-indigo-600"
+              onClick={() => setOpenAddMaterialModal(true)}
+            >
+              Añadir
+            </button>
+          </div>
+        </div>
         <OrderMaterialsTable
           orderSelected={orderSelected}
           setOrderSelected={setOrderSelected}
           setOpenEditRowModal={setOpenEditRowModal}
+          selectedMaterialRow={selectedMaterialRow}
           setSelectedMaterialRow={setSelectedMaterialRow}
           editMaterialIndex={editMaterialIndex}
           setEditMaterialIndex={setEditMaterialIndex}
@@ -168,11 +199,20 @@ export default function OrderDetailView() {
       <EditOrderMaterialRow
         isOpen={openEditRowModal}
         onClose={() => setOpenEditRowModal(false)}
-        materialData={selectedMaterialRow}
+        selectedMaterialRow={selectedMaterialRow}
+        setSelectedMaterialRow={setSelectedMaterialRow}
         orderSelected={orderSelected}
         setOrderSelected={setOrderSelected}
         saveMaterialOrderChanges={saveMaterialOrderChanges}
+        editMaterialIndex={editMaterialIndex}
       />       
+
+      <AddOrderMaterialModal
+        isOpen={openAddMaterialModal}
+        onClose={() => setOpenAddMaterialModal(false)}
+        orderSelected={orderSelected}
+        setOrderSelected={setOrderSelected}
+      />
 
     </div>
   );

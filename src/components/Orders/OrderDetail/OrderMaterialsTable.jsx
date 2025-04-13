@@ -3,6 +3,7 @@ export default function OrderMaterialsTable({
   setOrderSelected,
   setOpenEditRowModal,
   setSelectedMaterialRow,
+  editMaterialIndex,
   setEditMaterialIndex
 }) {
   const handleRowClick = (mat, index) => {

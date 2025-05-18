@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import usePost from "./../../../../hooks/usePost/usePost";
 import useGet from "./../../../../hooks/useGet/useGet";
-import ClientsComboBox from '../../../../components/Clients/ClientsComboBox/ClientsComboBox';
-import CompaniesComboBox from '../../../../components/Clients/CompaniesComboBox/CompaniesComboBox';
+import ClientsComboBox from '../../../Clients/ClientsComponents/ClientsComboBox/ClientsComboBox';
+import CompaniesComboBox from '../../../Clients/ClientsComponents/CompaniesComboBox/CompaniesComboBox';
 import { formatCurrency } from './../../../../helpers/formatCurrency';
-import MaterialsTable from '../../../../components/Orders/CreateOrder/MaterialsTable/MaterialsTable';
-import ContactsComboBox from './../../../../components/Contacts/ContactsComboBox/ContactsComboBox';
+import MaterialsTable from '../CreateOrderComponents/MaterialsTable/MaterialsTable';
+import ContactsComboBox from '../../../Contacts/ContactsComponents/ContactsComboBox';
 import { Link } from 'react-router-dom';
-import DeliveryAddressComboBox from '../../../../components/Orders/CreateOrder/DeliveryAddressComboBox/DeliveryAddressComboBox';
+import DeliveryAddressComboBox from '../CreateOrderComponents/DeliveryAddressComboBox/DeliveryAddressComboBox';
 import { useAuthContext } from '../../../../context/AuthContext';
 
 export default function CreateOrderView() {

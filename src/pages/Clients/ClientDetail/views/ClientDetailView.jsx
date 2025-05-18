@@ -3,11 +3,12 @@ import { Link, useParams } from 'react-router-dom';
 import { EditIcon } from 'lucide-react';
 import useGet from '../../../../hooks/useGet/useGet';
 import usePut from '../../../../hooks/usePut/usePut';
-import AddCompanyModal from '../../../../components/Clients/CreateClient/AddCompanyModal.jsx';
-import AddDeliveryAddressModal from '../../../../components/Clients/CreateClient/AddDeliveryAddressModal.jsx';
-import EditDeliveryAddressModal from '../../../../components/Clients/CreateClient/EditDeliveryAddressModal.jsx';
-import EditCompanyModal from '../../../../components/Clients/CreateClient/EditCompanyModal.jsx';
 import ResultMessageBox from '../../../../components/MessageBox/ResultMessageBox.jsx';
+import AddCompanyModal from './../../ClientsComponents/CreateClient/AddCompanyModal.jsx';
+import AddDeliveryAddressModal from './../../ClientsComponents/CreateClient/AddDeliveryAddressModal.jsx';
+import EditDeliveryAddressModal from './../../ClientsComponents/CreateClient/EditDeliveryAddressModal.jsx';
+import EditCompanyModal from './../../ClientsComponents/CreateClient/EditCompanyModal.jsx';
+
 
 export default function ClientDetailView() {
   const [clientToEdit, setClientToEdit] = useState("");

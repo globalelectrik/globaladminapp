@@ -47,7 +47,6 @@ export default function MaterialDetailView() {
 
 
   const handleSave = async () => {
-    console.log("MaterialSelected ---->> ", materialSelected);
     await materialUpdateFetchPut(`/materials/materialUpdate/${id}`, materialSelected);
   };
 
@@ -78,16 +77,6 @@ export default function MaterialDetailView() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Número de Serie</label>
-         <input
-            name="materialSerialNumber"
-            value={materialSelected?.materialSerialNumber ?? ''}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-          />
-        </div>
-
-        <div>
           <label className="block text-sm font-medium">Estado</label>
           <select
             name="materialStatusType"
@@ -100,6 +89,17 @@ export default function MaterialDetailView() {
             <option value="Reacondicionado">Reacondicionado</option>
           </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium">Referencia Cliente</label>
+          <input
+            name="materialClientReference"
+            value={materialSelected?.materialClientReference ?? ''}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded"
+          />
+        </div>
+        
 
         <div>
           <label className="block text-sm font-medium">Marca</label>

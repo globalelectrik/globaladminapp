@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import useGet from "../../../../hooks/useGet/useGet";
 import usePut from "../../../../hooks/usePut/usePut";
-import EditContactModal from "../../../../components/Contacts/CreateClient/EditContactModal"; // ⬅️ Add this line
+import EditContactModal from './../../ContactsComponents/EditContactModal.jsx';
 
 export default function ContactsListView() {
   const [searchTerm, setSearchTerm] = useState("");

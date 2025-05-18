@@ -12,19 +12,6 @@ export default function EditOrderMaterialRow({
   }) { 
       
 
-const handleAddSerial = () => { 
-  setSelectedMaterialRow((prev) => (
-    { ...prev, materialSerialNumber: [ ...(prev.materialSerialNumber || []), { serialNumber: '' } ], }));
-   };
-
-const handleChangeSerial = (index, value) => { 
-  const updated = [...(selectedMaterialRow.materialSerialNumber || [])]; 
-  updated[index].serialNumber = value; setSelectedMaterialRow((prev) => ({ ...prev, materialSerialNumber: updated, })); };
-
-const handleRemoveSerial = (index) => { 
-  const updated = [...(selectedMaterialRow.materialSerialNumber || [])]; updated.splice(index, 1); 
-  setSelectedMaterialRow((prev) => ({ ...prev, materialSerialNumber: updated, })); };
-
 const handleChange = (e) => { 
   const { name, value } = e.target; setSelectedMaterialRow((prev) => ({ ...prev, [name]: value, })); };
 
@@ -58,36 +45,6 @@ return (
                 onChange={handleChange}
                 className="w-full px-3 py-1 border rounded"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Números de Serie</label>
-              <div className="space-y-2">
-                {(selectedMaterialRow.materialSerialNumber || []).map((entry, idx) => (
-                  <div key={idx} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={entry.serialNumber}
-                      onChange={(e) => handleChangeSerial(idx, e.target.value)}
-                      className="flex-1 px-3 py-1 border rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSerial(idx)}
-                      className="text-red-500 px-2"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={handleAddSerial}
-                  className="text-sm text-indigo-600 mt-1"
-                >
-                  + Agregar número de serie
-                </button>
-              </div>
             </div>
           </div>
 

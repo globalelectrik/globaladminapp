@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import usePost from './../../../../hooks/usePost/usePost';
 import useGet from '../../../../hooks/useGet/useGet';
 import { useAuthContext } from '../../../../context/AuthContext';
-import ClassificationsComboBox from '../../../../components/CreateMaterials/ClassificationsComboBox/ClassificationsComboBox';
+import ClassificationsComboBox from './../../MaterialsComponents/ClassificationsComboBox/ClassificationsComboBox.jsx';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import BrandsComboBox from '../../../../components/CreateMaterials/BrandsComboBox/BrandsComboBox';
+import BrandsComboBox from './../../MaterialsComponents/BrandsComboBox/BrandsComboBox.jsx';
 
 
 export default function CreateMaterialView() {

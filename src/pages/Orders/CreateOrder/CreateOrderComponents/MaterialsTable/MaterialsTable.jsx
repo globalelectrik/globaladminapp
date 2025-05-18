@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
-import ClassificationsComboBox from './../../../CreateMaterials/ClassificationsComboBox/ClassificationsComboBox';
-import BrandsComboBox from './../../../CreateMaterials/BrandsComboBox/BrandsComboBox';
+import ClassificationsComboBox from '../../../../Materials/MaterialsComponents/ClassificationsComboBox/ClassificationsComboBox';
+import BrandsComboBox from '../../../../Materials/MaterialsComponents/BrandsComboBox/BrandsComboBox';
 
 export default function MaterialsTable({ materials, setMaterials, brandsData, classificationsData }) {
   const [dropdownData, setDropdownData] = useState(null); // Not used now but kept if needed
@@ -18,7 +18,6 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
         materialClassification: "",
         materialStatus: "Nuevo",
         materialClientReference: "x",
-        materialSerialNumber: "N/A"
       },
     ]);
   };
@@ -48,7 +47,6 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
               <th className="p-2 border border-gray-300">Clasificación</th>
               <th className="p-2 border border-gray-300">Estado</th>
               <th className="p-2 border border-gray-300">Referencia Cliente</th>
-              <th className="p-2 border border-gray-300">Num de Serie</th>
             </tr>
           </thead>
           <tbody>
@@ -118,14 +116,6 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     className="w-20 border border-gray-300 p-1 rounded"
                     value={material.materialClientReference}
                     onChange={(e) => updateMaterial(index, "materialClientReference", e.target.value)}
-                  />
-                </td>
-                <td className="p-2 border border-gray-300">
-                  <input
-                    type="text"
-                    className="w-20 border border-gray-300 p-1 rounded"
-                    value={material.materialSerialNumber}
-                    onChange={(e) => updateMaterial(index, "materialSerialNumber", e.target.value)}
                   />
                 </td>
               </tr>

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import usePost from "../../../../hooks/usePost/usePost";
 import useGet from "../../../../hooks/useGet/useGet";
-import ClientsComboBox from "../../../../components/Clients/ClientsComboBox/ClientsComboBox";
-import CompaniesComboBox from "../../../../components/Clients/CompaniesComboBox/CompaniesComboBox";
+import ClientsComboBox from './../../../Clients/ClientsComponents/ClientsComboBox/ClientsComboBox.jsx';
 
 export default function CreateContactView() {
   const {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { Dialog } from "@headlessui/react";
-import useGet from "../../../hooks/useGet/useGet";
-import usePost from "../../../hooks/usePost/usePost";
-import usePut from "../../../hooks/usePut/usePut";
+import useGet from "../../../../hooks/useGet/useGet";
+import usePost from "../../../../hooks/usePost/usePost";
+import usePut from "../../../../hooks/usePut/usePut";
 
-export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, setOrderSelected }) {
+export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, setOrderSelected, orderAddMaterialUpdatedData, orderAddMaterialUpdateFetchPut }) {
   const [materialData, setMaterialData] = useState({
     materialName: "",
     materialReference: "",
@@ -26,10 +26,6 @@ export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, 
     fetchGet: brandsFetchGet,
   } = useGet();
 
-  const {
-    putResponse: orderAddMaterialUpdatedData,
-    fetchPut: orderAddMaterialUpdateFetchPut,
-  } = usePut();
 
   const { fetchPost } = usePost();
 
@@ -50,15 +46,6 @@ export default function AddOrderMaterialModal({ isOpen, onClose, orderSelected, 
      await orderAddMaterialUpdateFetchPut(`/orders/updateAddMaterialToOrder/${orderSelected.id}`, materialData);
     onClose();
   };
-
-  useEffect(() => {
-    if (orderAddMaterialUpdatedData?.message === "Orden actualizada con éxito") {
-      setOrderSelected(orderAddMaterialUpdatedData.order)
-      return alert("Orden actualizada con éxito");
-    } if (orderAddMaterialUpdatedData?.message === "Error al actualizar Orden") {
-      return alert("Error al actualizar Orden");
-    }
-  }, [orderAddMaterialUpdatedData]);
 
   const brandOptions = brandsData?.brands?.map((b) => ({
     label: b.brandName,

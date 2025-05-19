@@ -1,0 +1,158 @@
+'use client'
+
+import { useState } from 'react'
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
+import { CheckIcon } from '@heroicons/react/24/outline'
+
+export default function ModalAlbaran() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+    <button
+      onClick={() => setOpen(true)} 
+      className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    >Abrir Modal</button>
+    <Dialog open={open} onClose={setOpen} className="relative z-10">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
+      />
+
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel
+            transition
+            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-6xl sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+          >
+            <div>
+            {/* Numero de albaran */}
+            <div>
+              <label htmlFor="numeroAlbaran" className="block text-sm/6 font-medium text-gray-900">
+                Número de albarán
+              </label>
+              <div className="mt-2">
+                <input
+                  id="numeroAlbaran"
+                  name="numeroAlbaran"
+                  type="text"
+                  placeholder="Ej: 1234567890"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                />
+              </div>
+            </div>
+            {/* Pedido del cliente */}
+            <div>
+              <label htmlFor="pedidoCliente" className="block text-sm/6 font-medium text-gray-900">
+                Pedido del cliente
+              </label>
+              <div className="mt-2">
+                <input
+                  id="pedidoCliente"
+                  name="pedidoCliente"
+                  type="text"
+                  placeholder="Ej: OC-ING-8371"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                />
+              </div>
+            </div>
+            {/* Pedido global */}
+            <div>
+              <label htmlFor="pedidoGlobal" className="block text-sm/6 font-medium text-gray-900">
+                Pedido global
+              </label>
+              <div className="mt-2">
+                <input
+                  id="pedidoGlobal"
+                  name="pedidoGlobal"
+                  type="text"
+                  placeholder="Ej: 250047"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                />
+              </div>
+            </div>
+            {/* Fecha */}
+            <div>
+              <label htmlFor="fecha" className="block text-sm/6 font-medium text-gray-900">
+                Fecha
+              </label>
+              <div className="mt-2">
+                <input
+                  id="fecha"
+                  name="fecha"
+                  type="date"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                />
+              </div>
+            </div>
+            </div>
+            <div>
+              {/* Articulos, es necesario que esten en una tabla con un checkbox a la izquierda con el campo de ref editable y con el campo de cantidad editable */}
+              <div className="mt-6">
+                <table className="min-w-full divide-y divide-gray-200 border rounded-md">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Referencia</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serial</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {/* Aquí se mapea el array de artículos */}
+                    {[
+                      { codigo: "REF-02647", descripcion: "TUBO DE PVC", cantidad: 10, serial: "1234567890" },
+                      { codigo: "REF-11232", descripcion: "TORNILLOS", cantidad: 5, serial: "0987654321" }
+                    ].map((articulo, idx) => (
+                      <tr key={idx}>
+                        <td className="px-2 py-1">
+                          <input type="checkbox" className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                        </td>
+                        <td className="px-2 py-1">
+                          <input
+                            type="text"
+                            defaultValue={articulo.codigo}
+                            className="w-24 rounded-md border-gray-300 px-2 py-1 text-sm text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-indigo-600"
+                          />
+                        </td>
+                        <td className="px-2 py-1">
+                          <span className="text-sm text-gray-900">{articulo.descripcion}</span>
+                        </td>
+                        <td className="px-2 py-1">
+                          <input
+                            type="number"
+                            min="1"
+                            defaultValue={articulo.cantidad}
+                            className="w-16 rounded-md border-gray-300 px-2 py-1 text-sm text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-indigo-600"
+                          />
+                        </td>
+                        <td className="px-2 py-1">
+                          <input
+                            type="text"
+                            defaultValue={articulo.serial}
+                            className="w-28 rounded-md border-gray-300 px-2 py-1 text-sm text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-indigo-600"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="mt-5 sm:mt-6">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Go back to dashboard
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
+    </>
+  )
+}

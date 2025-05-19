@@ -6,9 +6,9 @@ const ProtectedRoute = ({ children }) => {
   const token = getAccessToken();
   const { user } = useAuthContext();
 
-  if (!token && !user) {
-    return <Navigate to='/' replace />;
-  }
+  // if (!token && !user) {
+  //   return <Navigate to='/' replace />;
+  // }
 
   return children;
 };

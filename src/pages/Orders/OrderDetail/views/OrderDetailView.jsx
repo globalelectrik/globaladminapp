@@ -10,6 +10,7 @@ import EditOrderMaterialRow from '../OrderDetailComponents/EditOrderMaterialRowM
 import AddOrderMaterialModal from '../OrderDetailComponents/AddOrderMaterialModal.jsx';
 import OrderMaterialsPurchasesTable from '../OrderDetailComponents/OrderMaterialsPurchasesTable.jsx';
 import CreatePurchaseModal from '../OrderDetailComponents/CreatePurchaseModal.jsx';
+import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();

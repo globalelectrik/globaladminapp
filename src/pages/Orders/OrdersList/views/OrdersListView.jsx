@@ -4,8 +4,6 @@ import { Link, NavLink } from 'react-router-dom';
 import useGet from '../../../../hooks/useGet/useGet';
 import { addWorkingDays } from '../../../../utils/helpers/addWorkingDaysToDate';
 import { formatCurrency } from '../../../../utils/helpers/formatCurrency';
-import GeneradorAlbaranPDF from '../../OrderDetail/OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF';
-import ModalAlbaran from '../../OrderDetail/OrderDetailComponents/ModalAlbaran/ModalAlbaran';
 
 export default function OrdersListView() {
   const [highlightDeliveryStatus, setHighlightDeliveryStatus] = useState(false);
@@ -36,8 +34,7 @@ export default function OrdersListView() {
             />
             Nuevo Pedido
           </NavLink>
-        </div>
-        <div>
+         
           <button
             onClick={getOrdersButtonHandler}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-sm text-gray-700"
@@ -46,11 +43,6 @@ export default function OrdersListView() {
           </button>
       </div>
 
-      <div className='flex flex-wrap gap-4 justify-between items-end mb-4'>
-        <ModalAlbaran />  
-        <GeneradorAlbaranPDF />
-      </div>
-   
 
         <div className='flex flex-col'>
           <button

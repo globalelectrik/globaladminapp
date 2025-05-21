@@ -11,6 +11,7 @@ import AddOrderMaterialModal from '../OrderDetailComponents/AddOrderMaterialModa
 import OrderMaterialsPurchasesTable from '../OrderDetailComponents/OrderMaterialsPurchasesTable.jsx';
 import CreatePurchaseModal from '../OrderDetailComponents/CreatePurchaseModal.jsx';
 import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
+import AlbaranCard from '../OrderDetailComponents/AlbaranCard/AlbaranCard.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();
@@ -97,7 +98,7 @@ useEffect(() => {
   }
 }, [orderAddMaterialUpdatedData]);
 
-
+  console.log("orderSelected", orderSelected);
 
   return (
     <div className="py-4 space-y-3 max-w-5xl mx-auto">
@@ -196,6 +197,8 @@ useEffect(() => {
         />
       </section>
 
+      {/* Albaranes */}
+      <AlbaranCard data={orderSelected} />
      
       {/* Incidences */}
       <section className="bg-white p-4 shadow rounded-xl">

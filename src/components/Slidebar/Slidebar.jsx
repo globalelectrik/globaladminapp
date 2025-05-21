@@ -57,13 +57,12 @@ export default function Slidebar({ children }) {
     { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },
   ];
 
-  const [navigationToShow, setNavigationToShow] = useState(navigation)
+  const [navigationToShow, setNavigationToShow] = useState(navigationLogout)
 
   
   const handleLogout = () => {
     logoutUser(); // ✅ This clears token and context state
 
-    
     if (user?.source === 'microsoft') {
       instance.logoutRedirect({
         postLogoutRedirectUri: '/',
@@ -284,10 +283,6 @@ export default function Slidebar({ children }) {
             )}
           </div>
         </div>
-
-
-
-
 
         <main className='py-3 lg:pl-72'>
           <div className='px-4 sm:px-3 lg:px-8'>{ children }</div>

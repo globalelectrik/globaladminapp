@@ -16,18 +16,18 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline';
 */
 
 
-export default function GeneradorAlbaranPDF() {
+export default function GeneradorAlbaranPDF({albaranNumber, client, clientOrderNumber, clientOrderGlobal }) {
   // 1. Numero de albaran (se introduce en el formulario)
-  const numeroAlbaran = "1234567890";
+  const numeroAlbaran = albaranNumber;
 
   // 2. Informacion del cliente (se obtiene por parametros)
   const cliente = {
-    razonSocial: "VALLE REDONDO", // vatNumber
-    rfc : "VRE640702H15", // vatName
-    direccion: "CARRETERA AGUASCALIENTES- CALVILLO KM 6.5 VINEDOS VALLE REDONDO", // deliveryAddress
-    codigoPostal: "20315", // deliveryZipCode
-    ciudad: "Aguascalientes", // deliveryCity
-    estado: "Aguascalientes", // deliveryState
+    razonSocial: client.vatNumber,
+    rfc : client.vatName,
+    direccion: client.deliveryAddress,
+    codigoPostal: client.deliveryZipCode,
+    ciudad: client.deliveryCity,
+    estado: client.deliveryState
   }
 
   const globaltik = {
@@ -48,7 +48,7 @@ export default function GeneradorAlbaranPDF() {
   const pedidodGlobal = "250047"
 
   // 5. Articulos (se obtiene por parametros)
-  const articulos = [
+  const materials = [
     {
       codigo: "REF-02647", // manual, se introduce en el formulario
       descripcion: "TUBO DE PVC", // se obtiene por parametros

@@ -21,6 +21,7 @@ import ContactsListRoute from './pages/Contacts/ContactsList/route/ContactsListR
 import CreateContactRoute from './pages/Contacts/CreateContact/route/CreateContactRoute.jsx';
 import OrderDetailRoute from './pages/Orders/OrderDetail/route/OrderDetailRoute.jsx';
 import MaterialDetailRoute from './pages/Materials/MaterialDetail/route/MaterialDetailRoute.jsx';
+import EditPurchaseDetailsRoute from './pages/Orders/EditPurchaseDetails/route/EditPurchaseDetailsRoute';
 
 
 function App() {
@@ -152,6 +153,19 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+{/* Purchases */}
+
+        <Route
+            path='/purchases/purchaseDetail/:id'
+            element={
+              <ProtectedRoute>
+                <EditPurchaseDetailsRoute />
+              </ProtectedRoute>
+            }
+          />
+
+
         </Routes>
       </Slidebar>
     </>

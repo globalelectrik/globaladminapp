@@ -10,8 +10,6 @@ function classNames(...classes) {
 export default function MaterialsComboBox({ materials, materialSelected, setMaterialSelected }) {
   const [query, setQuery] = useState('');
 
-console.log(materials);
-
   return (
     <Combobox as='div' value={materialSelected} onChange={setMaterialSelected}>
       <div className='relative mt-2'>

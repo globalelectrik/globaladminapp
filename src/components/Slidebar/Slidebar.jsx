@@ -284,10 +284,6 @@ export default function Slidebar({ children }) {
           </div>
         </div>
 
-
-
-
-
         <main className='py-3 lg:pl-72'>
           <div className='px-4 sm:px-3 lg:px-8'>{ children }</div>
         </main>

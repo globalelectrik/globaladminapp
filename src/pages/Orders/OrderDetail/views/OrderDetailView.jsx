@@ -3,6 +3,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import { EditIcon } from 'lucide-react';
 import useGet from '../../../../hooks/useGet/useGet.jsx';
 import usePut from './../../../../hooks/usePut/usePut';
+import usePost from '../../../../hooks/usePost/usePost.jsx';
 import { formatCurrency } from '../../../../helpers/formatCurrency.js';
 import { formatDateToReadable } from '../../../../utils/helpers/formatDateToReadable.js';
 import OrderMaterialsTable from '../OrderDetailComponents/OrderMaterialsTable.jsx';
@@ -12,6 +13,7 @@ import OrderMaterialsPurchasesTable from '../OrderDetailComponents/OrderMaterial
 import CreatePurchaseModal from '../OrderDetailComponents/CreatePurchaseModal.jsx';
 import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
 import AlbaranCard from '../OrderDetailComponents/AlbaranCard/AlbaranCard.jsx';
+import DetailPurchaseRowModal from '../OrderDetailComponents/DetailPurchaseRowModal.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();
@@ -23,9 +25,18 @@ export default function OrderDetailView() {
   const [openCreatePurchaseModal, setOpenCreatePurchaseModal] = useState(false);
   const [materials, setMaterials] = useState("")
   const [materialSelected, setMaterialSelected] = useState("")
+  const [openPuchaseRowModal, setOpenPuchaseRowModal] = useState(false)
+  const [selectedPurchaseRow, setSelectedPurchaseRow] = useState(null)
+  const [editPuchaseIndex, setEditPurchaseIndex] = useState(null)
+   
   
   
-
+  const {
+    postResponse: createPurchasePostResponse,
+    isLoading: createPurchaseIsLoading,
+    error: createPurchaseError,
+    fetchPost: createPurchaseFetchPost,
+  } = usePost();
 
   const { 
     putResponse: orderMaterialUpdatedData,
@@ -34,14 +45,12 @@ export default function OrderDetailView() {
     fetchPut: orderMaterialUpdateFetchPut,
    } = usePut();
 
-
   const { 
     putResponse: orderNewMaterialUpdatedData,
     isLoading: orderNewMaterialUpdateIsLoading,
     error: orderNewMaterialUpdateError,
     fetchPut: orderNewMaterialUpdateFetchPut,
    } = usePut();
-
 
   const {
     data: orderData,
@@ -54,7 +63,6 @@ export default function OrderDetailView() {
     putResponse: orderAddMaterialUpdatedData,
     fetchPut: orderAddMaterialUpdateFetchPut,
   } = usePut();
-
 
   useEffect(() => {
     orderFetchGet(`/orders/orderDetail/${id}`);
@@ -72,6 +80,12 @@ export default function OrderDetailView() {
       setOrderSelected(orderMaterialUpdatedData.order)
     }
   }, [orderMaterialUpdatedData]);
+
+  useEffect(() => {
+    if(createPurchasePostResponse){
+      setOrderSelected(createPurchasePostResponse.order)
+    }
+  }, [createPurchasePostResponse]);
 
 
 const saveMaterialOrderChanges = async () => {
@@ -189,11 +203,11 @@ useEffect(() => {
         <OrderMaterialsPurchasesTable
           orderSelected={orderSelected}
           setOrderSelected={setOrderSelected}
-          setOpenEditRowModal={setOpenEditRowModal}
+          setOpenPuchaseRowModal={setOpenPuchaseRowModal}
           selectedMaterialRow={selectedMaterialRow}
-          setSelectedMaterialRow={setSelectedMaterialRow}
-          editMaterialIndex={editMaterialIndex}
-          setEditMaterialIndex={setEditMaterialIndex}
+          setSelectedPurchaseRow={setSelectedPurchaseRow}
+          editPuchaseIndex={editPuchaseIndex}
+          setEditPurchaseIndex={setEditPurchaseIndex}
         />
       </section>
 
@@ -260,6 +274,16 @@ useEffect(() => {
         editMaterialIndex={editMaterialIndex}
       />       
 
+      <DetailPurchaseRowModal
+        isOpen={openPuchaseRowModal}
+        onClose={() => setOpenPuchaseRowModal(false)}
+        selectedPurchaseRow={selectedPurchaseRow}
+        setSelectedPurchaseRow={setSelectedPurchaseRow}
+        orderSelected={orderSelected}
+        setOrderSelected={setOrderSelected}
+        editMaterialIndex={editMaterialIndex}
+      />       
+
       <AddOrderMaterialModal
         isOpen={openAddMaterialModal}
         onClose={() => setOpenAddMaterialModal(false)}
@@ -270,11 +294,15 @@ useEffect(() => {
       />
 
       <CreatePurchaseModal
+          orderSelected={orderSelected}
           isOpen={openCreatePurchaseModal}
           onClose={() => setOpenCreatePurchaseModal(false)}
           materials={materials}
           materialSelected={materialSelected}
           setMaterialSelected={setMaterialSelected}
+          createPurchasePostResponse={createPurchasePostResponse}
+          createPurchaseFetchPost={createPurchaseFetchPost}
+          orderId={id}
         />
 
     </div>

@@ -1,19 +1,17 @@
 export default function OrderMaterialsPurchasesTable({
   orderSelected,
   setOrderSelected,
-  setOpenEditRowModal,
-  setSelectedMaterialRow,
-  setEditMaterialIndex
+  setOpenPuchaseRowModal,
+  setSelectedPurchaseRow,
+  setEditPurchaseIndex
 }) {
   const handleRowClick = (mat, index) => {
-    setSelectedMaterialRow(mat);
-    setEditMaterialIndex(index)
-    setOpenEditRowModal(true);
+    setSelectedPurchaseRow(mat);
+    setEditPurchaseIndex(index)
+    setOpenPuchaseRowModal(true);
   };
 
-  const handleShowPurchasing = () => {
-    console.log("show");
-  }
+  console.log("orderSelected-->> ",orderSelected);
 
   return (
     <div className="overflow-x-auto rounded-md">
@@ -22,15 +20,21 @@ export default function OrderMaterialsPurchasesTable({
           <tr>
             <th className="px-4 py-1 border-b font-medium">Material</th>
             <th className="px-4 py-1 border-b font-medium">Cant.</th>
-            <th className="px-4 py-1 border-b font-medium rounded-tr-md">Seguimiento</th>
+            <th className="px-4 py-1 border-b font-medium">Tipo Proveedor</th>
+            <th className="px-4 py-1 border-b font-medium">En Almacén</th>
+            <th className="px-4 py-1 border-b font-medium">Enviado al cliente</th>
+            <th className="px-4 py-1 border-b font-medium rounded-tr-md">Detalles</th>
           </tr>
         </thead>
         <tbody>
-          {orderSelected?.materials?.map((mat, index) => (
+          {orderSelected?.purchases?.map((mat, index) => (
             <tr key={index} className="hover:bg-gray-200 cursor-pointer">
-              <td className="px-4 py-2 border-b text-center" >{mat?.material?.materialName || mat?.material}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.quantity}</td>
-              <td className="px-4 py-2 border-b text-center text-indigo-600" onClick={() => handleRowClick(mat, index)} >Editar</td>          
+              <td className="px-4 py-2 border-b text-center" >{mat?.purchase?.material?.materialName || mat?.material}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.purchasingQuantity}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.supplierType}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.deliveredToWarehouse ? "SI" : "NO"}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.deliveredToWarehouse ? "SI" : "NO"}</td>
+              <td className="px-4 py-2 border-b text-center text-indigo-600" onClick={() => handleRowClick(mat, index)} >Ver</td>          
             </tr>
           ))}
         </tbody>

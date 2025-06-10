@@ -99,10 +99,6 @@ const saveMaterialOrderChanges = async () => {
   setOpenEditRowModal(false)
 };
 
-const savePurchaseChanges = async () => {
-  console.log(orderSelected);
-}
-
 // Cuando se añade nuevo material, refresca la order
 useEffect(() => {
   if (orderAddMaterialUpdatedData?.message === "Orden actualizada con éxito") {
@@ -281,7 +277,6 @@ useEffect(() => {
         setSelectedPurchaseRow={setSelectedPurchaseRow}
         orderSelected={orderSelected}
         setOrderSelected={setOrderSelected}
-        savePurchaseChanges={savePurchaseChanges}
         editMaterialIndex={editMaterialIndex}
       />       
 

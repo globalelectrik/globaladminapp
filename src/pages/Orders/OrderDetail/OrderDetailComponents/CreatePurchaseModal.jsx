@@ -51,7 +51,7 @@ export default function CreatePurchaseModal({
 
   const getPendingQuantity = (materialRow) => {
     const orderedQuantity = materialRow.quantity;
-    const materialId = materialRow.material.id
+    const materialId = materialRow?.material?.id
   
     // Sum up the purchasing quantities in the order's purchases that match this material
     const purchasedQuantity = orderSelected.purchases

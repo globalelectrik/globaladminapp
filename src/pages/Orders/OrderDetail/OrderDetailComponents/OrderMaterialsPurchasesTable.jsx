@@ -11,6 +11,8 @@ export default function OrderMaterialsPurchasesTable({
     setOpenPuchaseRowModal(true);
   };
 
+  console.log("orderSelected-->> ",orderSelected);
+
   return (
     <div className="overflow-x-auto rounded-md">
       <table className="min-w-full table-auto border rounded-md overflow-hidden text-sm">
@@ -20,6 +22,7 @@ export default function OrderMaterialsPurchasesTable({
             <th className="px-4 py-1 border-b font-medium">Cant.</th>
             <th className="px-4 py-1 border-b font-medium">Tipo Proveedor</th>
             <th className="px-4 py-1 border-b font-medium">En Almacén</th>
+            <th className="px-4 py-1 border-b font-medium">Enviado al cliente</th>
             <th className="px-4 py-1 border-b font-medium rounded-tr-md">Detalles</th>
           </tr>
         </thead>
@@ -29,6 +32,7 @@ export default function OrderMaterialsPurchasesTable({
               <td className="px-4 py-2 border-b text-center" >{mat?.purchase?.material?.materialName || mat?.material}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.purchase?.purchasingQuantity}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.purchase?.supplierType}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.deliveredToWarehouse ? "SI" : "NO"}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.purchase?.deliveredToWarehouse ? "SI" : "NO"}</td>
               <td className="px-4 py-2 border-b text-center text-indigo-600" onClick={() => handleRowClick(mat, index)} >Ver</td>          
             </tr>

@@ -86,7 +86,6 @@ export default function CreateOrderView() {
       user: user.email  // Como estamos haciendo login con Custom y con Microsoft, optamos por ir a buscar el user por el correo
     }
 
-    console.log(dataToSend);
     await createOrderFetchPost("/orders/createOrder", dataToSend)
   }
 

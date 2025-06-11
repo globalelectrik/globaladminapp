@@ -64,29 +64,11 @@ export default function EditPurchaseDetailsView() {
     }
   }, [deleteDeliveryResponse]);
 
-  const handleAddDelivery = () => {
-    setPurchase(prev => ({
-      ...prev,
-      purchasingDelivery: [...prev.purchasingDelivery, newDelivery],
-    }));
-    // Reiniciar formulario
-    setNewDelivery({
-      deliveryType: '',
-      deliveryCompany: '',
-      deliveryId: '',
-      rececivedOk: false,
-      purchasingDeliveryComments: [],
-      purchasingDeliveryUpdates: [],
-    });
-    setShowNewForm(false);
-  };
-
   if (purchaseError) {
     return <p className="text-center py-6 text-red-600">Error al cargar los datos de la compra.</p>;
   }
 
   if (!purchase) return null;
-
 
 
   const handleSavePurchase = async () => {
@@ -122,7 +104,6 @@ export default function EditPurchaseDetailsView() {
         <div className='flex justify-between'><strong>Cantidad:</strong> {purchase?.purchasingQuantity}</div>
         <div className='flex justify-between'><strong>Tipo de proveedor:</strong> {purchase?.supplierType}</div>
         <div className='flex justify-between'><strong>Entregado a almacén:</strong> {purchase?.deliveredToWarehouse ? 'Sí' : 'No'}</div>
-
       </section>
       
 

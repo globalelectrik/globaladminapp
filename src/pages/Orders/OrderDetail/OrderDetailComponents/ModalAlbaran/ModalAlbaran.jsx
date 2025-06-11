@@ -13,6 +13,8 @@ export default function ModalAlbaran({ data }) {
   const [open, setOpen] = useState(false);
   const { user } = useAuthContext();
 
+  console.log(data);
+
   // Construir el esquema de Zod para el formulario
   const schema = z.object({
     numeroAlbaran: z.string().nonempty('El número de albarán es obligatorio'),
@@ -118,14 +120,14 @@ export default function ModalAlbaran({ data }) {
     }
 
     // Cliente
-    const company = data?.client?.company || {};
+
     const cliente = {
-      razonSocial: company.vatName || '',
-      rfc: company.vatNumber || '',
-      direccion: company.address || '',
-      ciudad: company.city || '',
-      estado: company.state || '',
-      codigoPostal: company.zipCode || '',
+      razonSocial: data.vatName || '',
+      rfc: data.vatNumber || '',
+      direccion: data.deliveryAddress.deliveryAddress || '',
+      ciudad: data.deliveryAddress.deliveryCity || '',
+      estado: data.deliveryAddress.deliveryState || '',
+      codigoPostal: data.deliveryAddress.deliveryZipCode || '',
     };
 
     // Fecha formateada
@@ -143,6 +145,8 @@ export default function ModalAlbaran({ data }) {
         firma: user?.name || user?.email || 'Usuario',
       };
     });
+
+   // console.log("cliente --->>>> ",cliente);
 
     generarPDF({
       numeroAlbaran: values.numeroAlbaran,

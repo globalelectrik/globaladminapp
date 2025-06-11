@@ -74,6 +74,7 @@ export default function CreatePurchaseModal({
       purchasingTotal: parseFloat(formData.purchasingTotal),
       purchaseLink: formData.purchaseLink,
       purchasingComments: formData.purchasingComments ? [{ comment: formData.purchasingComments }] : [],
+      deliveredToWarehouse:  deliveryData.rececivedOk,
       purchasingDelivery: [{
         deliveryType: deliveryData.deliveryType,
         deliveryId: deliveryData.deliveryId,
@@ -259,16 +260,20 @@ export default function CreatePurchaseModal({
             />
           </div>
           
-          <div>
-            <label className="block text-sm">Recibido OK</label>
-            <input
-              type="checkbox"
-              name="rececivedOk"
-              checked={deliveryData.rececivedOk}
-              onChange={handleDeliveryChange}
-              className="ml-2"
-            />
-          </div>
+
+            { deliveryData?.deliveryType === "Almacén final" ? (
+              <div>
+                  <label className="block text-sm">Recibido en Almacén OK</label>
+                  <input
+                    type="checkbox"
+                    name="rececivedOk"
+                    checked={deliveryData.rececivedOk}
+                    onChange={handleDeliveryChange}
+                    className="ml-2"
+                  />
+              </div>
+            ): (<></>) }
+            
   
         </section>
       </div>

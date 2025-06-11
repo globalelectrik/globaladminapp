@@ -18,7 +18,7 @@ export default function OrderMaterialsTable({
   
     // Sum up the purchasing quantities in the order's purchases that match this material
     const purchasedQuantity = orderSelected.purchases
-      ?.map(p => p.purchase) // extract populated purchase objects
+      ?.map(p => p) // extract populated purchase objects
       ?.filter(p => p?.material?.id === materialId)
       ?.reduce((sum, p) => sum + (p?.purchasingQuantity || 0), 0) || 0;
   
@@ -32,7 +32,7 @@ export default function OrderMaterialsTable({
           <tr>
             <th className="px-4 py-1 border-b font-medium">Material</th>
             <th className="px-4 py-1 border-b font-medium">Cant.</th>
-            <th className="px-4 py-1 border-b font-medium">Pendientes</th>
+            <th className="px-4 py-1 border-b font-medium">PorComprar</th>
             <th className="px-4 py-1 border-b font-medium">RefMaterial</th>
             <th className="px-4 py-1 border-b font-medium">Marca</th>
             <th className="px-4 py-1 border-b font-medium rounded-tr-md">Acciones</th>
@@ -41,7 +41,7 @@ export default function OrderMaterialsTable({
         <tbody>
           {orderSelected?.materials?.map((mat, index) => (
             <tr key={index} className="hover:bg-gray-200 cursor-pointer">
-              <td className="px-4 py-2 border-b text-center" >{mat?.material?.materialName || mat?.material}</td>
+              <td className="px-4 py-2 border-b text-left" >{mat?.material?.materialName || mat?.material}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.quantity}</td>
               <td className="px-4 py-2 border-b text-center">  {getPendingQuantity(mat)}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.material?.materialReference}</td>

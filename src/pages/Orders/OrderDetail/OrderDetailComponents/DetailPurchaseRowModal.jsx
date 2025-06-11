@@ -9,7 +9,7 @@ export default function DetailPurchaseRowModal({
 }) {
   if (!isOpen || !selectedPurchaseRow) return null;
 
-  const purchase = selectedPurchaseRow?.purchase;
+  const purchase = selectedPurchaseRow;
 
 
   return (
@@ -32,23 +32,23 @@ export default function DetailPurchaseRowModal({
           <div className="space-y-4">
             <h3 className="text-xl font-semibold border-b pb-1">Detalles de Envío</h3>
 
-            {purchase.purchasingDelivery.map((delivery, idx) => (
+            {purchase?.purchasingDelivery?.map((delivery, idx) => (
               <div key={idx} className="border p-4 rounded-lg shadow-sm bg-white space-y-3">
                 <h4 className="text-md font-bold text-gray-700">Entrega #{idx + 1}</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                  <div><strong>Tipo de entrega:</strong> {delivery.deliveryType}</div>
-                  <div><strong>Empresa:</strong> {delivery.deliveryCompany}</div>
-                  <div><strong>ID de entrega:</strong> {delivery.deliveryId ?? 'N/A'}</div>
-                  <div><strong>Recibido correctamente:</strong> {delivery.rececivedOk ? 'Sí' : 'No'}</div>
+                  <div><strong>Tipo de entrega:</strong> {delivery?.deliveryType}</div>
+                  <div><strong>Empresa:</strong> {delivery?.deliveryCompany}</div>
+                  <div><strong>ID de entrega:</strong> {delivery?.deliveryId ?? 'N/A'}</div>
+                  <div><strong>Recibido correctamente:</strong> {delivery?.rececivedOk ? 'Sí' : 'No'}</div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-100 p-3 rounded-lg">
                     <h5 className="font-semibold mb-2">Comentarios</h5>
                     <ul className="list-disc ml-5 space-y-1">
-                      {delivery.purchasingDeliveryComments?.length > 0 ? (
-                        delivery.purchasingDeliveryComments.map((c, i) => (
+                      {delivery?.purchasingDeliveryComments?.length > 0 ? (
+                        delivery?.purchasingDeliveryComments.map((c, i) => (
                           <li className='text-sm' key={i}>{c.comment}</li>
                         ))
                       ) : (
@@ -60,8 +60,8 @@ export default function DetailPurchaseRowModal({
                   <div className="bg-gray-100 p-3 rounded-lg">
                     <h5 className="font-semibold mb-2">Actualizaciones</h5>
                     <ul className="list-disc ml-5 space-y-1">
-                      {delivery.purchasingDeliveryUpdates?.length > 0 ? (
-                        delivery.purchasingDeliveryUpdates.map((u, i) => (
+                      {delivery?.purchasingDeliveryUpdates?.length > 0 ? (
+                        delivery?.purchasingDeliveryUpdates?.map((u, i) => (
                           <li className='text-sm' key={i}>{u.comment}</li>
                         ))
                       ) : (
@@ -82,7 +82,7 @@ export default function DetailPurchaseRowModal({
             Cerrar
           </button>
 
-           <Link className='text-indigo-600' to={`/purchases/purchaseDetail/${purchase.id}`}>Ver Detalles</Link> 
+           <Link className='text-indigo-600' to={`/purchases/purchaseDetail/${purchase?.id}`}>Ver Detalles</Link> 
         </div>
       </div>
     </div>

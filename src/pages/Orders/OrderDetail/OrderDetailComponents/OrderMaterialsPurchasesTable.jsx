@@ -11,7 +11,7 @@ export default function OrderMaterialsPurchasesTable({
     setOpenPuchaseRowModal(true);
   };
 
-  console.log("orderSelected-->> ",orderSelected);
+ // console.log("orderSelected-->> ",orderSelected);
 
   return (
     <div className="overflow-x-auto rounded-md">
@@ -29,11 +29,11 @@ export default function OrderMaterialsPurchasesTable({
         <tbody>
           {orderSelected?.purchases?.map((mat, index) => (
             <tr key={index} className="hover:bg-gray-200 cursor-pointer">
-              <td className="px-4 py-2 border-b text-center" >{mat?.purchase?.material?.materialName || mat?.material}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.purchasingQuantity}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.supplierType}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.deliveredToWarehouse ? "SI" : "NO"}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.purchase?.deliveredToWarehouse ? "SI" : "NO"}</td>
+              <td className="px-4 py-2 border-b text-center" >{mat?.material?.materialName || mat?.material}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.purchasingQuantity}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.supplierType}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.deliveredToWarehouse ? "SI" : "NO"}</td>
+              <td className="px-4 py-2 border-b text-center">{mat?.deliveredToWarehouse ? "SI" : "NO"}</td>
               <td className="px-4 py-2 border-b text-center text-indigo-600" onClick={() => handleRowClick(mat, index)} >Ver</td>          
             </tr>
           ))}

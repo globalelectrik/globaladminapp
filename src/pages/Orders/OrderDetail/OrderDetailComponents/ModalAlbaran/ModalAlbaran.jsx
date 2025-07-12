@@ -103,7 +103,6 @@ export default function ModalAlbaran({ data }) {
     name: 'materials',
   });
 
-  console.log
 
   const onSubmit = (values) => {
     // Filtrar solo los materiales marcados

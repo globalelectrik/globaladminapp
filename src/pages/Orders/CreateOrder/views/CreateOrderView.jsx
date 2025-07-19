@@ -165,17 +165,7 @@ export default function CreateOrderView() {
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4'>
-          {/* Número de orden */}
-          <div className='flex items-center space-x-2'>
-            <label className='inline-block w-1/3'>Orden GE</label>
-            <input
-              type='text'
-              className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'
-              value={orderNumGlobal}
-              onChange={(e) => setOrderNumGlobal(e.target.value)}
-            />
-          </div>
-
+          
           {/* Número de cotización */}
           <div className='flex items-center space-x-2'>
             <label className='inline-block w-1/3'>Número de cotización GE</label>
@@ -200,7 +190,7 @@ export default function CreateOrderView() {
 
           {/* Pedido del cliente */}
           <div className='flex items-center space-x-2'>
-            <label className='inline-block w-1/3'>Num Pedido Cliente</label>
+            <label className='inline-block w-1/3'>Orden de Compra Cliente</label>
             <input
               type='text'
               className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'

@@ -2,9 +2,9 @@ import { jsPDF } from "jspdf";
 
 /*
 1. Numero de albaran (se introduce en el formulario)
-2. Informacion del cliente (se obtiene por parametros)
+2. Informacion del client (se obtiene por parametros)
 3. Fecha (se obtiene la fecha actual del sistema)
-4. Pedido del cliente (se introduce en el formulario)
+4. Pedido del client (se introduce en el formulario)
 5. Articulos (se obtiene por parametros)
   5.1 Codígo (manual, se introduce en el formulario)
   5.2 Descripción (se obtiene por parametros)
@@ -14,8 +14,8 @@ import { jsPDF } from "jspdf";
   5.6 Firma OK (Según login del usuario, se obtiene del contexto de sesión)
 */
 
-const globaltik = {
-  direccion: "FUNDIDORES NO. 57 TRABAJADORES DEL HIERRO",
+const globatik = {
+  address: "FUNDIDORES NO. 57 TRABAJADORES DEL HIERRO",
   ciudad: "AZCAPOTZALCO, CIUDAD DE MEXICO",
   estado: "CIUDAD DE MEXICO",
   codigoPostal: "02650",
@@ -25,12 +25,15 @@ const globaltik = {
 
 export function generarPDF({
   numeroAlbaran,
-  cliente,
-  fechaFormateada,
+  client,
+  formattedDate,
   pedidoCliente,
   pedidodGlobal,
   articulos
 }) {
+
+  console.log("articulos-->>", articulos);
+
   const doc = new jsPDF({ format: 'a4', unit: 'mm' });
   const margin = 15;
   let y = margin;
@@ -38,31 +41,31 @@ export function generarPDF({
   doc.text('ALBARÁN', 105, y, { align: 'center' });
   y += 12;
 
-  // Datos de la empresa (globaltik)
+  // Datos de la empresa (globatik)
   doc.setFontSize(10);
   doc.text('GLOBAL ELECTRIK', margin, y);
-  doc.text(`Dirección: ${globaltik.direccion}`, margin, y + 5);
-  doc.text(`Ciudad: ${globaltik.ciudad}`, margin, y + 10);
-  doc.text(`Estado: ${globaltik.estado}`, margin, y + 15);
-  doc.text(`C.P.: ${globaltik.codigoPostal}`, margin, y + 20);
-  doc.text(`Tel: ${globaltik.telefono}`, margin, y + 25);
-  doc.text(`Email: ${globaltik.email}`, margin, y + 30);
+  doc.text(`Dirección: ${globatik.address}`, margin, y + 5);
+  doc.text(`Ciudad: ${globatik.ciudad}`, margin, y + 10);
+  doc.text(`Estado: ${globatik.estado}`, margin, y + 15);
+  doc.text(`C.P.: ${globatik.codigoPostal}`, margin, y + 20);
+  doc.text(`Tel: ${globatik.telefono}`, margin, y + 25);
+  doc.text(`Email: ${globatik.email}`, margin, y + 30);
 
-  // Datos del cliente
+  // Datos del client
   let xCliente = 120;
   doc.setFontSize(10);
   doc.text('Cliente:', xCliente, y);
-  doc.text(`Razón Social: ${cliente.razonSocial}`, xCliente, y + 5);
-  doc.text(`RFC: ${cliente.rfc}`, xCliente, y + 10);
-  doc.text(`Dirección: ${cliente.direccion}`, xCliente, y + 15);
-  doc.text(`Ciudad: ${cliente.ciudad}`, xCliente, y + 20);
-  doc.text(`Estado: ${cliente.estado}`, xCliente, y + 25);
-  doc.text(`C.P.: ${cliente.codigoPostal}`, xCliente, y + 30);
+  doc.text(`Razón Social: ${client.vatName}`, xCliente, y + 5);
+  doc.text(`RFC: ${client.vatNumber }`, xCliente, y + 10);
+  doc.text(`Dirección: ${client.deliveryAddress}`, xCliente, y + 15);
+  doc.text(`Ciudad: ${client.deliveryCity}`, xCliente, y + 20);
+  doc.text(`Estado: ${client.deliveryState}`, xCliente, y + 25);
+  doc.text(`C.P.: ${client.deliveryZipCode}`, xCliente, y + 30);
 
   y += 40;
   doc.setFontSize(12);
   doc.text(`Número de Albarán: ${numeroAlbaran}`, margin, y);
-  doc.text(`Fecha: ${fechaFormateada}`, 150, y);
+  doc.text(`Fecha: ${formattedDate}`, 150, y);
   y += 8;
   doc.setFontSize(11);
   doc.text(`Pedido del Cliente: ${pedidoCliente}`, margin, y);
@@ -92,9 +95,9 @@ export function generarPDF({
   y += 5;
   // Filas
   articulos.forEach((articulo) => {
-    doc.text(articulo.codigo, margin, y);
-    doc.text(articulo.descripcion, margin + 30, y);
-    doc.text(String(articulo.cantidad), margin + 100, y);
+    doc.text(articulo.materialClientReference, margin, y);
+    doc.text(articulo.materialName, margin + 30, y);
+    doc.text(String(articulo.quantity), margin + 100, y);
     doc.text(articulo.serial, margin + 120, y);
     doc.text(articulo.revision, margin + 150, y);
     doc.text(articulo.firma, margin + 175, y);

@@ -13,7 +13,7 @@ export default function AddDeliveryAddressModal ({
             <h3 className="text-lg font-medium text-gray-800">Agregar Dirección de Entrega</h3>
             <input
               type="text"
-              placeholder="Contacto"
+              placeholder="Empresa/Contacto"
               className="w-full border rounded px-3 py-2"
               value={newAddress?.aliasDeliveryAddress}
               onChange={(e) => handleNewAddressChange("aliasDeliveryAddress", e.target.value)}
@@ -27,14 +27,14 @@ export default function AddDeliveryAddressModal ({
             />
             <input
               type="text"
-              placeholder="Dirección"
+              placeholder="Dirección Completa"
               className="w-full border rounded px-3 py-2"
               value={newAddress?.deliveryAddress}
               onChange={(e) => handleNewAddressChange("deliveryAddress", e.target.value)}
             />
             <input
               type="text"
-              placeholder="Ciudad"
+              placeholder="Municipio/Delegación"
               className="w-full border rounded px-3 py-2"
               value={newAddress?.deliveryCity}
               onChange={(e) => handleNewAddressChange("deliveryCity", e.target.value)}

@@ -8,25 +8,31 @@ import { useState, useEffect } from 'react';
 
 import { generarPDF } from '../../../../../utils/generadorPDF';
 import { useAuthContext } from '../../../../../context/AuthContext';
+import usePost from '../../../../../hooks/usePost/usePost';
 
 export default function ModalAlbaran({ data }) {
   const [open, setOpen] = useState(false);
   const { user } = useAuthContext();
 
-  console.log(data);
+  console.log("data--->>>", data);
+
+  const {
+    postResponse: createDeliveryPostResponse,
+    isLoading: createDeliveryIsLoading,
+    error: createDeliveryError,
+    fetchPost: createDeliveryFetchPost,
+  } = usePost();
 
   // Construir el esquema de Zod para el formulario
   const schema = z.object({
-    numeroAlbaran: z.string().nonempty('El número de albarán es obligatorio'),
-    pedidoCliente: z.string().nonempty('El pedido del cliente es obligatorio'),
-    pedidoGlobal: z.string().nonempty('El pedido global es obligatorio'),
-    fecha: z.string().nonempty('La fecha es obligatoria'),
+    // numeroAlbaran: z.string().nonempty('El número de albarán es obligatorio'),
+    date: z.string().nonempty('La date es obligatoria'),
     materials: z.array(
       z.object({
         checked: z.boolean(),
         materialClientReference: z.string(),
         quantity: z.coerce.number(),
-        serial: z.string().optional(),
+        materialSerialNumber: z.string().optional(),
       }).superRefine((val, ctx) => {
         // Obtener el índice del material en el array
         const index = ctx.path[0];
@@ -64,7 +70,7 @@ export default function ModalAlbaran({ data }) {
     checked: false,
     materialClientReference: element?.material?.materialClientReference || '',
     quantity: element?.quantity || 1,
-    serial: element?.material?.serial || '',
+    materialSerialNumber: element?.material?.materialSerialNumber || '',
   })) || [];
 
 
@@ -77,10 +83,7 @@ export default function ModalAlbaran({ data }) {
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      numeroAlbaran: '',
-      pedidoCliente: '',
-      pedidoGlobal: '',
-      fecha: '',
+      date: '',
       materials: defaultMaterials,
     },
   });
@@ -89,10 +92,7 @@ export default function ModalAlbaran({ data }) {
   useEffect(() => {
     if (open) {
       reset({
-        numeroAlbaran: '',
-        pedidoCliente: '',
-        pedidoGlobal: '',
-        fecha: '',
+        date: '',
         materials: defaultMaterials,
       });
     }
@@ -104,7 +104,7 @@ export default function ModalAlbaran({ data }) {
   });
 
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
     // Filtrar solo los materiales marcados
     const materialesMarcados = values.materials
       .map((mat, idx) => ({
@@ -120,45 +120,61 @@ export default function ModalAlbaran({ data }) {
 
     // Cliente
 
-    const cliente = {
-      razonSocial: data.vatName || '',
-      rfc: data.vatNumber || '',
-      direccion: data.deliveryAddress.deliveryAddress || '',
-      ciudad: data.deliveryAddress.deliveryCity || '',
-      estado: data.deliveryAddress.deliveryState || '',
-      codigoPostal: data.deliveryAddress.deliveryZipCode || '',
+    const client = {
+      vatName: data.vatName || '',
+      vatNumber: data.vatNumber || '',
+      aliasDeliveryAddress: data.deliveryAddress.aliasDeliveryAddress || '',
+      deliveryContactPhone: data.deliveryAddress.deliveryContactPhone || '',
+      deliveryAddress: data.deliveryAddress.deliveryAddress || '',
+      deliveryCity: data.deliveryAddress.deliveryCity || '',
+      deliveryState: data.deliveryAddress.deliveryState || '',
+      deliveryZipCode: data.deliveryAddress.deliveryZipCode || '',
+      orderNumGlobal: data.orderNumGlobal || '',
+      pOClientNumber: data.pOClientNumber || '',
     };
 
     // Fecha formateada
-    const fechaFormateada = values.fecha || new Date().toLocaleDateString();
+    const formattedDate = values.date || new Date().toLocaleDateString();
 
     // Artículos para el PDF
-    const articulos = materialesMarcados.map((mat) => {
+    const materials = materialesMarcados.map((mat) => {
       const original = data?.materials?.[mat._originalIdx];
       return {
-        codigo: mat.materialClientReference,
-        descripcion: original?.material?.materialName || '',
-        cantidad: mat.quantity,
-        serial: mat.serial || '',
+        materialId: original?.material?.id || '',
+        materialClientReference: mat.materialClientReference,
+        materialName: original?.material?.materialName || '',
+        quantityDelivered: mat.quantity,
+        materialSerialNumber: mat?.materialSerialNumber || '',
         revision: 'OK',
         firma: user?.name || user?.email || 'Usuario',
       };
     });
 
-   // console.log("cliente --->>>> ",cliente);
+
+    const deliveryData= {
+      orderId: data.id,
+      client: client, 
+      formattedDate: formattedDate, 
+      materials: materials,
+      pOClientNumber : data.pOClientNumber,
+      orderNumGlobal : data.orderNumGlobal,
+
+    }
+
+    console.log("deliveryData --->> ", deliveryData);
+
+    await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
 
     generarPDF({
-      numeroAlbaran: values.numeroAlbaran,
-      cliente,
-      fechaFormateada,
-      pedidoCliente: values.pedidoCliente,
-      pedidodGlobal: values.pedidoGlobal,
-      articulos,
+      client,
+      formattedDate,
+      materials,
     });
 
     setOpen(false);
-  };
+    };
 
+  console.log("createDeliveryPostResponse--> ", createDeliveryPostResponse);
 
   return (
     <>
@@ -186,81 +202,37 @@ export default function ModalAlbaran({ data }) {
               </DialogTitle>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                  {/* Numero de albaran */}
-                  <div>
-                    <label htmlFor="numeroAlbaran" className="block text-sm/6 font-medium text-zinc-900">
-                      Número de albarán
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        id="numeroAlbaran"
-                        {...register('numeroAlbaran')}
-                        type="text"
-                        placeholder="Ej: 1234567890"
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 placeholder:text-zinc-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                      />
-                      {errors.numeroAlbaran && <p className="text-red-600 text-xs mt-1">{errors.numeroAlbaran.message}</p>}
-                    </div>
-                  </div>
-                  {/* Pedido del cliente */}
-                  <div>
-                    <label htmlFor="pedidoCliente" className="block text-sm/6 font-medium text-zinc-900">
-                      Pedido del cliente
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        id="pedidoCliente"
-                        {...register('pedidoCliente')}
-                        type="text"
-                        placeholder="Ej: OC-ING-8371"
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-zinc-900  outline-1 -outline-offset-1 outline-zinc-300 placeholder:text-zinc-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                      />
-                      {errors.pedidoCliente && <p className="text-red-600 text-xs mt-1">{errors.pedidoCliente.message}</p>}
-                    </div>
-                  </div>
-                  {/* Pedido global */}
-                  <div>
-                    <label htmlFor="pedidoGlobal" className="block text-sm/6 font-medium text-zinc-900">
-                      Pedido global
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        id="pedidoGlobal"
-                        {...register('pedidoGlobal')}
-                        type="text"
-                        placeholder="Ej: 250047"
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 placeholder:text-zinc-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                      />
-                      {errors.pedidoGlobal && <p className="text-red-600 text-xs mt-1">{errors.pedidoGlobal.message}</p>}
-                    </div>
-                  </div>
                   {/* Fecha */}
                   <div>
-                    <label htmlFor="fecha" className="block text-sm/6 font-medium text-zinc-900">
+                    <label htmlFor="date" className="block text-sm/6 font-medium text-zinc-900">
                       Fecha
                     </label>
                     <div className="mt-2">
                       <input
-                        id="fecha"
-                        {...register('fecha')}
+                        id="date"
+                        {...register('date')}
                         type="date"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 placeholder:text-zinc-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       />
-                      {errors.fecha && <p className="text-red-600 text-xs mt-1">{errors.fecha.message}</p>}
+                      {errors.date && <p className="text-red-600 text-xs mt-1">{errors.date.message}</p>}
                     </div>
                   </div>
                 </div>
                 <div>
                   {/* Materiales, tabla con react-hook-form, scroll horizontal y vertical en móvil, columnas más compactas */}
-                  <div className="mt-6 overflow-x-auto" style={{ maxHeight: '260px', overflowY: 'auto' }}>
-                    <table className="min-w-[500px] w-full divide-y divide-zinc-200 border rounded-md">
+                  <div className="mt-3 overflow-x-auto" style={{ maxHeight: '260px', overflowY: 'auto' }}>
+                    <label className="block text-sm/6 font-medium text-zinc-900">
+                      Materiales comprados:
+                    </label>
+                    <table className="min-w-[500px] w-full divide-y divide-zinc-200 border rounded-md mt-2">
                       <thead className="bg-zinc-50">
                         <tr>
                           <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-6"></th>
-                          <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Referencia</th>
-                          <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-32">Descripción</th>
-                          <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Cantidad</th>
-                          <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Serial</th>
+                          <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Referencia Cliente</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-32">Descripción</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-32">Referencia Producto</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Cantidad</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Seriales</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-zinc-200">
@@ -283,28 +255,38 @@ export default function ModalAlbaran({ data }) {
                                 <p className="text-xs text-red-600">{errors.materials[index].materialClientReference.message}</p>
                               )}
                             </td>
-                            <td className="px-1 py-1">
+                            <td className="px-1 py-1 text-center">
                               <span className="text-xs text-zinc-900">{data?.materials?.[index]?.material?.materialName}</span>
                             </td>
-                            <td className="px-1 py-1">
-                              <div className="flex flex-row items-center gap-1 whitespace-nowrap w-full">
+                            <td className="px-1 py-1 text-center">
+                              <span className="text-xs text-zinc-900">{data?.materials?.[index]?.material?.materialReference}</span>
+                            </td>
+                           <td className="px-1 py-1 text-center align-middle">
+                            <div className="flex flex-col items-center justify-center w-full whitespace-nowrap">
+                              <div className="flex flex-row items-center justify-center gap-1">
                                 <input
                                   type="number"
                                   min="1"
                                   max={data?.materials?.[index]?.quantity || undefined}
                                   {...register(`materials.${index}.quantity`, { valueAsNumber: true })}
-                                  className="w-14 min-w-0 rounded-md border-zinc-300 px-1 py-1 text-xs text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 focus:outline-indigo-600"
+                                  className="w-14 min-w-0 rounded-md text-center border border-zinc-300 px-1 py-1 text-xs text-zinc-900 focus:outline-indigo-600"
                                 />
-                                <span className="text-xs text-zinc-900">de {data?.materials?.[index]?.quantity}</span>
+                                <span className="text-xs text-zinc-900">
+                                  de {data?.materials?.[index]?.quantity}
+                                </span>
                               </div>
                               {errors.materials?.[index]?.quantity && (
-                                <p className="text-xs text-red-600">{errors.materials[index].quantity.message}</p>
+                                <p className="text-xs text-red-600 mt-1">
+                                  {errors.materials[index].quantity.message}
+                                </p>
                               )}
-                            </td>
-                            <td className="px-1 py-1">
+                            </div>
+                          </td>
+
+                            <td className="px-1 py-1 text-center">
                               <input
                                 type="text"
-                                {...register(`materials.${index}.serial`)}
+                                {...register(`materials.${index}.materialSerialNumber`)}
                                 className="w-20 rounded-md border-zinc-300 px-1 py-1 text-xs text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 focus:outline-indigo-600"
                               />
                             </td>

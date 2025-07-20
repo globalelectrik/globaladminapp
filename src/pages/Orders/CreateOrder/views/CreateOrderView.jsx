@@ -9,6 +9,7 @@ import ContactsComboBox from '../../../Contacts/ContactsComponents/ContactsCombo
 import { Link } from 'react-router-dom';
 import DeliveryAddressComboBox from '../CreateOrderComponents/DeliveryAddressComboBox/DeliveryAddressComboBox';
 import { useAuthContext } from '../../../../context/AuthContext';
+import CreatedOrderModal from '../CreateOrderComponents/CreatedOrderModal/CreatedOrderModal';
 
 export default function CreateOrderView() {
 
@@ -29,6 +30,8 @@ export default function CreateOrderView() {
   const [orderTotalPlusTax, setOrderTotalPlusTax] = useState('');
 
   const [materials, setMaterials] = useState([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { user } = useAuthContext()
 
@@ -86,15 +89,19 @@ export default function CreateOrderView() {
       user: user.email  // Como estamos haciendo login con Custom y con Microsoft, optamos por ir a buscar el user por el correo
     }
 
+    //console.log("dataToSend--->>>  ",dataToSend);
+
     await createOrderFetchPost("/orders/createOrder", dataToSend)
   }
 
   useEffect(() => {
-    setCompanySelected("")
-    setContactSelected("")
-    classificationsFetchGet('/materials/getClassifications');
-    contactsFetchGet(`/contacts/clientContacts/${clientSelected?.id}`);
-    brandsFetchGet('/materials/getBrands');
+    if(clientSelected){
+      setCompanySelected("")
+      setContactSelected("")
+      classificationsFetchGet('/materials/getClassifications');
+      contactsFetchGet(`/contacts/clientContacts/${clientSelected?.id}`);
+      brandsFetchGet('/materials/getBrands')
+    }
   }, [clientSelected]);
 
   useEffect(() => {
@@ -106,8 +113,21 @@ export default function CreateOrderView() {
     setOrderTotalPlusTax(parseFloat((orderTotal * 1.16).toFixed(2)));
   }, [orderTotal]);
 
+
+  useEffect(() => {
+    if (createOrderPostResponse?.message === "success") {
+      setIsModalOpen(true);
+    }
+  }, [createOrderPostResponse]);
+
+
+
   return (
     <>
+        <CreatedOrderModal
+          isOpen={isModalOpen}
+          createOrderPostResponse={createOrderPostResponse}
+        />
       <div className='relative overflow-visible'>
         <div className='flex justify-between pb-2'>
           <p className='text-xl text-indigo-600'>Crear Pedido</p>
@@ -168,11 +188,12 @@ export default function CreateOrderView() {
           
           {/* Número de cotización */}
           <div className='flex items-center space-x-2'>
-            <label className='inline-block w-1/3'>Número de cotización GE</label>
+            <label className='inline-block w-1/3'>Cotización GE</label>
             <input
               type='text'
-              className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'
+              className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800 placeholder-gray-300'
               value={quotNumGlobal}
+              placeholder='2145_v2'
               onChange={(e) => setQuotNumGlobal(e.target.value)}
             />
           </div>
@@ -190,7 +211,7 @@ export default function CreateOrderView() {
 
           {/* Pedido del cliente */}
           <div className='flex items-center space-x-2'>
-            <label className='inline-block w-1/3'>Orden de Compra Cliente</label>
+            <label className='inline-block w-1/3'>Num Orden Compra de Cliente</label>
             <input
               type='text'
               className='w-2/3 rounded-md border border-gray-300 p-2 shadow-sm focus:ring-indigo-800 focus:border-indigo-800'
@@ -257,10 +278,14 @@ export default function CreateOrderView() {
 
             
         <div className='flex justify-end'>
-           <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm" onClick={handleCreateOrder}>
-            Crear Pedido
-          </button>
-        </div>
+           <button
+              className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm disabled:opacity-50"
+              onClick={handleCreateOrder}
+              disabled={createOrderIsLoading}
+            >
+              Crear Pedido
+            </button>
+          </div>
 
          
       </div>

@@ -4,7 +4,11 @@ import { useAuthContext } from '../../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
   const token = getAccessToken();
-  const { user } = useAuthContext();
+  const { user, isAuthLoading } = useAuthContext();
+
+  if (isAuthLoading) {
+    return <div>Loading auth...</div>; // Or your <LoadingSpin />
+  }
 
   if (!token && !user) {
     return <Navigate to='/' replace />;

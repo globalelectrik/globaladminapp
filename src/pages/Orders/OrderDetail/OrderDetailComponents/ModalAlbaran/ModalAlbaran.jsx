@@ -14,8 +14,6 @@ export default function ModalAlbaran({ data }) {
   const [open, setOpen] = useState(false);
   const { user } = useAuthContext();
 
-  console.log("data--->>>", data);
-
   const {
     postResponse: createDeliveryPostResponse,
     isLoading: createDeliveryIsLoading,
@@ -183,7 +181,7 @@ export default function ModalAlbaran({ data }) {
         className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
       >
         <IconPlus className="h-5 w-5 text-white" />
-        Crear albarán
+        Crear Envío
       </button>
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <DialogBackdrop

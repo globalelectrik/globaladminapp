@@ -22,32 +22,29 @@ export default function OrdersListView() {
   const now = new Date();
 
   return (
-    <div className="p-4">
-      <div className="flex flex-wrap gap-4 justify-between items-end mb-4">
-        <div>
+    <div className="p-6 space-y-4">
+      <div className="flex flex-wrap justify-between items-end gap-4">
+        <div className="space-y-2">
           <NavLink
             to={'/orders/newOrder'}
-            className='group flex gap-x-2 rounded-md bg-indigo-600 p-2 mb-3 text-sm font-semibold text-white hover:bg-indigo-100 hover:text-indigo-600 hover:ring-1 hover:ring-indigo-600'>
-            <PlusCircleIcon
-              className='h-5 w-5 text-white group-hover:text-indigo-600'
-              aria-hidden='true'
-            />
+            className='flex items-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition'
+          >
+            <PlusCircleIcon className='h-5 w-5 text-white' aria-hidden='true' />
             Nuevo Pedido
           </NavLink>
-         
+
           <button
             onClick={getOrdersButtonHandler}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-sm text-gray-700"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-sm text-gray-700 transition"
           >
             Cargar Pedidos
           </button>
-      </div>
+        </div>
 
-
-        <div className='flex flex-col'>
+        <div>
           <button
             onClick={() => setHighlightDeliveryStatus(!highlightDeliveryStatus)}
-            className="px-4 py-2 bg-yellow-100 hover:bg-yellow-200 border border-yellow-300 rounded text-sm text-yellow-800"
+            className="px-4 py-2 bg-yellow-50 hover:bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800 transition"
           >
             {highlightDeliveryStatus ? "Ocultar Colores" : "Mostrar Colores"}
           </button>
@@ -55,19 +52,19 @@ export default function OrdersListView() {
       </div>
 
       {ordersData?.orders?.length > 0 && (
-        <div className="overflow-x-auto border rounded-md">
+        <div className="overflow-x-auto border rounded-lg shadow-sm">
           <table className="min-w-full text-left border-collapse rounded-lg">
-            <thead className="bg-indigo-600 text-slate-50 border-b text-sm">
+            <thead className="bg-indigo-600 text-white text-sm">
               <tr>
-                <th className="px-4 py-2 rounded-tl-md">#Ord GE</th>
-                <th className="px-4 py-2 ">#Cotiz</th>
-                <th className="px-4 py-2">Usuario</th>
-                <th className="px-4 py-2">Cliente</th>
-                <th className="px-4 py-2">Fecha Pedido</th>
-                <th className="px-4 py-2">Entrega Promesa</th>
-                <th className="px-4 py-2">Promesa de Pago</th>
-                <th className="px-4 py-2">Total + IVA</th>
-                <th className="px-4 py-2">Detalles</th>
+                <th className="px-4 py-3">#Ord GE</th>
+                <th className="px-4 py-3">#Cotiz</th>
+                <th className="px-4 py-3">Usuario</th>
+                <th className="px-4 py-3">Cliente</th>
+                <th className="px-4 py-3">Fecha Pedido</th>
+                <th className="px-4 py-3">Entrega Promesa</th>
+                <th className="px-4 py-3">Promesa de Pago</th>
+                <th className="px-4 py-3">Total + IVA</th>
+                <th className="px-4 py-3">Detalles</th>
               </tr>
             </thead>
             <tbody>
@@ -79,32 +76,36 @@ export default function OrdersListView() {
                 let rowColor = '';
                 if (highlightDeliveryStatus) {
                   if (order.delivered) {
-                    rowColor = 'bg-green-100';
+                    rowColor = 'bg-green-50';
                   } else if (promiseDate && new Date(promiseDate) < now) {
-                    rowColor = 'bg-red-100';
+                    rowColor = 'bg-red-50';
                   } else {
-                    rowColor = 'bg-yellow-100';
+                    rowColor = 'bg-yellow-50';
                   }
                 }
 
                 return (
-                  <tr key={idx} className={`border-b hover:bg-opacity-80 text-sm ${rowColor}`}>
-                    <td className="px-4 py-2 border border-slate-400">{order.orderNumGlobal}</td>
-                    <td className="px-4 py-2 border border-slate-400">{order.quotNumGlobal}</td>
-                    <td className="px-4 py-2 border border-slate-400">{order.user?.name || '—'}</td>
-                    <td className="px-4 py-2 border border-slate-400">{order.vatName || '—'}</td>
-                    <td className="px-4 py-2 border border-slate-400">
+                  <tr key={idx} className={`border-b text-sm ${rowColor} hover:bg-gray-50`}>
+                    <td className="px-4 py-3">{order.orderNumGlobal}</td>
+                    <td className="px-4 py-3">{order.quotNumGlobal}</td>
+                    <td className="px-4 py-3">{order.user?.name || '—'}</td>
+                    <td className="px-4 py-3">{order.vatName || '—'}</td>
+                    <td className="px-4 py-3">
                       {order.datePOClient?.slice(0, 10) || '—'}
                     </td>
-                    <td className="px-4 py-2 border border-slate-400">
+                    <td className="px-4 py-3">
                       {promiseDate ? promiseDate.toISOString().slice(0, 10) : '—'}
                     </td>
-                    <td className="px-4 py-2 border border-slate-400">
+                    <td className="px-4 py-3">
                       {order.clientPaymentPromiseDate?.slice(0, 10) || '—'}
                     </td>
-                    <td className="px-4 py-2 border border-slate-400">{formatCurrency(order.orderTotalPlusTax?.toFixed(2))}</td>
-                    <td className="px-4 py-2 border border-slate-400 rounded-tl-md">
-                      <Link className='text-indigo-600' to={`/orders/orderDetail/${order.id}`}>Detalles</Link> 
+                    <td className="px-4 py-3">
+                      {formatCurrency(order.orderTotalPlusTax?.toFixed(2))}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link className='text-indigo-600 hover:underline' to={`/orders/orderDetail/${order.id}`}>
+                        Detalles
+                      </Link>
                     </td>
                   </tr>
                 );

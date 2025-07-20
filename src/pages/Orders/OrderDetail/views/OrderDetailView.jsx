@@ -30,6 +30,7 @@ export default function OrderDetailView() {
   const [editPuchaseIndex, setEditPurchaseIndex] = useState(null)
    
   
+  console.log("orderSelected-->> ", orderSelected);
   
   const {
     postResponse: createPurchasePostResponse,
@@ -115,16 +116,19 @@ useEffect(() => {
   console.log("orderSelected", orderSelected);
 
   return (
-    <div className="py-4 space-y-3 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="py-4 max-w-5xl mx-auto">
 
-        <h1 className="text-2xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
+      <div className="flex items-center justify-between">
+        <div className='flex gap-4 items-end'>
+          <h1 className="text-2xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
+          <a className='text-indigo-600 text-decoration-line: underline' href={orderSelected.sharepointWebURL}> Ir a Sharepoint</a>
+        </div>
          <NavLink className="rounded bg-indigo-500 px-4 py-2 text-white hover:bg-indigo-600" to={'/orders'}> Pedidos </NavLink>
        
       </div>
 
       {/* General Info */}
-     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+     <div className="grid grid-cols-1 md:grid-cols-5 gap-4  mt-3">
       <section className="bg-white p-4 shadow rounded-xl space-y-1 md:col-span-3">
         <h2 className="text-lg font-semibold mb-2">Info General</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-4">
@@ -157,7 +161,7 @@ useEffect(() => {
     </div>
 
       {/* Materials */}
-      <section className="bg-white p-4 shadow rounded-xl">
+      <section className="bg-white p-4 shadow rounded-xl mt-3">
         <div className='flex justify-between'>
           <div>
             <h2 className="text-lg font-semibold mb-4">Materiales</h2>
@@ -183,7 +187,7 @@ useEffect(() => {
       </section>
 
            {/* Purchases */}
-      <section className="bg-white p-4 shadow rounded-xl">
+      <section className="bg-white p-4 shadow rounded-xl mt-3">
         <div className='flex justify-between'>
           <div>
             <h2 className="text-lg font-semibold mb-4">Compras</h2>
@@ -212,10 +216,11 @@ useEffect(() => {
       </section>
 
       {/* Albaranes */}
+
       <AlbaranCard data={orderSelected} />
      
       {/* Incidences */}
-      <section className="bg-white p-4 shadow rounded-xl">
+      <section className="bg-white p-4 shadow rounded-xl mt-3">
         <h2 className="text-lg font-semibold mb-2">Incidencias</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -230,7 +235,7 @@ useEffect(() => {
       </section>
 
       {/* Invoice */}
-      <section className="bg-white p-4 shadow rounded-xl">
+      <section className="bg-white p-4 shadow rounded-xl mt-3">
         <h2 className="text-lg font-semibold mb-2">Factura</h2>
         <div className="space-y-1 text-sm">
           <div><strong>Factura GE #:</strong> {orderSelected?.invoiceNumGE}</div>
@@ -241,7 +246,7 @@ useEffect(() => {
 
 
        {/* Comments */}
-      <section className="bg-white p-4 shadow rounded-xl">
+      <section className="bg-white p-4 shadow rounded-xl mt-3">
         <h2 className="text-lg font-semibold mb-2">Comentarios</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -305,6 +310,7 @@ useEffect(() => {
           orderId={id}
         />
 
+      
     </div>
   );
 }

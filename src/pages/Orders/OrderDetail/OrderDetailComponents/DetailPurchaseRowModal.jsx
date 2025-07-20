@@ -5,42 +5,70 @@ import { Link } from 'react-router-dom';
 export default function DetailPurchaseRowModal({
   isOpen,
   onClose,
-  selectedPurchaseRow
+  selectedPurchaseRow,
 }) {
   if (!isOpen || !selectedPurchaseRow) return null;
 
   const purchase = selectedPurchaseRow;
-
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-auto p-6 pt-10">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl space-y-4">
         <h2 className="text-2xl font-bold border-b pb-2">Detalle de Compra</h2>
 
-        {/* Compra en 2 columnas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-          <div><strong>Material:</strong> {purchase?.material?.materialName ?? 'N/A'}</div>
-          <div><strong>Referencia:</strong> {purchase?.material?.materialReference ?? 'N/A'}</div>
-          <div><strong>Marca:</strong> {purchase?.material?.materialBrand?.brandName ?? 'N/A'}</div>
-          <div><strong>Cantidad:</strong> {purchase?.purchasingQuantity}</div>
-          <div><strong>Precio:</strong> {formatCurrency(purchase?.purchasingTotal)} {purchase?.currency}</div>
-          <div><strong>Tipo de Proveedor:</strong> {purchase?.supplierType}</div>
-          <div><strong>Entregado a almacén:</strong> {purchase?.deliveredToWarehouse ? 'Sí' : 'No'}</div>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+         <div className="space-y-1">
+            {[
+              { label: 'Referencia:', value: purchase?.material?.materialReference ?? 'N/A' },
+              { label: 'Marca:', value: purchase?.material?.materialBrand?.brandName ?? 'N/A' },
+              { label: 'Cantidad:', value: purchase?.purchasingQuantity },
+              { label: 'Coste Total:', value: `${formatCurrency(purchase?.purchasingTotal)}` },
+              { label: 'Tipo de Proveedor:', value: purchase?.supplierType },
+              { label: 'Entregado a almacén:', value: purchase?.deliveredToWarehouse ? 'Sí' : 'No' },
+              {
+                label: 'Enlace a compra:',
+                value: (
+                  <a
+                    className="text-indigo-600 underline"
+                    href={purchase?.purchaseLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {purchase?.purchaseLink}
+                  </a>
+                ),
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className={`flex gap-2 items-center px-2 py-1 rounded ${idx % 2 === 0 ? 'bg-gray-100' : 'bg-gray-50'}`}
+              >
+                <div className="w-32 font-medium text-gray-600">{item.label}</div>
+                <div className="flex-1">{item.value}</div>
+              </div>
+            ))}
+          </div>
 
-        {/* Envíos */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold border-b pb-1">Detalles de Envío</h3>
-
+          <div className="space-y-1">
             {purchase?.purchasingDelivery?.map((delivery, idx) => (
-              <div key={idx} className="border p-4 rounded-lg shadow-sm bg-white space-y-3">
+              <div
+                key={idx}
+                className="border p-3 rounded-lg shadow-sm bg-white space-y-1"
+              >
                 <h4 className="text-md font-bold text-gray-700">Entrega #{idx + 1}</h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                  <div><strong>Tipo de entrega:</strong> {delivery?.deliveryType}</div>
-                  <div><strong>Empresa:</strong> {delivery?.deliveryCompany}</div>
-                  <div><strong>ID de entrega:</strong> {delivery?.deliveryId ?? 'N/A'}</div>
-                  <div><strong>Recibido correctamente:</strong> {delivery?.rececivedOk ? 'Sí' : 'No'}</div>
+                <div className="grid grid-cols-[auto,1fr] gap-x-2 text-sm">
+                  <div className="font-medium text-gray-600 py-1">Tipo de entrega:</div>
+                  <div className="bg-gray-50 rounded px-2 py-1">{delivery?.deliveryType}</div>
+
+                  <div className="font-medium text-gray-600 py-1">Empresa:</div>
+                  <div className="bg-gray-50 rounded px-2 py-1">{delivery?.deliveryCompany}</div>
+
+                  <div className="font-medium text-gray-600 py-1">ID de entrega:</div>
+                  <div className="bg-gray-50 rounded px-2 py-1">{delivery?.deliveryId ?? 'N/A'}</div>
+
+                  <div className="font-medium text-gray-600 py-1">Recibido correctamente:</div>
+                  <div className="bg-gray-50 rounded px-2 py-1">{delivery?.rececivedOk ? 'Sí' : 'No'}</div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -48,8 +76,8 @@ export default function DetailPurchaseRowModal({
                     <h5 className="font-semibold mb-2">Comentarios</h5>
                     <ul className="list-disc ml-5 space-y-1">
                       {delivery?.purchasingDeliveryComments?.length > 0 ? (
-                        delivery?.purchasingDeliveryComments.map((c, i) => (
-                          <li className='text-sm' key={i}>{c.comment}</li>
+                        delivery.purchasingDeliveryComments.map((c, i) => (
+                          <li className="text-sm" key={i}>{c.comment}</li>
                         ))
                       ) : (
                         <li className="text-gray-500 text-sm">Sin comentarios</li>
@@ -61,8 +89,8 @@ export default function DetailPurchaseRowModal({
                     <h5 className="font-semibold mb-2">Actualizaciones</h5>
                     <ul className="list-disc ml-5 space-y-1">
                       {delivery?.purchasingDeliveryUpdates?.length > 0 ? (
-                        delivery?.purchasingDeliveryUpdates?.map((u, i) => (
-                          <li className='text-sm' key={i}>{u.comment}</li>
+                        delivery.purchasingDeliveryUpdates.map((u, i) => (
+                          <li className="text-sm" key={i}>{u.comment}</li>
                         ))
                       ) : (
                         <li className="text-gray-500 text-sm">Sin actualizaciones</li>
@@ -73,6 +101,7 @@ export default function DetailPurchaseRowModal({
               </div>
             ))}
           </div>
+        </div>
 
         <div className="flex justify-between pt-2">
           <button
@@ -82,7 +111,12 @@ export default function DetailPurchaseRowModal({
             Cerrar
           </button>
 
-           <Link className='text-indigo-600' to={`/purchases/purchaseDetail/${purchase?.id}`}>Ver Detalles</Link> 
+          <Link
+            className="text-indigo-600"
+            to={`/purchases/purchaseDetail/${purchase?.id}`}
+          >
+            Ver Detalles
+          </Link>
         </div>
       </div>
     </div>

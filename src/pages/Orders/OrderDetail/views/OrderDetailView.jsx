@@ -12,8 +12,8 @@ import AddOrderMaterialModal from '../OrderDetailComponents/AddOrderMaterialModa
 import OrderMaterialsPurchasesTable from '../OrderDetailComponents/OrderMaterialsPurchasesTable.jsx';
 import CreatePurchaseModal from '../OrderDetailComponents/CreatePurchaseModal.jsx';
 import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
-import AlbaranCard from '../OrderDetailComponents/AlbaranCard/AlbaranCard.jsx';
 import DetailPurchaseRowModal from '../OrderDetailComponents/DetailPurchaseRowModal.jsx';
+import ShipmentsTable from '../OrderDetailComponents/ShipmentsTable/ShipmentsTable.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();
@@ -121,7 +121,10 @@ useEffect(() => {
       <div className="flex items-center justify-between">
         <div className='flex gap-4 items-end'>
           <h1 className="text-2xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
-          <a className='text-indigo-600 text-decoration-line: underline' href={orderSelected.sharepointWebURL}> Ir a Sharepoint</a>
+          <a className="text-indigo-600 underline"
+            href={orderSelected.sharepointWebURL}
+            target="_blank"
+            rel="noopener noreferrer"> Ir a Sharepoint</a>
         </div>
          <NavLink className="rounded bg-indigo-500 px-4 py-2 text-white hover:bg-indigo-600" to={'/orders'}> Pedidos </NavLink>
        
@@ -217,7 +220,7 @@ useEffect(() => {
 
       {/* Albaranes */}
 
-      <AlbaranCard data={orderSelected} />
+      <ShipmentsTable data={orderSelected} />
      
       {/* Incidences */}
       <section className="bg-white p-4 shadow rounded-xl mt-3">

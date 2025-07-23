@@ -92,42 +92,52 @@ export default function EditPurchaseDetailsView() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6 bg-white rounded-xl shadow-md">
+    <div className="max-w-6xl mx-auto p-4 space-y-6 bg-white rounded-xl shadow-md">
       <h1 className="text-2xl font-bold border-b pb-2">Detalle de Compra</h1>
 
       {/* Información general */}
-      <section className="space-y-1 text-sm">
-        {[
-          { label: 'Material:', value: purchase?.material?.materialName },
-          { label: 'Referencia:', value: purchase?.material?.materialReference },
-          { label: 'Marca:', value: purchase?.material?.materialBrand?.brandName ?? 'N/A' },
-          { label: 'Precio Total:', value: `${formatCurrency(purchase?.purchasingTotal)}` },
-          { label: 'Cantidad:', value: purchase?.purchasingQuantity },
-          { label: 'Tipo de proveedor:', value: purchase?.supplierType },
-          { label: 'Entregado a almacén:', value: purchase?.deliveredToWarehouse ? 'Sí' : 'No' },
-          {
-            label: 'Enlace a compra:',
-            value: (
-              <a
-                className="text-indigo-600 underline"
-                href={purchase?.purchaseLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {shortLink(purchase?.purchaseLink)}
-              </a>
-            ),
-          },
-        ].map((item, idx) => (
-          <div
-            key={idx}
-            className={`flex items-center justify-between px-3 py-2 rounded ${idx % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100'}`}
-          >
-            <div className="font-medium text-gray-600">{item.label}</div>
-            <div>{item.value}</div>
-          </div>
-        ))}
-      </section>
+     {/* Información general en tabla */}
+       <section className="overflow-x-auto">
+          <table className="w-full border text-sm">
+            <tbody>
+              <tr className="bg-gray-100">
+                <td className="border px-4 py-2 font-medium text-gray-800">Material:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{purchase?.material?.materialName}</td>
+                <td className="border px-4 py-2 font-medium text-gray-800">Referencia:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{purchase?.material?.materialReference}</td>
+              </tr>
+              <tr>
+                <td className="border px-4 py-2 font-medium text-gray-800">Marca:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{purchase?.material?.materialBrand?.brandName ?? 'N/A'}</td>
+                <td className="border px-4 py-2 font-medium text-gray-800">Precio Total:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{formatCurrency(purchase?.purchasingTotal)}</td>
+              </tr>
+              <tr className="bg-gray-100">
+                <td className="border px-4 py-2 font-medium text-gray-800">Cantidad:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{purchase?.purchasingQuantity}</td>
+                <td className="border px-4 py-2 font-medium text-gray-800">Tipo de proveedor:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{purchase?.supplierType}</td>
+              </tr>
+              <tr>
+                <td className="border px-4 py-2 font-medium text-gray-800">Entregado a almacén:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">{purchase?.deliveredToWarehouse ? 'Sí' : 'No'}</td>
+                <td className="border px-4 py-2 font-medium text-gray-800">Enlace a compra:</td>
+                <td className="border px-4 py-2 font-normal text-gray-600">
+                  <a
+                    className="text-indigo-600 underline"
+                    href={purchase?.purchaseLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {shortLink(purchase?.purchaseLink)}
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+
 
       {/* Información de entregas */}
       <section>

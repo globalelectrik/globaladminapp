@@ -93,12 +93,12 @@ export default function ContactsListView() {
                 <td className="p-3">{contact.mobile}</td>
                 <td className="p-3">{contact.telephone}</td>
                 <td className="p-3">{contact.position}</td>
-                <td className="p-3 space-x-2">
+                <td className="p-3 space-x-2 flex">
                   <button
                     onClick={() => setSelectedContact(contact)}
                     className="text-indigo-600 hover:underline"
                   >
-                    Ver detalles
+                    Detalles
                   </button>
                   <button
                     onClick={() => setEditingContact(contact)}
@@ -147,6 +147,40 @@ export default function ContactsListView() {
           </button>
         </div>
       )}
+
+      {/* Contact Details Modal */}
+        {selectedContact && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Detalles del contacto</h3>
+                <button
+                  onClick={() => setSelectedContact(null)}
+                  className="text-gray-500 text-xl font-bold hover:text-gray-700"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="space-y-2 text-sm">
+                <p><strong>Nombre:</strong> {selectedContact.contactName}</p>
+                <p><strong>Email:</strong> {selectedContact.email}</p>
+                <p><strong>Móvil:</strong> {selectedContact.mobile}</p>
+                <p><strong>Teléfono:</strong> {selectedContact.telephone}</p>
+                <p><strong>Cargo:</strong> {selectedContact.position}</p>
+              </div>
+              <div className="mt-6 text-right">
+                <button
+                  onClick={() => setSelectedContact(null)}
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+)}
+
+
 
       {/* Edit Modal */}
       {editingContact && (

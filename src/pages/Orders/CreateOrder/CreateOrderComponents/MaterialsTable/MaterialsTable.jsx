@@ -16,7 +16,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
         materialBrand: "",
         materialReference: "",
         materialClassification: "",
-        materialStatus: "Nuevo",
+        materialStatusType: "Nuevo",
         materialClientReference: "x",
       },
     ]);
@@ -108,8 +108,8 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   <td className="p-2 border border-gray-300">
                     <select
                       className="w-full border border-gray-300 p-1 rounded text-sm"
-                      value={material.materialStatus}
-                      onChange={(e) => updateMaterial(index, "materialStatus", e.target.value)}
+                      value={material.materialStatusType}
+                      onChange={(e) => updateMaterial(index, "materialStatusType", e.target.value)}
                     >
                       <option value="Nuevo">Nuevo</option>
                       <option value="Reacondicionado">Reacondicionado</option>

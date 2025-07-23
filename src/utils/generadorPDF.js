@@ -29,10 +29,10 @@ export function generarPDF({
   formattedDate,
   pedidoCliente,
   pedidodGlobal,
-  articulos
+  materials
 }) {
 
-  console.log("articulos-->>", articulos);
+  console.log("articulos-->>", materials);
 
   const doc = new jsPDF({ format: 'a4', unit: 'mm' });
   const margin = 15;
@@ -94,7 +94,7 @@ export function generarPDF({
   doc.line(margin, y, 210 - margin, y);
   y += 5;
   // Filas
-  articulos.forEach((articulo) => {
+  materials.forEach((articulo) => {
     doc.text(articulo.materialClientReference, margin, y);
     doc.text(articulo.materialName, margin + 30, y);
     doc.text(String(articulo.quantity), margin + 100, y);

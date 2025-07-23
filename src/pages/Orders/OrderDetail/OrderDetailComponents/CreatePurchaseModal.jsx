@@ -117,7 +117,7 @@ export default function CreatePurchaseModal({
           <div className="flex justify-between gap-4 space-y-1">
             <div>
               <label className="block text-sm font-small pt-1">Pendientes</label>
-              <p className="text-center">{getPendingQuantity(materialSelected)}</p>
+              <p className="text-center">{materialSelected ? getPendingQuantity(materialSelected) : ""}</p>
             </div>
 
             <div className="flex items-center">

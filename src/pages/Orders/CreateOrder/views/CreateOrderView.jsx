@@ -12,7 +12,6 @@ import { useAuthContext } from '../../../../context/AuthContext';
 import CreatedOrderModal from '../CreateOrderComponents/CreatedOrderModal/CreatedOrderModal';
 
 export default function CreateOrderView() {
-
   const [clientSelected, setClientSelected] = useState(null);
   const [companySelected, setCompanySelected] = useState(null);
   const [contactSelected, setContactSelected] = useState(null);
@@ -30,97 +29,121 @@ export default function CreateOrderView() {
   const [orderTotalPlusTax, setOrderTotalPlusTax] = useState('');
 
   const [materials, setMaterials] = useState([]);
+  const [validationErrors, setValidationErrors] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { user } = useAuthContext()
+  const { user } = useAuthContext();
 
   const {
     data: clientsData,
-    isLoading: clientsIsLoading,
-    error: clientsError,
     fetchGet: clientsFetchGet,
   } = useGet();
 
-  const {
-    data: classificationsData,
-    isLoading: classificationsIsLoading,
-    error: classificationsError,
-    fetchGet: classificationsFetchGet,
-  } = useGet();
-
-    const {
-    data: brandsData,
-    isLoading: brandsIsLoading,
-    error: brandsError,
-    fetchGet: brandsFetchGet,
-  } = useGet();
-  
-  const { 
-    data: contactsData, 
-    fetchGet: contactsFetchGet
-   } = useGet();
+  const { data: classificationsData, fetchGet: classificationsFetchGet } = useGet();
+  const { data: brandsData, fetchGet: brandsFetchGet } = useGet();
+  const { data: contactsData, fetchGet: contactsFetchGet } = useGet();
 
   const {
     postResponse: createOrderPostResponse,
     isLoading: createOrderIsLoading,
-    error: createOrderError,
     fetchPost: createOrderFetchPost,
   } = usePost();
-  
-  useEffect(() => {
-    clientsFetchGet("/clients");
-  }, []);
+
+  useEffect(() => { clientsFetchGet("/clients"); }, []);
 
   const handleCreateOrder = async () => {
 
-    const dataToSend = {
-      orderNumGlobal:orderNumGlobal, 
-      quotNumGlobal: quotNumGlobal,
-      datePOClient: datePOClient,
-      pOClientNumber:pOClientNumber,
-      client:clientSelected,
-      company: companySelected,
-      deliveryAddress: deliveryAddressSelected,
-      deliverInDays: 12,
-      orderTotal:orderTotal,
-        materials: materials,
-      clientCreditDays:clientCreditDays,
-      user: user.email  // Como estamos haciendo login con Custom y con Microsoft, optamos por ir a buscar el user por el correo
+    const errors = [];
+
+    if (!quotNumGlobal.trim()) errors.push("Número de cotización");
+    if (!datePOClient) errors.push("Fecha de pedido");
+    if (!pOClientNumber.trim()) errors.push("Orden de compra del cliente");
+    if (!clientSelected) errors.push("Cliente");
+    if (!companySelected) errors.push("Empresa");
+    if (!deliveryAddressSelected) errors.push("Dirección de entrega");
+    if (!clientCreditDays) errors.push("Días de crédito");
+    if (!orderTotal) errors.push("Total de la orden");
+    if (!contactSelected) errors.push("Contacto de entrega");
+
+    if (!materials.length) {
+      errors.push("Debes añadir al menos un material");
+    } else {
+      materials.forEach((material, index) => {
+        if (!material.materialName) errors.push(`Material ${index + 1}: Nombre`);
+        if (!material.materialBrand) errors.push(`Material ${index + 1}: Marca`);
+        if (!material.materialReference) errors.push(`Material ${index + 1}: Referencia`);
+        if (!material.materialClassification) errors.push(`Material ${index + 1}: Clasificación`);
+        if (!material.materialStatusType) errors.push(`Material ${index + 1}: Estado`);
+        if (!material.materialClientReference) errors.push(`Material ${index + 1}: Ref. Cliente`);
+      });
     }
 
-    //console.log("dataToSend--->>>  ",dataToSend);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
 
-    await createOrderFetchPost("/orders/createOrder", dataToSend)
-  }
+    setValidationErrors([]);
+
+    const dataToSend = {
+      quotNumGlobal,
+      datePOClient,
+      pOClientNumber,
+      client: clientSelected,
+      company: companySelected,
+      deliveryAddress: deliveryAddressSelected,
+      deliverInDays: Number(deliverInDays) || 12,
+      orderTotal,
+      orderTotalPlusTax,
+      materials,
+      clientCreditDays,
+      user: user.email,
+    };
+
+   await createOrderFetchPost("/orders/createOrder", dataToSend);
+  };
 
   useEffect(() => {
-    if(clientSelected){
-      setCompanySelected("")
-      setContactSelected("")
+    if (clientSelected) {
+      setCompanySelected("");
+      setContactSelected("");
       classificationsFetchGet('/materials/getClassifications');
       contactsFetchGet(`/contacts/clientContacts/${clientSelected?.id}`);
-      brandsFetchGet('/materials/getBrands')
+      brandsFetchGet('/materials/getBrands');
     }
   }, [clientSelected]);
 
   useEffect(() => {
-    setDeliveryAddressSelected("")
-    setDeliveryAddresses(companySelected?.deliveryAddresses)
+    setDeliveryAddressSelected("");
+    setDeliveryAddresses(companySelected?.deliveryAddresses);
   }, [companySelected]);
-  
+
   useEffect(() => {
     setOrderTotalPlusTax(parseFloat((orderTotal * 1.16).toFixed(2)));
   }, [orderTotal]);
 
-
   useEffect(() => {
     if (createOrderPostResponse?.message === "success") {
       setIsModalOpen(true);
+
+      // Clear fields
+      setClientSelected(null);
+      setCompanySelected(null);
+      setContactSelected(null);
+      setOrderNumGlobal('');
+      setQuotNumGlobal('');
+      setDatePOClient('');
+      setPOClientNumber('');
+      setClientCreditDays('');
+      setDeliverInDays(12);
+      setDeliveryAddresses('');
+      setDeliveryAddressSelected('');
+      setOrderTotal('');
+      setOrderTotalPlusTax('');
+      setMaterials([]);
     }
   }, [createOrderPostResponse]);
-
-
 
   return (
     <>
@@ -135,6 +158,17 @@ export default function CreateOrderView() {
               Ir a Pedidos
             </Link>
         </div>
+
+         {validationErrors.length > 0 && (
+          <div className="bg-red-50 border border-red-400 text-red-700 rounded p-4 my-4 text-sm space-y-1">
+            <p className="font-semibold">Por favor completa los siguientes campos:</p>
+            <ul className="list-disc list-inside">
+              {validationErrors.map((error, idx) => (
+                <li key={idx}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Client and Company Selection */}
         <div className='flex flex-col lg:flex-row lg:justify-between lg:space-x-4 space-y-2 lg:space-y-0'>

@@ -24,7 +24,7 @@ export default function ModalAlbaran({ data }) {
   // Construir el esquema de Zod para el formulario
   const schema = z.object({
     // numeroAlbaran: z.string().nonempty('El número de albarán es obligatorio'),
-    date: z.string().nonempty('La date es obligatoria'),
+    date: z.string().nonempty('La fecha es obligatoria'),
     materials: z.array(
       z.object({
         checked: z.boolean(),
@@ -163,16 +163,8 @@ export default function ModalAlbaran({ data }) {
 
     await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
 
-    generarPDF({
-      client,
-      formattedDate,
-      materials,
-    });
-
     setOpen(false);
     };
-
-  console.log("createDeliveryPostResponse--> ", createDeliveryPostResponse);
 
   return (
     <>

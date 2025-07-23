@@ -1,9 +1,9 @@
 import { IconContract } from '@tabler/icons-react';
 import ModalAlbaran from '../ModalAlbaran/ModalAlbaran';
 
-export default function AlbaranCard({data}) {
+export default function ShipmentsTable({data}) {
 
-  
+  console.log("data",data);
 
   return (
     <div className="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow mt-3">
@@ -16,7 +16,12 @@ export default function AlbaranCard({data}) {
         <ModalAlbaran data={data} />
         </div>
       </div>
-      <div className="px-4 py-5 sm:p-6">{/* Content goes here */}</div>
+      <div className="px-4 py-5 sm:p-6">
+
+
+      </div>
+
+
       <div className="px-4 py-4 sm:px-6 sm:hidden flex">
         {/* Footer or additional actions can go here */}
         <ModalAlbaran data={data} />

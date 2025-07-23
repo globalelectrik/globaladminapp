@@ -13,7 +13,7 @@ export default function DetailPurchaseRowModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-auto p-6 pt-10">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl space-y-4">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-6xl space-y-4">
         <h2 className="text-2xl font-bold border-b pb-2">Detalle de Compra</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">

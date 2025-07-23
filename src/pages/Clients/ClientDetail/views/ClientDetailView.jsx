@@ -12,6 +12,7 @@ import EditCompanyModal from './../../ClientsComponents/CreateClient/EditCompany
 
 export default function ClientDetailView() {
   const [clientToEdit, setClientToEdit] = useState("");
+  const [contactsData, setContactsData] = useState("")
 
   const [showDeliveryAddressModal, setShowDeliveryAddressModal] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
@@ -32,18 +33,21 @@ export default function ClientDetailView() {
   const [showContacts, setShowContacts] = useState(false);
 
   
-  const { data: clientData, fetchGet: clientFetchGet } = useGet();
-  const { putResponse: updatedClientData, fetchPut: clientUpdateFetchPut } = usePut();
-  const { data: contactsData, fetchGet: contactsFetchGet } = useGet();
-  
+  const { 
+    data: clientData, 
+    fetchGet: clientFetchGet
+   } = useGet();
+   
+  const { 
+    putResponse: updatedClientData, 
+    fetchPut: clientUpdateFetchPut 
+  } = usePut();
+
   
   const params = useParams();
 
   
 const toggleContactsButtonHandler = () => {
-  if (!showContacts) {
-    contactsFetchGet(`/contacts/clientContacts/${params.id}`);
-  }
   setShowContacts(!showContacts);
 };
 
@@ -54,6 +58,7 @@ const toggleContactsButtonHandler = () => {
   useEffect(() => {
     if (clientData) {
       setClientToEdit(clientData.client);
+      setContactsData(clientData.client.clientContacts)
     }
   }, [clientData]);
 
@@ -163,7 +168,7 @@ const toggleContactsButtonHandler = () => {
 
 
 
-
+  console.log("contactsData--->> ", contactsData);
 
 
   return (
@@ -194,7 +199,7 @@ const toggleContactsButtonHandler = () => {
           <p className="text-lg font-bold text-gray-900 mt-1">
             {clientToEdit?.commercialClientName || "N/A"}
           </p>
-          {showContacts && contactsData?.contacts && (
+          {showContacts && contactsData && (
             <div className="mt-1 border-t pt-2">
               <h3 className="text-md font-medium text-gray-500 mb-2">Contactos Relacionados</h3>
               <div className="overflow-x-auto">
@@ -209,7 +214,7 @@ const toggleContactsButtonHandler = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {contactsData.contacts.map((contact) => (
+                    {contactsData?.map((contact) => (
                       <tr key={contact.id} className="border-t text-sm">
                         <td className="p-3">{contact.contactName}</td>
                         <td className="p-3">{contact.email}</td>
@@ -218,7 +223,7 @@ const toggleContactsButtonHandler = () => {
                         <td className="p-3">{contact.position}</td>
                       </tr>
                     ))}
-                    {!contactsData.contacts.length && (
+                    {!contactsData?.length && (
                       <tr>
                         <td colSpan="5" className="p-3 text-center text-gray-500">
                           No hay contactos asociados a este cliente.
@@ -242,7 +247,7 @@ const toggleContactsButtonHandler = () => {
                 <span className="font-semibold">Nombre fiscal:</span> {company.vatName || "N/A"}
               </p>
               <p className="text-base text-gray-800">
-                <span className="font-semibold">Número fiscal:</span> {company.vatNumber || "N/A"}
+                <span className="font-semibold">Número fiscal RFC:</span> {company.vatNumber || "N/A"}
               </p>
                <button
                 type="button"

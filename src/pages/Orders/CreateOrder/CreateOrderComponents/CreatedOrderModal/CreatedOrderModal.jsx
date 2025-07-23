@@ -30,7 +30,7 @@ export default function CreatedOrderModal({ createOrderPostResponse }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Pedido creado correctamente</h2>
+        <h2 className="text-xl font-bold mb-4">✔ Pedido creado correctamente</h2>
 
         <p className="mb-2">Enlace a la carpeta de SharePoint:</p>
         <a

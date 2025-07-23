@@ -29,7 +29,7 @@ export default function OrderMaterialsPurchasesTable({
         <tbody>
           {orderSelected?.purchases?.map((mat, index) => (
             <tr key={index} className="hover:bg-gray-200 cursor-pointer">
-              <td className="px-4 py-2 border-b text-center" >{mat?.material?.materialName || mat?.material}</td>
+              <td className="px-4 py-2 border-b text-left" >{mat?.material?.materialName || mat?.material}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.purchasingQuantity}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.supplierType}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.deliveredToWarehouse ? "SI" : "NO"}</td>

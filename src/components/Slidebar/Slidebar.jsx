@@ -14,7 +14,8 @@ import {
   UsersIcon,
   XMarkIcon,
   BuildingOffice2Icon, 
-  PaperAirplaneIcon
+  PaperAirplaneIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { useAuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -53,6 +54,7 @@ export default function Slidebar({ children }) {
     { name: 'Contactos', to: '/contacts', icon: UsersIcon, current: false },
     { name: 'Materiales', to: '/materials', icon: CpuChipIcon, current: false },
     { name: 'Pedidos', to: '/orders', icon: FolderIcon, current: false },
+    { name: 'Compras', to: '/purchases/purchasesList', icon: CurrencyDollarIcon, current: false },
     { name: 'Envíos', to: '#', icon: PaperAirplaneIcon, current: false },
     { name: 'Configuraciones', to: '/configurations', icon: CalendarIcon, current: false },
   ];

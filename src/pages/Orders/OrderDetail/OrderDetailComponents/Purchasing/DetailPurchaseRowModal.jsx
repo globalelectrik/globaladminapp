@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '../../../../helpers/formatCurrency';
+import { formatCurrency } from '../../../../../helpers/formatCurrency';
 import { Link } from 'react-router-dom';
 
 export default function DetailPurchaseRowModal({

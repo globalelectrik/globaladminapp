@@ -64,7 +64,7 @@ export default function CreateOrderView() {
     if (!deliveryAddressSelected) errors.push("Dirección de entrega");
     if (!clientCreditDays) errors.push("Días de crédito");
     if (!orderTotal) errors.push("Total de la orden");
-    if (!contactSelected) errors.push("Contacto de entrega");
+    if (!contactSelected) errors.push("Contacto de entrega, o crea uno en Contactos");
 
     if (!materials.length) {
       errors.push("Debes añadir al menos un material");
@@ -114,6 +114,7 @@ export default function CreateOrderView() {
     }
   }, [clientSelected]);
 
+
   useEffect(() => {
     setDeliveryAddressSelected("");
     setDeliveryAddresses(companySelected?.deliveryAddresses);
@@ -158,17 +159,6 @@ export default function CreateOrderView() {
               Ir a Pedidos
             </Link>
         </div>
-
-         {validationErrors.length > 0 && (
-          <div className="bg-red-50 border border-red-400 text-red-700 rounded p-4 my-4 text-sm space-y-1">
-            <p className="font-semibold">Por favor completa los siguientes campos:</p>
-            <ul className="list-disc list-inside">
-              {validationErrors.map((error, idx) => (
-                <li key={idx}>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         {/* Client and Company Selection */}
         <div className='flex flex-col lg:flex-row lg:justify-between lg:space-x-4 space-y-2 lg:space-y-0'>
@@ -309,6 +299,17 @@ export default function CreateOrderView() {
             classificationsData={classificationsData}
             brandsData={brandsData}
             />
+
+          {validationErrors.length > 0 && (
+          <div className="bg-red-50 border border-red-400 text-red-700 rounded p-4 my-4 text-sm space-y-1">
+            <p className="font-semibold">Por favor completa los siguientes campos:</p>
+            <ul className="list-disc list-inside">
+              {validationErrors.map((error, idx) => (
+                <li key={idx}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
             
         <div className='flex justify-end'>

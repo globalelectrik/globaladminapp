@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MaterialsComboBox from "./MaterialsComboBox";
+import MaterialsComboBox from "../MaterialsComboBox";
 
 export default function CreatePurchaseModal({ 
   orderSelected,
@@ -32,6 +32,7 @@ export default function CreatePurchaseModal({
   });
 
   const [ materiaToPurchase, setMaterialToPurchase ] = useState("")
+  const [validationErrors, setValidationErrors] = useState([]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -63,33 +64,49 @@ export default function CreatePurchaseModal({
   };
 
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
+  const errors = [];
 
-    const purchase = {
-      orderId:orderId,
-      material: materialSelected?.material?.id || materialSelected?.material,
-      purchasingQuantity: parseInt(formData.purchasingQuantity),
-      supplierName: formData.supplierName,
-      supplierType: formData.supplierType,
-      purchasingTotal: parseFloat(formData.purchasingTotal),
-      purchaseLink: formData.purchaseLink,
-      purchasingComments: formData.purchasingComments ? [{ comment: formData.purchasingComments }] : [],
-      deliveredToWarehouse:  deliveryData.rececivedOk,
-      purchasingDelivery: [{
-        deliveryType: deliveryData.deliveryType,
-        deliveryId: deliveryData.deliveryId,
-        deliveryCompany: deliveryData.deliveryCompany,
-        rececivedOk: deliveryData.rececivedOk,
-        purchasingDeliveryComments: deliveryData.purchasingDeliveryComments ? [{ comment: deliveryData.purchasingDeliveryComments }] : [],
-        purchasingDeliveryUpdates: deliveryData.purchasingDeliveryUpdates ? [{ comment: deliveryData.purchasingDeliveryUpdates }] : []
-      }]
-    };
+  // Validación de campos obligatorios
+  if (!materialSelected?.material?.id && !materialSelected?.material) { errors.push("Selecciona un material")}
+  if (!formData.purchasingQuantity || Number(formData.purchasingQuantity) <= 0) {errors.push("Cantidad comprada debe ser mayor a 0")}
+  if (!formData.supplierName.trim()) {errors.push("Nombre del proveedor")}
+  if (!formData.supplierType.trim()) {errors.push("Tipo de proveedor")}
+  if (!formData.purchasingTotal || Number(formData.purchasingTotal) <= 0) {errors.push("Total de compra debe ser mayor a 0")}
+  if (!formData.purchaseLink.trim()) {errors.push("Enlace de compra")}
+  // Si hay errores, mostrarlos
+  if (errors.length > 0) {
+    setValidationErrors(errors);
+    return;
+  }
 
+  // Si no hay errores, limpiar y enviar
+  setValidationErrors([]);
 
-    await createPurchaseFetchPost(`/orders/createOrderPurchase`, purchase); 
-
-    onClose();
+  const purchase = {
+    orderId: orderId,
+    material: materialSelected?.material?.id || materialSelected?.material,
+    purchasingQuantity: parseInt(formData.purchasingQuantity),
+    supplierName: formData.supplierName,
+    supplierType: formData.supplierType,
+    purchasingTotal: parseFloat(formData.purchasingTotal),
+    purchaseLink: formData.purchaseLink,
+    purchasingComments: formData.purchasingComments ? [{ comment: formData.purchasingComments }] : [],
+    deliveredToWarehouse: deliveryData.rececivedOk,
+    purchasingDelivery: [{
+      deliveryType: deliveryData.deliveryType,
+      deliveryId: deliveryData.deliveryId,
+      deliveryCompany: deliveryData.deliveryCompany,
+      rececivedOk: deliveryData.rececivedOk,
+      purchasingDeliveryComments: deliveryData.purchasingDeliveryComments ? [{ comment: deliveryData.purchasingDeliveryComments }] : [],
+      purchasingDeliveryUpdates: deliveryData.purchasingDeliveryUpdates ? [{ comment: deliveryData.purchasingDeliveryUpdates }] : []
+    }]
   };
+
+  await createPurchaseFetchPost(`/orders/createOrderPurchase`, purchase);
+  
+  onClose();
+};
 
 
   if (!isOpen) return null;
@@ -193,7 +210,8 @@ export default function CreatePurchaseModal({
   
         {/* Section 2: Delivery Info */}
         <section className="w-full lg:w-1/2 space-y-3 pt-2 lg:pt-0">
-          <h3 className="font-semibold text-sm">Entrega</h3>
+          <h3 className="font-semibold text-sm">Entrega </h3>
+          <h3 className="font-semibold text-sm text-red-600">(si aún no hay información, dejarlo en blanco)</h3>
   
           <div>
             <label className="block text-sm">Tipo de entrega</label>
@@ -277,7 +295,18 @@ export default function CreatePurchaseModal({
   
         </section>
       </div>
-  
+
+      {validationErrors.length > 0 && (
+        <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded">
+        <p>Por favor, rellena estos campos:</p>
+          <ul className="text-sm list-disc list-inside">
+            {validationErrors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+        
       {/* Buttons */}
       <div className="flex justify-end gap-3 pt-4">
         <button onClick={onClose} className="px-4 py-2 rounded bg-gray-200 text-sm">

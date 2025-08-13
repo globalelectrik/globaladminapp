@@ -9,10 +9,10 @@ import { formatDateToReadable } from '../../../../utils/helpers/formatDateToRead
 import OrderMaterialsTable from '../OrderDetailComponents/OrderMaterialsTable.jsx';
 import EditOrderMaterialRow from '../OrderDetailComponents/EditOrderMaterialRowModal.jsx';
 import AddOrderMaterialModal from '../OrderDetailComponents/AddOrderMaterialModal.jsx';
-import OrderMaterialsPurchasesTable from '../OrderDetailComponents/OrderMaterialsPurchasesTable.jsx';
-import CreatePurchaseModal from '../OrderDetailComponents/CreatePurchaseModal.jsx';
+import OrderMaterialsPurchasesTable from '../OrderDetailComponents/Purchasing/OrderMaterialsPurchasesTable.jsx';
+import CreatePurchaseModal from '../OrderDetailComponents/Purchasing/CreatePurchaseModal.jsx';
 import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
-import DetailPurchaseRowModal from '../OrderDetailComponents/DetailPurchaseRowModal.jsx';
+import DetailPurchaseRowModal from '../OrderDetailComponents/Purchasing/DetailPurchaseRowModal.jsx';
 import ShipmentsTable from '../OrderDetailComponents/ShipmentsTable/ShipmentsTable.jsx';
 
 export default function OrderDetailView() {
@@ -65,6 +65,14 @@ export default function OrderDetailView() {
     fetchPut: orderAddMaterialUpdateFetchPut,
   } = usePut();
 
+   const { 
+    putResponse: downloadDeliveryLinkData,
+    isLoading: downloadDeliveryLinkIsLoading,
+    error: downloadDeliveryLinkError,
+    fetchPut: downloadDeliveryLinkFetchPut,
+   } = usePut();
+
+
   useEffect(() => {
     orderFetchGet(`/orders/orderDetail/${id}`);
   }, []);
@@ -113,7 +121,6 @@ useEffect(() => {
   }
 }, [orderAddMaterialUpdatedData]);
 
-  console.log("orderSelected", orderSelected);
 
   return (
     <div className="py-4 max-w-5xl mx-auto">
@@ -218,9 +225,11 @@ useEffect(() => {
         />
       </section>
 
-      {/* Albaranes */}
+      {/* Envíos */}
 
-      <ShipmentsTable data={orderSelected} />
+      <ShipmentsTable 
+        orderSelected={orderSelected} 
+        />
      
       {/* Incidences */}
       <section className="bg-white p-4 shadow rounded-xl mt-3">

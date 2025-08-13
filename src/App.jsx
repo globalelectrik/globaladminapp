@@ -22,6 +22,7 @@ import CreateContactRoute from './pages/Contacts/CreateContact/route/CreateConta
 import OrderDetailRoute from './pages/Orders/OrderDetail/route/OrderDetailRoute.jsx';
 import MaterialDetailRoute from './pages/Materials/MaterialDetail/route/MaterialDetailRoute.jsx';
 import EditPurchaseDetailsRoute from './pages/Orders/EditPurchaseDetails/route/EditPurchaseDetailsRoute';
+import PurchasesListRoute from './pages/Purchases/PurchasesList/route/PurchasesListRoute.jsx';
 
 
 function App() {
@@ -161,6 +162,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <EditPurchaseDetailsRoute />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path='/purchases/purchasesList'
+            element={
+              <ProtectedRoute>
+                <PurchasesListRoute />
               </ProtectedRoute>
             }
           />

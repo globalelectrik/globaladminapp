@@ -33,14 +33,7 @@ export default function CreatePurchaseModal({
 
   const [ materiaToPurchase, setMaterialToPurchase ] = useState("")
   const [validationErrors, setValidationErrors] = useState([]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-  };
+  const [purchasedQuantityWarn, setPurchasedQuantityWarn] = useState(false)
 
   const handleDeliveryChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -56,11 +49,20 @@ export default function CreatePurchaseModal({
   
     // Sum up the purchasing quantities in the order's purchases that match this material
     const purchasedQuantity = orderSelected.purchases
-      ?.map(p => p.purchase) // extract populated purchase objects
       ?.filter(p => p?.material?.id === materialId)
       ?.reduce((sum, p) => sum + (p?.purchasingQuantity || 0), 0) || 0;
-  
+    
     return orderedQuantity - purchasedQuantity;
+  };
+
+    const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+
+    e.target.name == "purchasingQuantity" && e.target.value > getPendingQuantity(materialSelected) ? setPurchasedQuantityWarn(true) : setPurchasedQuantityWarn(false)
   };
 
 
@@ -103,6 +105,8 @@ const handleSubmit = async () => {
     }]
   };
 
+  setPurchasedQuantityWarn(false)
+
   await createPurchaseFetchPost(`/orders/createOrderPurchase`, purchase);
   
   onClose();
@@ -139,13 +143,16 @@ const handleSubmit = async () => {
 
             <div className="flex items-center">
               <label className="block text-sm font-small text-right pr-2">Cantidad comprada</label>
-              <input
-                type="number"
-                name="purchasingQuantity"
-                value={formData.purchasingQuantity}
-                onChange={handleChange}
-                className="w-20 border rounded px-3 py-1"
-              />
+              <div className="flex flex-col">
+                <input
+                  type="number"
+                  name="purchasingQuantity"
+                  value={formData.purchasingQuantity}
+                  onChange={handleChange}
+                  className="w-20 border rounded px-3 py-1"
+                />
+                {purchasedQuantityWarn && (<p className="text-red-600 text-xs"> Más de lo que<br/>se solicita</p>)}
+              </div>
             </div>  
           </div>
 
@@ -309,7 +316,7 @@ const handleSubmit = async () => {
         
       {/* Buttons */}
       <div className="flex justify-end gap-3 pt-4">
-        <button onClick={onClose} className="px-4 py-2 rounded bg-gray-200 text-sm">
+        <button onClick={() => { setPurchasedQuantityWarn(false); onClose(); }} className="px-4 py-2 rounded bg-gray-200 text-sm">
           Cancelar
         </button>
         <button onClick={handleSubmit} className="px-4 py-2 rounded bg-indigo-600 text-white text-sm">

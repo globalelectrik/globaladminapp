@@ -13,7 +13,8 @@ import OrderMaterialsPurchasesTable from '../OrderDetailComponents/Purchasing/Or
 import CreatePurchaseModal from '../OrderDetailComponents/Purchasing/CreatePurchaseModal.jsx';
 import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
 import DetailPurchaseRowModal from '../OrderDetailComponents/Purchasing/DetailPurchaseRowModal.jsx';
-import ShipmentsTable from '../OrderDetailComponents/ShipmentsTable/ShipmentsTable.jsx';
+import ShipmentsTable from '../OrderDetailComponents/Shipments/ShipmentsTable.jsx';
+import ShipmentsDeliveryLinkModal from '../OrderDetailComponents/Shipments/ShipmentsDeliveryLinkModal.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();
@@ -28,10 +29,10 @@ export default function OrderDetailView() {
   const [openPuchaseRowModal, setOpenPuchaseRowModal] = useState(false)
   const [selectedPurchaseRow, setSelectedPurchaseRow] = useState(null)
   const [editPuchaseIndex, setEditPurchaseIndex] = useState(null)
+  const [openDeliveryLinkModal, setOpenDeliveryLinkModal] = useState(false)
+  const [downloadDeliveryLink, setDownloadDeliveryLink] = useState(null)
    
-  
-  console.log("orderSelected-->> ", orderSelected);
-  
+    
   const {
     postResponse: createPurchasePostResponse,
     isLoading: createPurchaseIsLoading,
@@ -66,11 +67,12 @@ export default function OrderDetailView() {
   } = usePut();
 
    const { 
-    putResponse: downloadDeliveryLinkData,
+    data: downloadDeliveryLinkData,
     isLoading: downloadDeliveryLinkIsLoading,
     error: downloadDeliveryLinkError,
-    fetchPut: downloadDeliveryLinkFetchPut,
-   } = usePut();
+    fetchGet: downloadDeliveryLinkFetchPut,
+   } = useGet();
+
 
 
   useEffect(() => {
@@ -95,6 +97,13 @@ export default function OrderDetailView() {
       setOrderSelected(createPurchasePostResponse.order)
     }
   }, [createPurchasePostResponse]);
+
+    useEffect(() => {
+    if(downloadDeliveryLinkData?.message === "success"){
+      setOpenDeliveryLinkModal(true)
+      setDownloadDeliveryLink(downloadDeliveryLinkData.url)
+    }
+  }, [downloadDeliveryLinkData]);
 
 
 const saveMaterialOrderChanges = async () => {
@@ -174,7 +183,7 @@ useEffect(() => {
       <section className="bg-white p-4 shadow rounded-xl mt-3">
         <div className='flex justify-between'>
           <div>
-            <h2 className="text-lg font-semibold mb-4">Materiales</h2>
+            <h2 className="text-lg font-semibold mb-4">Materiales Solicitados</h2>
           </div>
           <div>
             <button
@@ -200,7 +209,7 @@ useEffect(() => {
       <section className="bg-white p-4 shadow rounded-xl mt-3">
         <div className='flex justify-between'>
           <div>
-            <h2 className="text-lg font-semibold mb-4">Compras</h2>
+            <h2 className="text-lg font-semibold mb-4">Compras Realizadas</h2>
           </div>
           <div>
             <button
@@ -227,9 +236,15 @@ useEffect(() => {
 
       {/* Envíos */}
 
+     <section>
       <ShipmentsTable 
-        orderSelected={orderSelected} 
+        orderSelected={orderSelected}
+        setOrderSelected={setOrderSelected}
+        openDeliveryLinkModal={openDeliveryLinkModal}
+        setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
+        downloadDeliveryLinkFetchPut={downloadDeliveryLinkFetchPut}
         />
+     </section>         
      
       {/* Incidences */}
       <section className="bg-white p-4 shadow rounded-xl mt-3">
@@ -321,6 +336,13 @@ useEffect(() => {
           createPurchaseFetchPost={createPurchaseFetchPost}
           orderId={id}
         />
+
+      <ShipmentsDeliveryLinkModal
+        openDeliveryLinkModal={openDeliveryLinkModal}
+        setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
+        downloadDeliveryLink={downloadDeliveryLink} 
+        setDownloadDeliveryLink={setDownloadDeliveryLink}
+      />
 
       
     </div>

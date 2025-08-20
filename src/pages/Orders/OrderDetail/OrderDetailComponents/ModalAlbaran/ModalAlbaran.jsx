@@ -9,10 +9,18 @@ import { useState, useEffect } from 'react';
 import { generarPDF } from '../../../../../utils/generadorPDF';
 import { useAuthContext } from '../../../../../context/AuthContext';
 import usePost from '../../../../../hooks/usePost/usePost';
+import CodigoSatSearchModal from './CodigoSatSearchModal';
 
-export default function ModalAlbaran({ data }) {
-  const [open, setOpen] = useState(false);
+export default function ModalAlbaran({ orderSelected, setOrderSelected, openShipModal, setOpenShipModal }) {
+
+
   const { user } = useAuthContext();
+
+  const [satPickerOpen, setSatPickerOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
   const {
     postResponse: createDeliveryPostResponse,
@@ -22,53 +30,84 @@ export default function ModalAlbaran({ data }) {
   } = usePost();
 
   // Construir el esquema de Zod para el formulario
-  const schema = z.object({
-    // numeroAlbaran: z.string().nonempty('El número de albarán es obligatorio'),
-    date: z.string().nonempty('La fecha es obligatoria'),
-    materials: z.array(
-      z.object({
-        checked: z.boolean(),
-        materialClientReference: z.string(),
-        quantity: z.coerce.number(),
-        materialSerialNumber: z.string().optional(),
-      }).superRefine((val, ctx) => {
-        // Obtener el índice del material en el array
-        const index = ctx.path[0];
-        // Obtener la cantidad máxima permitida desde data.materials
-        const maxQty = Array.isArray(data?.materials) && data.materials[index]?.quantity ? data.materials[index].quantity : undefined;
-        if (val.checked) {
-          if (!val.materialClientReference || val.materialClientReference.trim() === '') {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: 'La referencia es obligatoria',
-              path: ['materialClientReference'],
-            });
-          }
-          if (!val.quantity || val.quantity < 1) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: 'Cantidad mínima 1',
-              path: ['quantity'],
-            });
-          }
-          if (maxQty !== undefined && val.quantity > maxQty) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `No puede ser mayor que ${maxQty}`,
-              path: ['quantity'],
-            });
-          }
-        }
-      })
-    ),
-  });
+const schema = z.object({
+  date: z.string().nonempty('La fecha es obligatoria'),
+  materials: z.array(
+    z.object({
+      checked: z.boolean(),
+      materialClientReference: z.string(),
+      quantity: z.coerce.number(),
+      materialSerialNumber: z.string().optional(),
+      codigoSATKey: z.string().optional(),
+      codigoSATName: z.string().optional(),
+    }).superRefine((val, ctx) => {
+      // índice de la fila en el array
+      const rowIdxRaw = ctx.path[0];
+      const index = Number.isFinite(Number(rowIdxRaw)) ? Number(rowIdxRaw) : 0;
 
-  // Preparar los valores iniciales para los materiales
-  const defaultMaterials = data?.materials?.map((element) => ({
+      // Coaccionar purchasingQuantity a número
+      const raw = Array.isArray(orderSelected?.purchases)
+        ? orderSelected.purchases[index]?.purchasingQuantity
+        : undefined;
+      const maxQtyNum = raw !== undefined && raw !== null ? Number(raw) : undefined;
+      const hasMax = Number.isFinite(maxQtyNum);
+
+      if (!val.checked) return;
+
+      if (!val.materialClientReference || val.materialClientReference.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'La referencia es obligatoria',
+          path: ['materialClientReference'],
+        });
+      }
+
+      if (!Number.isFinite(val.quantity) || val.quantity < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Cantidad mínima 1',
+          path: ['quantity'],
+        });
+      }
+
+      // ✅ Sin TypeScript cast
+      if (hasMax && val.quantity > maxQtyNum) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `No puede ser mayor que ${maxQtyNum}`,
+          path: ['quantity'],
+        });
+      }
+
+      if (!val.codigoSATKey || val.codigoSATKey.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Código SAT (clave) obligatorio',
+          path: ['codigoSATKey'],
+        });
+      }
+
+      if (!val.codigoSATName || val.codigoSATName.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Código SAT (nombre) obligatorio',
+          path: ['codigoSATName'],
+        });
+      }
+    })
+  ),
+});
+
+  
+
+// ---------------- Default values (ADD codigoSAT defaults) ----------------
+  const defaultMaterials = orderSelected?.purchases?.map((element) => ({
     checked: false,
     materialClientReference: element?.material?.materialClientReference || '',
     quantity: element?.quantity || 1,
     materialSerialNumber: element?.material?.materialSerialNumber || '',
+    codigoSATKey: element?.material?.codigoSATKey || '',  // <- if you store it already, else ''
+    codigoSATName: element?.material?.codigoSATName || '',
   })) || [];
 
 
@@ -77,6 +116,7 @@ export default function ModalAlbaran({ data }) {
     control,
     handleSubmit,
     reset,
+    setValue,              
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -88,18 +128,51 @@ export default function ModalAlbaran({ data }) {
 
   // Resetear el formulario cada vez que se abre el modal
   useEffect(() => {
-    if (open) {
+    if (openShipModal) {
       reset({
         date: '',
         materials: defaultMaterials,
       });
     }
-  }, [open]);
+  }, [openShipModal]);
 
   const { fields } = useFieldArray({
     control,
     name: 'materials',
   });
+
+
+  // ---------------- Handlers ----------------
+ const onPickCodigoSAT = (row) => {
+  if (activeIndex == null) return;
+
+  // 1) Update RHF (for validation + submit payload)
+  setValue(`materials.${activeIndex}.codigoSATKey`, row.key, { shouldValidate: true, shouldDirty: true });
+  setValue(`materials.${activeIndex}.codigoSATName`, row.name || '', { shouldDirty: true });
+
+  // 2) Mirror into parent state so the UI span reflects the choice immediately
+  if (typeof setOrderSelected === 'function') {
+    setOrderSelected(prev => {
+      if (!prev || !Array.isArray(prev.materials)) return prev;
+
+      const nextMaterials = [...prev.materials];
+      const currentRow = nextMaterials[activeIndex] || {};
+      nextMaterials[activeIndex] = {
+        ...currentRow,
+        material: {
+          ...(currentRow.material || {}),
+          codigoSATKey: row.key,
+          codigoSATName: row.name || '',
+        },
+      };
+
+      return { ...prev, materials: nextMaterials };
+    });
+  }
+
+  setSatPickerOpen(false);
+  setActiveIndex(null);
+};
 
 
   const onSubmit = async (values) => {
@@ -119,16 +192,16 @@ export default function ModalAlbaran({ data }) {
     // Cliente
 
     const client = {
-      vatName: data.vatName || '',
-      vatNumber: data.vatNumber || '',
-      aliasDeliveryAddress: data.deliveryAddress.aliasDeliveryAddress || '',
-      deliveryContactPhone: data.deliveryAddress.deliveryContactPhone || '',
-      deliveryAddress: data.deliveryAddress.deliveryAddress || '',
-      deliveryCity: data.deliveryAddress.deliveryCity || '',
-      deliveryState: data.deliveryAddress.deliveryState || '',
-      deliveryZipCode: data.deliveryAddress.deliveryZipCode || '',
-      orderNumGlobal: data.orderNumGlobal || '',
-      pOClientNumber: data.pOClientNumber || '',
+      vatName: orderSelected.vatName || '',
+      vatNumber: orderSelected.vatNumber || '',
+      aliasDeliveryAddress: orderSelected.deliveryAddress.aliasDeliveryAddress || '',
+      deliveryContactPhone: orderSelected.deliveryAddress.deliveryContactPhone || '',
+      deliveryAddress: orderSelected.deliveryAddress.deliveryAddress || '',
+      deliveryCity: orderSelected.deliveryAddress.deliveryCity || '',
+      deliveryState: orderSelected.deliveryAddress.deliveryState || '',
+      deliveryZipCode: orderSelected.deliveryAddress.deliveryZipCode || '',
+      orderNumGlobal: orderSelected.orderNumGlobal || '',
+      pOClientNumber: orderSelected.pOClientNumber || '',
     };
 
     // Fecha formateada
@@ -136,13 +209,15 @@ export default function ModalAlbaran({ data }) {
 
     // Artículos para el PDF
     const materials = materialesMarcados.map((mat) => {
-      const original = data?.materials?.[mat._originalIdx];
+      const original = orderSelected?.materials?.[mat._originalIdx];
       return {
         materialId: original?.material?.id || '',
         materialClientReference: mat.materialClientReference,
         materialName: original?.material?.materialName || '',
         quantityDelivered: mat.quantity,
         materialSerialNumber: mat?.materialSerialNumber || '',
+        codigoSATKey: mat.codigoSATKey || '', 
+        codigoSATName: mat.codigoSATName || '',
         revision: 'OK',
         firma: user?.name || user?.email || 'Usuario',
       };
@@ -150,32 +225,28 @@ export default function ModalAlbaran({ data }) {
 
 
     const deliveryData= {
-      orderId: data.id,
+      orderId: orderSelected.id,
       client: client, 
       formattedDate: formattedDate, 
       materials: materials,
-      pOClientNumber : data.pOClientNumber,
-      orderNumGlobal : data.orderNumGlobal,
-
+      pOClientNumber : orderSelected.pOClientNumber,
+      orderNumGlobal : orderSelected.orderNumGlobal,
     }
-
-    console.log("deliveryData --->> ", deliveryData);
-
-    await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
-
-    setOpen(false);
+      await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
+      setOpenShipModal(false);
     };
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-      >
-        <IconPlus className="h-5 w-5 text-white" />
-        Crear Envío
-      </button>
-      <Dialog open={open} onClose={setOpen} className="relative z-50">
+      
+      <CodigoSatSearchModal
+        open={satPickerOpen}
+        onClose={() => { setSatPickerOpen(false); setActiveIndex(null); }}
+        onPick={onPickCodigoSAT}
+        setOrderSelected={setOrderSelected}
+      />
+
+      <Dialog open={openShipModal} onClose={setOpenShipModal} className="relative z-50">
         <DialogBackdrop
           transition
           className="fixed inset-0 bg-zinc-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
@@ -188,7 +259,7 @@ export default function ModalAlbaran({ data }) {
             >
               <DialogTitle className="text-lg font-medium leading-6 text-gray-900 mb-4">
                 <IconContract className="h-6 w-6 text-gray-500 inline-block mr-2" />
-                Crear un nuevo albarán
+                Crear un nuevo albarán de envío
               </DialogTitle>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
@@ -223,6 +294,8 @@ export default function ModalAlbaran({ data }) {
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-32">Referencia Producto</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Cantidad</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Seriales</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">CódigoSAT</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">Asignar</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-zinc-200">
@@ -246,10 +319,10 @@ export default function ModalAlbaran({ data }) {
                               )}
                             </td>
                             <td className="px-1 py-1 text-center">
-                              <span className="text-xs text-zinc-900">{data?.materials?.[index]?.material?.materialName}</span>
+                              <span className="text-xs text-zinc-900">{orderSelected?.materials?.[index]?.material?.materialName}</span>
                             </td>
                             <td className="px-1 py-1 text-center">
-                              <span className="text-xs text-zinc-900">{data?.materials?.[index]?.material?.materialReference}</span>
+                              <span className="text-xs text-zinc-900">{orderSelected?.materials?.[index]?.material?.materialReference}</span>
                             </td>
                            <td className="px-1 py-1 text-center align-middle">
                             <div className="flex flex-col items-center justify-center w-full whitespace-nowrap">
@@ -257,12 +330,12 @@ export default function ModalAlbaran({ data }) {
                                 <input
                                   type="number"
                                   min="1"
-                                  max={data?.materials?.[index]?.quantity || undefined}
+                                  // max={orderSelected?.purchases?.[index]?.purchasingQuantity || undefined}
                                   {...register(`materials.${index}.quantity`, { valueAsNumber: true })}
                                   className="w-14 min-w-0 rounded-md text-center border border-zinc-300 px-1 py-1 text-xs text-zinc-900 focus:outline-indigo-600"
                                 />
                                 <span className="text-xs text-zinc-900">
-                                  de {data?.materials?.[index]?.quantity}
+                                  de {orderSelected?.purchases?.[index]?.purchasingQuantity}
                                 </span>
                               </div>
                               {errors.materials?.[index]?.quantity && (
@@ -280,6 +353,37 @@ export default function ModalAlbaran({ data }) {
                                 className="w-20 rounded-md border-zinc-300 px-1 py-1 text-xs text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 focus:outline-indigo-600"
                               />
                             </td>
+
+                            <td className="px-1 py-1 text-center">
+                              
+                              <span className="text-xs text-zinc-900">
+                                {orderSelected?.materials?.[index]?.material?.codigoSATName || "Sin asignar"}
+                                {orderSelected?.materials?.[index]?.material?.codigoSATKey && (
+                                  <span className="ml-1 font-mono text-[11px] text-zinc-600">
+                                    ({orderSelected.materials[index].material.codigoSATKey})
+                                  </span>
+                                )}
+                              </span>
+                            </td>
+
+                            <td className="px-1 py-1 text-center">
+                              <div className="flex flex-col items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => { setActiveIndex(index); setSatPickerOpen(true); }}
+                                  className="rounded-md border px-2 py-1 text-xs hover:bg-gray-50"
+                                >
+                                  Asignar / Cambiar
+                                </button>
+
+                                {/* show current selection from RHF */}
+                                <span className="text-[11px] text-zinc-700">
+                                  {/* read values via register paths using get values indirectly */}
+                                </span>              
+                              </div>
+                            </td>  
+
+
                           </tr>
                         ))}
                       </tbody>
@@ -296,7 +400,7 @@ export default function ModalAlbaran({ data }) {
                   <button
                     type="button"
                     data-autofocus
-                    onClick={() => setOpen(false)}
+                    onClick={() => setOpenShipModal(false)}
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
                   >
                     Cancelar

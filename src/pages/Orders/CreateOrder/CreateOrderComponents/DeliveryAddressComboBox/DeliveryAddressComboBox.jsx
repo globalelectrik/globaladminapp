@@ -18,7 +18,7 @@ export default function DeliveryAddressComboBox({ deliveryAddresses, deliveryAdd
 					className='w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-800 sm:text-sm sm:leading-6 placeholder-slate-300'
 					onChange={(event) => setQuery(event.target.value)}
 					displayValue={(deliveryAddress) => deliveryAddress?.aliasDeliveryAddress}
-          placeholder='Contacto'
+          placeholder='Dirección'
           readOnly
 				/>
 				<ComboboxButton className='absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none'>

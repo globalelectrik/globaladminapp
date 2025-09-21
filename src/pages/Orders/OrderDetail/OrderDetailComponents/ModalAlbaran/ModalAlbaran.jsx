@@ -32,6 +32,7 @@ export default function ModalAlbaran({ orderSelected, setOrderSelected, openShip
   // Construir el esquema de Zod para el formulario
 const schema = z.object({
   date: z.string().nonempty('La fecha es obligatoria'),
+  cfdiUse: z.string().nonempty('Debes seleccionar un Uso de CFDI'),
   materials: z.array(
     z.object({
       checked: z.boolean(),
@@ -122,6 +123,7 @@ const schema = z.object({
     resolver: zodResolver(schema),
     defaultValues: {
       date: '',
+      cfdiUse: '',
       materials: defaultMaterials,
     },
   });
@@ -207,6 +209,9 @@ const schema = z.object({
     // Fecha formateada
     const formattedDate = values.date || new Date().toLocaleDateString();
 
+    // Uso de CFDI
+    const cfdiUseInvoice = values.cfdiUse 
+
     // Artículos para el PDF
     const materials = materialesMarcados.map((mat) => {
       const original = orderSelected?.materials?.[mat._originalIdx];
@@ -231,10 +236,39 @@ const schema = z.object({
       materials: materials,
       pOClientNumber : orderSelected.pOClientNumber,
       orderNumGlobal : orderSelected.orderNumGlobal,
+      cfdiUse: cfdiUseInvoice
     }
       await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
       setOpenShipModal(false);
     };
+
+const cfdiUse = [
+  { value: "G01", description: "G01 - Adquisición de mercancías" },
+  { value: "G02", description: "G02 - Devoluciones, descuentos o bonificaciones" },
+  { value: "G03", description: "G03 - Gastos en general" },
+  { value: "I01", description: "I01 - Construcciones" },
+  { value: "I02", description: "I02 - Mobiliario y equipo de oficina por inversiones" },
+  { value: "I03", description: "I03 - Equipo de transporte" },
+  { value: "I04", description: "I04 - Equipo de computo y accesorios" },
+  { value: "I05", description: "I05 - Dados, troqueles, moldes, matrices y herramental" },
+  { value: "I06", description: "I06 - Comunicaciones telefónicas" },
+  { value: "I07", description: "I07 - Comunicaciones satelitales" },
+  { value: "I08", description: "I08 - Otra maquinaria y equipo" },
+  { value: "D01", description: "D01 - Honorarios médicos, dentales y gastos hospitalarios" },
+  { value: "D02", description: "D02 - Gastos médicos por incapacidad o discapacidad" },
+  { value: "D03", description: "D03 - Gastos funerales" },
+  { value: "D04", description: "D04 - Donativos" },
+  { value: "D05", description: "D05 - Intereses reales efectivamente pagados por créditos hipotecarios (casa habitación)" },
+  { value: "D06", description: "D06 - Aportaciones voluntarias al SAR" },
+  { value: "D07", description: "D07 - Primas por seguros de gastos médicos" },
+  { value: "D08", description: "D08 - Gastos de transportación escolar obligatoria" },
+  { value: "D09", description: "D09 - Depósitos en cuentas para el ahorro, primas que tengan como base planes de pensiones" },
+  { value: "D10", description: "D10 - Pagos por servicios educativos (colegiaturas)" },
+  { value: "S01", description: "S01 - Sin efectos fiscales" },
+  { value: "CP01", description: "CP01 - Pagos" }
+]
+
+
 
   return (
     <>
@@ -259,7 +293,7 @@ const schema = z.object({
             >
               <DialogTitle className="text-lg font-medium leading-6 text-gray-900 mb-4">
                 <IconContract className="h-6 w-6 text-gray-500 inline-block mr-2" />
-                Crear un nuevo albarán de envío
+                Crear un nuevo Albarán de Envío y Factura
               </DialogTitle>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
@@ -276,6 +310,24 @@ const schema = z.object({
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-zinc-900 outline-1 -outline-offset-1 outline-zinc-300 placeholder:text-zinc-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       />
                       {errors.date && <p className="text-red-600 text-xs mt-1">{errors.date.message}</p>}
+                    </div>
+
+                     <div>
+                      <label className="block text-sm font-medium">Uso de CFDI</label>
+                      <select
+                        {...register('cfdiUse')} 
+                        className="w-full rounded border px-2 py-1 max-h-48 overflow-y-auto"
+                      >
+                        <option value="">Selecciona un Uso de CFDI</option>
+                        {cfdiUse.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.description}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.cfdiUse && (
+                        <p className="text-red-600 text-xs mt-1">{errors.cfdiUse.message}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -295,7 +347,7 @@ const schema = z.object({
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Cantidad</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Seriales</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">CódigoSAT</th>
-                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">Asignar</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">Asignar Código</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-zinc-200">
@@ -395,7 +447,7 @@ const schema = z.object({
                     type="submit"
                     className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
                   >
-                    Crear
+                    Crear Albarán y Factura
                   </button>
                   <button
                     type="button"

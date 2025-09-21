@@ -1,6 +1,11 @@
+import ContactsComboBox from './../../../Contacts/ContactsComponents/ContactsComboBox';
+
 
 export default function EditDeliveryAddressModal({
   newAddress,
+  contactsData,
+  deliveryContactSelected,
+  setDeliveryContactSelected, 
   showDeliveryAddressModal,
   setShowEditDeliveryAddressModal,
   handleNewAddressChange,
@@ -8,12 +13,19 @@ export default function EditDeliveryAddressModal({
 }) {
   const closeModal = () => {
     setShowEditDeliveryAddressModal(false); // Close the modal
+    setDeliveryContactSelected("")
   };
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ${showDeliveryAddressModal ? 'block' : 'hidden'}`}>
       <div className="bg-white rounded-lg p-6 space-y-4 w-96 shadow-lg">
         <h3 className="text-lg font-medium text-gray-800">Modificar Dirección de Entrega</h3>
+        <p>Contacto seleccionado: {newAddress?.deliveryContact?.contactName ? newAddress?.deliveryContact.contactName : "N/A"}</p> 
+         <ContactsComboBox
+          contacts={contactsData}
+          contactSelected={deliveryContactSelected}
+          setContactSelected={setDeliveryContactSelected}
+        />
         <input
           type="text"
           placeholder="Contacto"

@@ -1,6 +1,7 @@
 import { IconContract } from '@tabler/icons-react';
 import ModalAlbaran from '../ModalAlbaran/ModalAlbaran';
 import { useState } from 'react';
+import { generateDeliveryInstrucionsPDF } from '../../../../../utils/generateDeliveryInstructions';
 
 export default function ShipmentsTable({orderSelected, setOrderSelected, openDeliveryLinkModal, setOpenDeliveryLinkModal, downloadDeliveryLinkFetchPut}) {
 
@@ -22,10 +23,17 @@ export default function ShipmentsTable({orderSelected, setOrderSelected, openDel
       />
 
       <div className='flex justify-between pt-4 px-4 rounded-xl'>
-        <div>
+        <div className='flex'>
           <h2 className='text-lg font-semibold'>Envíos de Compras</h2>
+          <button 
+            onClick={() => generateDeliveryInstrucionsPDF(orderSelected)}
+            className="px-4 py-1 text-indigo-600 underline"
+          >
+            Instrucciones Entrega
+          </button>
         </div>
         <div>
+          
           <button 
             onClick={() => setOpenShipModal(true)}
             className="rounded bg-indigo-500 px-4 py-1 text-white hover:bg-indigo-600"

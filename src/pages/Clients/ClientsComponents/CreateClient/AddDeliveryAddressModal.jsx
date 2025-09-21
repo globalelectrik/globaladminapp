@@ -1,7 +1,11 @@
 
+import ContactsComboBox from './../../../Contacts/ContactsComponents/ContactsComboBox';
 
 export default function AddDeliveryAddressModal ({
-    newAddress, 
+    newAddress,
+    contactsData,
+    deliveryContactSelected,
+    setDeliveryContactSelected, 
     closeDeliveryAddressModal,
     handleNewAddressChange,
     addDeliveryAddress}) {
@@ -11,6 +15,11 @@ export default function AddDeliveryAddressModal ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 space-y-4 w-96 shadow-lg">
             <h3 className="text-lg font-medium text-gray-800">Agregar Dirección de Entrega</h3>
+            <ContactsComboBox
+              contacts={contactsData}
+              contactSelected={deliveryContactSelected}
+              setContactSelected={setDeliveryContactSelected}
+            />
             <input
               type="text"
               placeholder="Alias de Dirección"

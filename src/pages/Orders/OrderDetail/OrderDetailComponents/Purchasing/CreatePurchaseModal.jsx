@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MaterialsComboBox from "../MaterialsComboBox";
+import MaterialsComboBox from "../Materials/MaterialsComboBox";
 
 export default function CreatePurchaseModal({ 
   orderSelected,

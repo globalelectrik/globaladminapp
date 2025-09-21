@@ -13,6 +13,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
       {
         materialName: "",
         quantity: 1,
+        salePrice: "",
         materialBrand: "",
         materialReference: "",
         materialClassification: "",
@@ -43,6 +44,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
               <th className="p-2 border border-gray-300">Nombre del Material</th>
               <th className="p-2 border border-gray-300">Referencia</th>
               <th className="p-2 border border-gray-300">Cant</th>
+              <th className="p-2 border border-gray-300">Precio Unitario</th>
               <th className="p-2 border border-gray-300">Marca</th>
               <th className="p-2 border border-gray-300">Clasificación</th>
               <th className="p-2 border border-gray-300">Estado</th>
@@ -88,6 +90,15 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                       className="w-12 border border-gray-300 p-1 rounded"
                       value={material.quantity}
                       onChange={(e) => updateMaterial(index, "quantity", e.target.value)}
+                    />
+                  </td>
+
+                  <td className="p-2 border border-gray-300">
+                    <input
+                      type="number"
+                      className="w-12 border border-gray-300 p-1 rounded"
+                      value={material.salePrice}
+                      onChange={(e) => updateMaterial(index, "salePrice", e.target.value)}
                     />
                   </td>
 

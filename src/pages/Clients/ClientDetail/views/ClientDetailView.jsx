@@ -13,6 +13,8 @@ import EditCompanyModal from './../../ClientsComponents/CreateClient/EditCompany
 export default function ClientDetailView() {
   const [clientToEdit, setClientToEdit] = useState("");
   const [contactsData, setContactsData] = useState("")
+  const [deliveryContactSelected, setDeliveryContactSelected] = useState("")
+
 
   const [showDeliveryAddressModal, setShowDeliveryAddressModal] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
@@ -31,7 +33,6 @@ export default function ClientDetailView() {
   const [backendResultType, setBackendResultType] = useState("")
 
   const [showContacts, setShowContacts] = useState(false);
-
   
   const { 
     data: clientData, 
@@ -65,6 +66,7 @@ const toggleContactsButtonHandler = () => {
   const openNewDeliveryAddressModal = (companyIndex) => {
     setCurrentCompanyIndex(companyIndex);
     setNewAddress({
+      deliveryContactName:"",
       aliasDeliveryAddress: "",
       deliveryContactPhone: "",
       deliveryAddress: "",
@@ -111,6 +113,8 @@ const toggleContactsButtonHandler = () => {
 
   const addDeliveryAddress = () => {
     const updatedClient = { ...clientToEdit };
+
+    newAddress.deliveryContact = deliveryContactSelected // --> aqui se hace update de la deliveryContactName seleccionada antes de pasarlo al back
     updatedClient.companyName[currentCompanyIndex].deliveryAddresses = [
       ...(updatedClient.companyName[currentCompanyIndex].deliveryAddresses || []),
       newAddress,
@@ -128,14 +132,15 @@ const toggleContactsButtonHandler = () => {
 
   const saveClientChanges = async () => {
     await clientUpdateFetchPut(`/clients/clientUpdate/${params.id}`, clientToEdit);
-    // setBackendMessage(clientUpdateFetchPut.)
   };
 
   const saveEditedAddress = () => {
     const updatedClient = { ...clientToEdit };
+    newAddress.deliveryContact = deliveryContactSelected
     updatedClient.companyName[currentCompanyIndex].deliveryAddresses[currentAddressIndex] = newAddress;
     setClientToEdit(updatedClient);
     setShowEditDeliveryAddressModal(false); // Close the modal after saving
+    setDeliveryContactSelected("")
   };
 
   const saveEditedCompany = () => {
@@ -143,6 +148,7 @@ const toggleContactsButtonHandler = () => {
     updatedClient.companyName[currentCompanyIndex] = newCompany;
     setClientToEdit(updatedClient);
     setShowEditCompanyModal(false)
+    setDeliveryContactSelected("")
   };
 
   const openEditAddressModal = (companyIndex, addressIndex) => {
@@ -168,8 +174,6 @@ const toggleContactsButtonHandler = () => {
 
 
 
-  console.log("contactsData--->> ", contactsData);
-
 
   return (
     <div className="p-4 space-y-6">
@@ -188,6 +192,7 @@ const toggleContactsButtonHandler = () => {
 
       {/* Client Information */}
       <div className="rounded border p-6 bg-white shadow-sm space-y-6">
+
         {/* Commercial Client Name */}
         <div>
           <div className="flex justify-between items-center">
@@ -199,6 +204,10 @@ const toggleContactsButtonHandler = () => {
           <p className="text-lg font-bold text-gray-900 mt-1">
             {clientToEdit?.commercialClientName || "N/A"}
           </p>
+
+          {/* SHOW Contacts */}
+
+
           {showContacts && contactsData && (
             <div className="mt-1 border-t pt-2">
               <h3 className="text-md font-medium text-gray-500 mb-2">Contactos Relacionados</h3>
@@ -238,7 +247,8 @@ const toggleContactsButtonHandler = () => {
 
         </div>
 
-        {/* Company Information */}
+{/* Company Information */}
+
         {clientToEdit?.companyName?.map((company, index) => (
           <div key={index} className="border-t py-4">
             <h3 className="text-lg font-medium text-gray-500">Razón Social {index + 1}</h3>
@@ -249,6 +259,12 @@ const toggleContactsButtonHandler = () => {
               <p className="text-base text-gray-800">
                 <span className="font-semibold">Número fiscal RFC:</span> {company.vatNumber || "N/A"}
               </p>
+               <p className="text-base text-gray-800">
+                <span className="font-semibold">Régimen:</span> {company.companyRegime || "N/A"}
+              </p>
+              <p className="text-base text-gray-800">
+                <span className="font-semibold">País:</span> {company.companyCountry || "N/A"}
+              </p>
                <button
                 type="button"
                 onClick={() => openEditCompanyModal(index)}
@@ -258,7 +274,8 @@ const toggleContactsButtonHandler = () => {
               </button>
             </div>
 
-            {/* Delivery Addresses */}
+{/* Delivery Addresses */}
+
             {company.deliveryAddresses?.map((address, addressIndex) => (
               <div key={addressIndex} className="pl-4 space-y-2 border-t pt-4">
                 <h4 className="text-base font-medium text-gray-500">
@@ -271,12 +288,16 @@ const toggleContactsButtonHandler = () => {
                       {address.aliasDeliveryAddress || "N/A"}
                     </p>
                     <p className="text-sm text-gray-800">
+                      <span className="font-semibold">Contacto Entrega:</span>{" "}
+                      {address?.deliveryContact?.contactName || ">>> N/A <<<"}
+                    </p>
+                    <p className="text-sm text-gray-800">
                       <span className="font-semibold">Dirección:</span>{" "}
                       {address.deliveryAddress || "N/A"}
                     </p>
                     <p className="text-sm text-gray-800">
                       <span className="font-semibold">Teléfono:</span>{" "}
-                      {address.deliveryContactPhone || "N/A"}
+                      {address?.deliveryContact?.telephone || "N/A"}
                     </p>
                   </div>
                   <div>
@@ -339,6 +360,9 @@ const toggleContactsButtonHandler = () => {
       {showDeliveryAddressModal && (
         <AddDeliveryAddressModal
           newAddress={newAddress}
+          contactsData={contactsData}
+          deliveryContactSelected={deliveryContactSelected}
+          setDeliveryContactSelected={setDeliveryContactSelected}
           showDeliveryAddressModal={showDeliveryAddressModal}
           setShowDeliveryAddressModal={setShowDeliveryAddressModal}
           closeDeliveryAddressModal={closeDeliveryAddressModal}
@@ -350,6 +374,9 @@ const toggleContactsButtonHandler = () => {
       {showEditDeliveryAddressModal && (
         <EditDeliveryAddressModal
           newAddress={newAddress}
+          contactsData={contactsData}
+          deliveryContactSelected={deliveryContactSelected}
+          setDeliveryContactSelected={setDeliveryContactSelected}
           showDeliveryAddressModal={showEditDeliveryAddressModal}
           setShowEditDeliveryAddressModal={setShowEditDeliveryAddressModal}
           handleNewAddressChange={handleNewAddressChange}

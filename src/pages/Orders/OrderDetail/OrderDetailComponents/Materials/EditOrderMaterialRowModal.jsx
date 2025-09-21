@@ -46,12 +46,22 @@ return (
                 className="w-full px-3 py-1 border rounded"
               />
             </div>
+             <div>
+              <label className="block text-sm font-medium">Precio Venta Unitario</label>
+              <input
+                type="number"
+                name="salePrice"
+                value={selectedMaterialRow.salePrice}
+                onChange={handleChange}
+                className="w-full px-3 py-1 border rounded"
+              />
+            </div>
           </div>
 
           <div className="flex justify-between pt-2">
             <div>
               <Link
-                className="text-indigo-600"
+                className="text-indigo-600 underline underline-offset-2"
                 to={`/materials/materialDetail/${selectedMaterialRow.material.id}`}
               >
                 Avanzado

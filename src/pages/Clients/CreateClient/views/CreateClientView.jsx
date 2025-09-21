@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import usePost from '../../../../hooks/usePost/usePost';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import usePost from "../../../../hooks/usePost/usePost";
 
 export default function CreateClientView() {
   const [newClient, setNewClient] = useState({
-    commercialClientName: '',
+    commercialClientName: "",
     companyName: [
       {
-        vatName: '',
-        vatNumber: '',
+        vatName: "",
+        vatNumber: "",
+        companyCountry: "MEX",
+        companyRegime: "",
+        companyZipCode: "",
+        companyEmail: "",
       },
     ],
   });
 
   const [formErrors, setFormErrors] = useState([]);
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // 🔴 Success Modal control
-  const [urlToClient, setUrlToClient] = useState("")
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [urlToClient, setUrlToClient] = useState("");
 
   const {
     postResponse: createClientPostResponse,
@@ -25,7 +29,7 @@ export default function CreateClientView() {
   } = usePost();
 
   const handleInputChange = (e, path) => {
-    const keys = path.split('.');
+    const keys = path.split(".");
     const updatedClient = { ...newClient };
     let ref = updatedClient;
 
@@ -43,8 +47,12 @@ export default function CreateClientView() {
       companyName: [
         ...prev.companyName,
         {
-          vatName: '',
-          vatNumber: '',
+          vatName: "",
+          vatNumber: "",
+          companyCountry: "MEX",
+          companyRegime: "",
+          companyZipCode: "",
+          companyEmail: "",
         },
       ],
     }));
@@ -63,16 +71,21 @@ export default function CreateClientView() {
     const errors = [];
 
     if (!newClient.commercialClientName.trim()) {
-      errors.push('Nombre Comercial');
+      errors.push("Nombre Comercial");
     }
-
     newClient.companyName.forEach((company, index) => {
-      if (!company.vatName.trim()) {
+      if (!company.vatName.trim())
         errors.push(`Razón Social de la empresa ${index + 1}`);
-      }
-      if (!company.vatNumber.trim()) {
+      if (!company.vatNumber.trim())
         errors.push(`RFC de la empresa ${index + 1}`);
-      }
+      if (!company.companyCountry.trim())
+        errors.push(`País de la empresa ${index + 1}`);
+      if (!company.companyRegime.trim())
+        errors.push(`Régimen de la empresa ${index + 1}`);
+      if (!company.companyZipCode.trim())
+        errors.push(`Código Postal de la empresa ${index + 1}`);
+      if (!company.companyEmail.trim())
+        errors.push(`Email de la empresa ${index + 1}`);
     });
 
     if (errors.length > 0) {
@@ -81,34 +94,61 @@ export default function CreateClientView() {
     }
 
     setFormErrors([]);
-    await createClientFetchPost('/clients/createClient', newClient);
+    await createClientFetchPost("/clients/createClient", newClient);
   };
 
-  // -->>>  Si el mensaje de post es correcto, se abre el modal con el url para ir a agregar más datos y se limpian los datos del front
-
   useEffect(() => {
-    if (createClientPostResponse?.message === 'success') {
+    if (createClientPostResponse?.message === "success") {
       setShowSuccessModal(true);
-      setUrlToClient(`/clients/clientDetail/${createClientPostResponse.client.id}`);      
+      setUrlToClient(
+        `/clients/clientDetail/${createClientPostResponse.client.id}`
+      );
       setNewClient({
-        commercialClientName: '',
+        commercialClientName: "",
         companyName: [
           {
-            vatName: '',
-            vatNumber: '',
+            vatName: "",
+            vatNumber: "",
+            companyCountry: "MEX",
+            companyRegime: "",
+            companyZipCode: "",
+            companyEmail: "",
           },
         ],
       });
     }
   }, [createClientPostResponse]);
 
+  const regimeOptions = [
+    { value: "601", label: "601 — General de Ley Personas Morales" },
+    { value: "603", label: "603 — Personas Morales con Fines no Lucrativos" },
+    { value: "605", label: "605 — Sueldos y Salarios e Ingresos Asimilados a Salarios" },
+    { value: "606", label: "606 — Arrendamiento" },
+    { value: "607", label: "607 — Régimen de Enajenación o Adquisición de Bienes" },
+    { value: "608", label: "608 — Demás ingresos" },
+    { value: "610", label: "610 — Residentes en el Extranjero sin EP en México" },
+    { value: "611", label: "611 — Ingresos por Dividendos (socios y accionistas)" },
+    { value: "612", label: "612 — Personas Físicas con Actividades Empresariales y Profesionales" },
+    { value: "614", label: "614 — Ingresos por intereses" },
+    { value: "615", label: "615 — Régimen de los ingresos por obtención de premios" },
+    { value: "616", label: "616 — Sin obligaciones fiscales" },
+    { value: "620", label: "620 — Sociedades Cooperativas de Producción (diferimiento)" },
+    { value: "621", label: "621 — Incorporación Fiscal" },
+    { value: "622", label: "622 — Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras" },
+    { value: "623", label: "623 — Opcional para Grupos de Sociedades" },
+    { value: "624", label: "624 — Coordinados" },
+    { value: "625", label: "625 — Actividades Empresariales vía Plataformas Tecnológicas" },
+    { value: "626", label: "626 — Régimen Simplificado de Confianza" },
+  ];
 
   return (
     <div className="p-2 space-y-4">
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full text-center space-y-4">
-            <h2 className="text-lg font-semibold text-green-600">✅ Cliente creado correctamente</h2>
+            <h2 className="text-lg font-semibold text-green-600">
+              ✅ Cliente creado correctamente
+            </h2>
             <h3>
               <Link to={`${urlToClient}`} className="text-blue-600 hover:underline">
                 Ir al cliente
@@ -137,7 +177,9 @@ export default function CreateClientView() {
 
         {formErrors.length > 0 && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <strong className="font-bold block mb-2">Faltan campos obligatorios:</strong>
+            <strong className="font-bold block mb-2">
+              Faltan campos obligatorios:
+            </strong>
             <ul className="list-disc ml-5 text-sm">
               {formErrors.map((error, index) => (
                 <li key={index}>{error}</li>
@@ -152,13 +194,13 @@ export default function CreateClientView() {
             <input
               type="text"
               value={newClient.commercialClientName}
-              onChange={(e) => handleInputChange(e, 'commercialClientName')}
+              onChange={(e) => handleInputChange(e, "commercialClientName")}
               className="w-full rounded border px-2 py-1"
             />
           </div>
 
           {newClient.companyName.map((company, companyIndex) => (
-            <div key={companyIndex} className="border p-4 rounded">
+            <div key={companyIndex} className="border p-4 rounded space-y-2">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-sm font-semibold">Empresa {companyIndex + 1}</h3>
                 {newClient.companyName.length > 1 && (
@@ -171,28 +213,65 @@ export default function CreateClientView() {
                   </button>
                 )}
               </div>
+
+              <input
+                type="text"
+                placeholder="Razón Social"
+                value={company.vatName}
+                onChange={(e) =>
+                  handleInputChange(e, `companyName.${companyIndex}.vatName`)
+                }
+                className="w-full rounded border px-2 py-1"
+              />
+
+              <input
+                type="text"
+                placeholder="RFC"
+                value={company.vatNumber}
+                onChange={(e) =>
+                  handleInputChange(e, `companyName.${companyIndex}.vatNumber`)
+                }
+                className="w-full rounded border px-2 py-1"
+              />
+
+              {/* ✅ Scrollable dropdown with Tailwind */}
               <div>
-                <label className="block text-sm font-medium">Razón Social</label>
-                <input
-                  type="text"
-                  value={company.vatName}
+                <label className="block text-sm font-medium">Régimen Fiscal</label>
+                <select
+                  value={company.companyRegime}
                   onChange={(e) =>
-                    handleInputChange(e, `companyName.${companyIndex}.vatName`)
+                    handleInputChange(e, `companyName.${companyIndex}.companyRegime`)
                   }
-                  className="w-full rounded border px-2 py-1"
-                />
+                  className="w-full rounded border px-2 py-1 max-h-48 overflow-y-auto"
+                >
+                  <option value="">Selecciona un régimen</option>
+                  {regimeOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium">Número Fiscal (RFC)</label>
-                <input
-                  type="text"
-                  value={company.vatNumber}
-                  onChange={(e) =>
-                    handleInputChange(e, `companyName.${companyIndex}.vatNumber`)
-                  }
-                  className="w-full rounded border px-2 py-1"
-                />
-              </div>
+
+              <input
+                type="text"
+                placeholder="Código Postal"
+                value={company.companyZipCode}
+                onChange={(e) =>
+                  handleInputChange(e, `companyName.${companyIndex}.companyZipCode`)
+                }
+                className="w-full rounded border px-2 py-1"
+              />
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={company.companyEmail}
+                onChange={(e) =>
+                  handleInputChange(e, `companyName.${companyIndex}.companyEmail`)
+                }
+                className="w-full rounded border px-2 py-1"
+              />
             </div>
           ))}
 

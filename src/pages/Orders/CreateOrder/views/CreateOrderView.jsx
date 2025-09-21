@@ -14,7 +14,6 @@ import CreatedOrderModal from '../CreateOrderComponents/CreatedOrderModal/Create
 export default function CreateOrderView() {
   const [clientSelected, setClientSelected] = useState(null);
   const [companySelected, setCompanySelected] = useState(null);
-  const [contactSelected, setContactSelected] = useState(null);
 
   const [orderNumGlobal, setOrderNumGlobal] = useState('');
   const [quotNumGlobal, setQuotNumGlobal] = useState('');
@@ -64,13 +63,14 @@ export default function CreateOrderView() {
     if (!deliveryAddressSelected) errors.push("Dirección de entrega");
     if (!clientCreditDays) errors.push("Días de crédito");
     if (!orderTotal) errors.push("Total de la orden");
-    if (!contactSelected) errors.push("Contacto de entrega, o crea uno en Contactos");
 
     if (!materials.length) {
       errors.push("Debes añadir al menos un material");
     } else {
       materials.forEach((material, index) => {
         if (!material.materialName) errors.push(`Material ${index + 1}: Nombre`);
+        if (!material.quantity) errors.push(`Material ${index + 1}: Cantidad`);
+        if (!material.salePrice) errors.push(`Material ${index + 1}: Precio`);
         if (!material.materialBrand) errors.push(`Material ${index + 1}: Marca`);
         if (!material.materialReference) errors.push(`Material ${index + 1}: Referencia`);
         if (!material.materialClassification) errors.push(`Material ${index + 1}: Clasificación`);
@@ -101,13 +101,14 @@ export default function CreateOrderView() {
       user: user.email,
     };
 
+    dataToSend.deliveryAddress.deliveryContact = deliveryAddressSelected.deliveryContact.id // se añade el id solamente para que en el back se crée correctamente
+
    await createOrderFetchPost("/orders/createOrder", dataToSend);
   };
 
   useEffect(() => {
     if (clientSelected) {
       setCompanySelected("");
-      setContactSelected("");
       classificationsFetchGet('/materials/getClassifications');
       contactsFetchGet(`/contacts/clientContacts/${clientSelected?.id}`);
       brandsFetchGet('/materials/getBrands');
@@ -131,7 +132,6 @@ export default function CreateOrderView() {
       // Clear fields
       setClientSelected(null);
       setCompanySelected(null);
-      setContactSelected(null);
       setOrderNumGlobal('');
       setQuotNumGlobal('');
       setDatePOClient('');
@@ -196,6 +196,8 @@ export default function CreateOrderView() {
           <div className='align-middle rounded-md bg-slate-50 p-3 shadow-sm border-slate-200 border'>
             { deliveryAddressSelected ? (
               <div className='text-sm align-middle'>
+                <div className='flex justify-between'><p className='font-bold'>Contacto:</p> <p className='text-right'>{deliveryAddressSelected.deliveryContact.contactName}</p></div>
+                <div className='flex justify-between'><p className='font-bold'>Móvil:</p> <p className='text-right'>{deliveryAddressSelected.deliveryContact.mobile}</p></div>
                 <div className='flex justify-between'><p className='font-bold'>Alias:</p> <p className='text-right'>{deliveryAddressSelected.aliasDeliveryAddress}</p></div>
                 <div className='flex justify-between'><p className='font-bold'>Dirección:</p> <p className='text-right'>{deliveryAddressSelected.deliveryAddress}</p></div>
                 <div className='flex justify-between'><p className='font-bold'>Ciudad:</p> <p className='text-right'>{deliveryAddressSelected.deliveryCity}</p></div>
@@ -278,16 +280,6 @@ export default function CreateOrderView() {
               />
               <p>Total+IVA (16%) {formatCurrency(orderTotalPlusTax)}</p>
             </div>
-          </div>
-          
-           {/* Contacto de entrega del paquete*/}
-          <div className='flex items-center space-x-2'>
-            <label className='inline-block w-1/3'>Contacto entrega</label>
-              <ContactsComboBox
-                contacts={contactsData?.contacts}
-                contactSelected={contactSelected}
-                setContactSelected={setContactSelected}
-              />
           </div>
 
         </div>

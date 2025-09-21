@@ -1,3 +1,5 @@
+import { formatCurrency } from "../../../../../helpers/formatCurrency";
+
 export default function OrderMaterialsTable({
   orderSelected,
   setOrderSelected,
@@ -32,6 +34,7 @@ export default function OrderMaterialsTable({
           <tr>
             <th className="px-4 py-1 border-b font-medium">Material</th>
             <th className="px-4 py-1 border-b font-medium">Cant.</th>
+             <th className="px-4 py-1 border-b font-medium">Precio Unitario</th>
             <th className="px-4 py-1 border-b font-medium">PorComprar</th>
             <th className="px-4 py-1 border-b font-medium">RefMaterial</th>
             <th className="px-4 py-1 border-b font-medium">Marca</th>
@@ -43,6 +46,7 @@ export default function OrderMaterialsTable({
             <tr key={index} className="hover:bg-gray-200 cursor-pointer">
               <td className="px-4 py-2 border-b text-left" >{mat?.material?.materialName || mat?.material}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.quantity}</td>
+              <td className="px-4 py-2 border-b text-center">{formatCurrency(mat?.salePrice)}</td>
               <td className="px-4 py-2 border-b text-center">  {getPendingQuantity(mat)}</td>
               <td className="px-4 py-2 border-b text-center">{mat?.material?.materialReference}</td>
               <td className="px-4 py-2 border-b text-center text-xs">{mat?.material?.materialBrand?.brandName}</td>

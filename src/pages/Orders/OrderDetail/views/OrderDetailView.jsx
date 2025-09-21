@@ -6,9 +6,9 @@ import usePut from './../../../../hooks/usePut/usePut';
 import usePost from '../../../../hooks/usePost/usePost.jsx';
 import { formatCurrency } from '../../../../helpers/formatCurrency.js';
 import { formatDateToReadable } from '../../../../utils/helpers/formatDateToReadable.js';
-import OrderMaterialsTable from '../OrderDetailComponents/OrderMaterialsTable.jsx';
-import EditOrderMaterialRow from '../OrderDetailComponents/EditOrderMaterialRowModal.jsx';
-import AddOrderMaterialModal from '../OrderDetailComponents/AddOrderMaterialModal.jsx';
+import OrderMaterialsTable from '../OrderDetailComponents/Materials/OrderMaterialsTable.jsx';
+import EditOrderMaterialRow from '../OrderDetailComponents/Materials/EditOrderMaterialRowModal.jsx';
+import AddOrderMaterialModal from '../OrderDetailComponents/Materials/AddOrderMaterialModal.jsx';
 import OrderMaterialsPurchasesTable from '../OrderDetailComponents/Purchasing/OrderMaterialsPurchasesTable.jsx';
 import CreatePurchaseModal from '../OrderDetailComponents/Purchasing/CreatePurchaseModal.jsx';
 import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/GeneradorAlbaranPDF.jsx';
@@ -31,6 +31,8 @@ export default function OrderDetailView() {
   const [editPuchaseIndex, setEditPurchaseIndex] = useState(null)
   const [openDeliveryLinkModal, setOpenDeliveryLinkModal] = useState(false)
   const [downloadDeliveryLink, setDownloadDeliveryLink] = useState(null)
+
+  console.log("orderSelected-->",orderSelected);
    
     
   const {
@@ -132,7 +134,7 @@ useEffect(() => {
 
 
   return (
-    <div className="py-4 max-w-5xl mx-auto">
+    <div className="py-4 max-w-6xl mx-auto">
 
       <div className="flex items-center justify-between">
         <div className='flex gap-4 items-end'>
@@ -155,7 +157,7 @@ useEffect(() => {
           <div className="flex justify-between"><span className="font-medium">Orden de Compra:</span> {orderSelected?.pOClientNumber}</div>
           <div className="flex justify-between"><span className="font-medium">Fecha OC:</span> {formatDateToReadable(orderSelected?.datePOClient)}</div>
           <div className="flex justify-between"><span className="font-medium">Cliente:</span> {orderSelected?.client?.commercialClientName}</div>
-          <div className="flex justify-between"><span className="font-medium">Razón Social:</span> {orderSelected?.vatName}</div>
+          <div className="flex justify-between"><span className="font-medium">Razón Social:</span><span className='text-right'>{orderSelected?.vatName}</span> </div>
           <div className="flex justify-between"><span className="font-medium">RFC:</span> {orderSelected?.vatNumber}</div>
           <div className="flex justify-between"><span className="font-medium">Días entrega:</span> {orderSelected?.deliverInDays ?? 'N/A'} días</div>
           <div className="flex justify-between"><span className="font-medium">Día Entregado:</span> {orderSelected?.dateDeliveredToClient ?? 'Pending'}</div>
@@ -169,8 +171,9 @@ useEffect(() => {
       <section className="bg-white p-4 shadow rounded-xl md:col-span-2">
         <h2 className="text-lg font-semibold mb-2">Dirección de Entrega</h2>
         <div className="space-y-1 text-sm">
+          <div><strong>Contacto Entrega:</strong> {orderSelected?.deliveryAddress?.deliveryContact?.contactName}</div>
           <div><strong>Alias:</strong> {orderSelected?.deliveryAddress?.aliasDeliveryAddress}</div>
-          <div><strong>Teléfono:</strong> {orderSelected?.deliveryAddress?.deliveryContactPhone}</div>
+          <div><strong>Teléfono:</strong> {orderSelected?.deliveryAddress?.deliveryContact?.telephone}</div>
           <div><strong>Dirección:</strong> {orderSelected?.deliveryAddress?.deliveryAddress}</div>
           <div><strong>Ciudad:</strong> {orderSelected?.deliveryAddress?.deliveryCity}</div>
           <div><strong>Estado:</strong> {orderSelected?.deliveryAddress?.deliveryState}</div>
@@ -247,7 +250,7 @@ useEffect(() => {
      </section>         
      
       {/* Incidences */}
-      <section className="bg-white p-4 shadow rounded-xl mt-3">
+      {/* <section className="bg-white p-4 shadow rounded-xl mt-3">
         <h2 className="text-lg font-semibold mb-2">Incidencias</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -259,7 +262,7 @@ useEffect(() => {
             {orderSelected?.incidenceGECause && <div><strong>Cause:</strong> {orderSelected.incidenceGECause}</div>}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Invoice */}
       <section className="bg-white p-4 shadow rounded-xl mt-3">

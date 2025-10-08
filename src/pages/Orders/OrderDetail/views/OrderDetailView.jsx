@@ -42,6 +42,16 @@ export default function OrderDetailView() {
     fetchPost: createPurchaseFetchPost,
   } = usePost();
 
+// HOOK AVAILABLE AT SHIPMENTS TABLE TO CREATE DELIVERY
+// AND MODAL ALBARAN TO REFRESH ORDER AFTER CREATING DELIVERY
+  const {
+    postResponse: createDeliveryPostResponse,
+    isLoading: createDeliveryIsLoading,
+    error: createDeliveryError,
+    fetchPost: createDeliveryFetchPost,
+  } = usePost();
+
+
   const { 
     putResponse: orderMaterialUpdatedData,
     isLoading: orderMaterialUpdateIsLoading,
@@ -76,11 +86,12 @@ export default function OrderDetailView() {
    } = useGet();
 
 
-
+// Fetch order details on component mount
   useEffect(() => {
     orderFetchGet(`/orders/orderDetail/${id}`);
   }, []);
 
+// when orderData changes, update orderSelected state
   useEffect(() => {
     if(orderData){
       setOrderSelected(orderData.order)
@@ -88,18 +99,28 @@ export default function OrderDetailView() {
     }
   }, [orderData]);
 
+// Refresh order after creating delivery  
+    useEffect(() => {
+    if(createDeliveryPostResponse){
+      setOrderSelected(createDeliveryPostResponse.order)
+    }
+  }, [createDeliveryPostResponse]) 
+
+  // When material in order is edited, refresh the order
   useEffect(() => {
     if(orderMaterialUpdatedData){
       setOrderSelected(orderMaterialUpdatedData.order)
     }
   }, [orderMaterialUpdatedData]);
 
+  // When a material is purchased, refresh the order
   useEffect(() => {
     if(createPurchasePostResponse){
       setOrderSelected(createPurchasePostResponse.order)
     }
   }, [createPurchasePostResponse]);
 
+  // When downloadDeliveryLinkData changes, open modal and set link
     useEffect(() => {
     if(downloadDeliveryLinkData?.message === "success"){
       setOpenDeliveryLinkModal(true)
@@ -108,6 +129,7 @@ export default function OrderDetailView() {
   }, [downloadDeliveryLinkData]);
 
 
+// Saves changes made in Edit Material Modal
 const saveMaterialOrderChanges = async () => {
   const updatedMaterials = [...orderSelected.materials];
   updatedMaterials[editMaterialIndex] = { ...selectedMaterialRow };
@@ -237,7 +259,7 @@ useEffect(() => {
         />
       </section>
 
-      {/* Envíos */}
+      {/* Envíos de Compras*/}
 
      <section>
       <ShipmentsTable 
@@ -246,6 +268,10 @@ useEffect(() => {
         openDeliveryLinkModal={openDeliveryLinkModal}
         setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
         downloadDeliveryLinkFetchPut={downloadDeliveryLinkFetchPut}
+        createDeliveryPostResponse={createDeliveryPostResponse}
+        createDeliveryIsLoading={createDeliveryIsLoading}
+        createDeliveryError={createDeliveryError}
+        createDeliveryFetchPost={createDeliveryFetchPost}
         />
      </section>         
      
@@ -263,17 +289,6 @@ useEffect(() => {
           </div>
         </div>
       </section> */}
-
-      {/* Invoice */}
-      <section className="bg-white p-4 shadow rounded-xl mt-3">
-        <h2 className="text-lg font-semibold mb-2">Factura</h2>
-        <div className="space-y-1 text-sm">
-          <div><strong>Factura GE #:</strong> {orderSelected?.invoiceNumGE}</div>
-          <div><strong>PDF:</strong> {orderSelected?.invoiceNumGEPdf}</div>
-          <div><strong>XML:</strong> {orderSelected?.invoiceNumGEXml}</div>
-        </div>
-      </section>
-
 
        {/* Comments */}
       <section className="bg-white p-4 shadow rounded-xl mt-3">

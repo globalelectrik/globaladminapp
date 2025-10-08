@@ -3,7 +3,17 @@ import ModalAlbaran from '../ModalAlbaran/ModalAlbaran';
 import { useState } from 'react';
 import { generateDeliveryInstrucionsPDF } from '../../../../../utils/generateDeliveryInstructions';
 
-export default function ShipmentsTable({orderSelected, setOrderSelected, openDeliveryLinkModal, setOpenDeliveryLinkModal, downloadDeliveryLinkFetchPut}) {
+export default function ShipmentsTable({
+  orderSelected, 
+  setOrderSelected, 
+  openDeliveryLinkModal, 
+  setOpenDeliveryLinkModal, 
+  downloadDeliveryLinkFetchPut,
+  createDeliveryPostResponse,
+  createDeliveryIsLoading,
+  createDeliveryError,
+  createDeliveryFetchPost
+}) {
 
   const [openShipModal, setOpenShipModal] = useState(false);
   
@@ -12,6 +22,14 @@ export default function ShipmentsTable({orderSelected, setOrderSelected, openDel
     downloadDeliveryLinkFetchPut(`/deliveries/deliveryNoteLink/${deliveryId}`)
   }
 
+  const downloadInvoicePDFHandler = (deliveryId) => {
+    // Logic to download the invoice PDF
+  }
+
+  const downloadInvoiceXMLHandler = (deliveryId) => {
+    // Logic to download the invoice XML
+  } 
+
   return (
     <div className="overflow-hidden rounded-lg bg-white shadow mt-2 ">
 
@@ -19,7 +37,11 @@ export default function ShipmentsTable({orderSelected, setOrderSelected, openDel
           orderSelected={orderSelected} 
           setOrderSelected={setOrderSelected}
           openShipModal={openShipModal} 
-          setOpenShipModal={setOpenShipModal} 
+          setOpenShipModal={setOpenShipModal}
+          createDeliveryPostResponse={createDeliveryPostResponse}
+          createDeliveryIsLoading={createDeliveryIsLoading}
+          createDeliveryError={createDeliveryError}
+          createDeliveryFetchPost={createDeliveryFetchPost}
       />
 
       <div className='flex justify-between pt-4 px-4 rounded-xl'>
@@ -50,6 +72,9 @@ export default function ShipmentsTable({orderSelected, setOrderSelected, openDel
             <th className="px-4 py-1 border-b font-medium text-left">Paquetería</th>
             <th className="px-4 py-1 border-b font-medium">Albarán Creado</th>
             <th className="px-4 py-1 border-b font-medium">Albarán</th>
+            <th className="px-4 py-1 border-b font-medium">Factura Num</th>
+            <th className="px-4 py-1 border-b font-medium">Factura PDF</th>
+            <th className="px-4 py-1 border-b font-medium">Factura XML</th>
           </tr>
         </thead>
         <tbody>
@@ -59,7 +84,18 @@ export default function ShipmentsTable({orderSelected, setOrderSelected, openDel
               <td className="px-4 py-2 border-b text-center" >{del?.createdAt}</td>
               <td className="px-4 py-2 border-b text-indigo-600 underline text-center">
                 <button type="button" onClick={()=>createLinkButtonHandler(del.id)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-indigo-600 underline shadow-sm hover:bg-indigo-400 hover:text-white">
-                  Albarán
+                   Albarán {del.deliveryNoteNumber}
+                </button>
+              </td>
+              <td className="px-4 py-2 border-b text-center" >Fac Num {del?.invoiceNumGEPdf}</td>
+              <td className="px-4 py-2 border-b text-indigo-600 underline text-center">
+                <button type="button" onClick={()=>downloadInvoicePDFHandler(del.id)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-indigo-600 underline shadow-sm hover:bg-indigo-400 hover:text-white">
+                   PDF
+                </button>
+              </td>
+              <td className="px-4 py-2 border-b text-indigo-600 underline text-center">
+                <button type="button" onClick={()=>downloadInvoiceXMLHandler(del.invoiceNumGEXml)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-indigo-600 underline shadow-sm hover:bg-indigo-400 hover:text-white">
+                  XML
                 </button>
               </td>
             </tr> 

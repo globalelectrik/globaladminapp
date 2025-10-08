@@ -8,10 +8,18 @@ import { useState, useEffect } from 'react';
 
 import { generarPDF } from '../../../../../utils/generadorPDF';
 import { useAuthContext } from '../../../../../context/AuthContext';
-import usePost from '../../../../../hooks/usePost/usePost';
 import CodigoSatSearchModal from './CodigoSatSearchModal';
 
-export default function ModalAlbaran({ orderSelected, setOrderSelected, openShipModal, setOpenShipModal }) {
+export default function ModalAlbaran({ 
+  orderSelected, 
+  setOrderSelected, 
+  openShipModal, 
+  setOpenShipModal,
+  createDeliveryPostResponse,
+  createDeliveryIsLoading,
+  createDeliveryError,
+  createDeliveryFetchPost
+}) {
 
 
   const { user } = useAuthContext();
@@ -19,15 +27,17 @@ export default function ModalAlbaran({ orderSelected, setOrderSelected, openShip
   const [satPickerOpen, setSatPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
 
+  // Helper function to get current date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   //>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-
-  const {
-    postResponse: createDeliveryPostResponse,
-    isLoading: createDeliveryIsLoading,
-    error: createDeliveryError,
-    fetchPost: createDeliveryFetchPost,
-  } = usePost();
 
   // Construir el esquema de Zod para el formulario
 const schema = z.object({
@@ -122,7 +132,7 @@ const schema = z.object({
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      date: '',
+      date: getCurrentDate(),
       cfdiUse: '',
       materials: defaultMaterials,
     },
@@ -132,7 +142,8 @@ const schema = z.object({
   useEffect(() => {
     if (openShipModal) {
       reset({
-        date: '',
+        date: getCurrentDate(),
+        cfdiUse: '',
         materials: defaultMaterials,
       });
     }
@@ -221,6 +232,7 @@ const schema = z.object({
         materialName: original?.material?.materialName || '',
         quantityDelivered: mat.quantity,
         materialSerialNumber: mat?.materialSerialNumber || '',
+        salePrice: original?.salePrice,
         codigoSATKey: mat.codigoSATKey || '', 
         codigoSATName: mat.codigoSATName || '',
         revision: 'OK',
@@ -228,6 +240,7 @@ const schema = z.object({
       };
     });
 
+    console.log("materials--> ", materials);
 
     const deliveryData= {
       orderId: orderSelected.id,

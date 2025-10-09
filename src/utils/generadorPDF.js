@@ -32,7 +32,6 @@ export function generarPDF({
   materials
 }) {
 
-  console.log("articulos-->>", materials);
 
   const doc = new jsPDF({ format: 'a4', unit: 'mm' });
   const margin = 15;

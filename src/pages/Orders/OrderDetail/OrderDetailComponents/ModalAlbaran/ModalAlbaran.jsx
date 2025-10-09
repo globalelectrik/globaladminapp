@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 
 import { generarPDF } from '../../../../../utils/generadorPDF';
 import { useAuthContext } from '../../../../../context/AuthContext';
+import { getCurrentDate } from '../../../../../utils/helpers/getCurrentDate';
 import CodigoSatSearchModal from './CodigoSatSearchModal';
 
 export default function ModalAlbaran({ 
@@ -26,15 +27,6 @@ export default function ModalAlbaran({
 
   const [satPickerOpen, setSatPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
-
-  // Helper function to get current date in YYYY-MM-DD format
-  const getCurrentDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   //>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -240,7 +232,6 @@ const schema = z.object({
       };
     });
 
-    console.log("materials--> ", materials);
 
     const deliveryData= {
       orderId: orderSelected.id,

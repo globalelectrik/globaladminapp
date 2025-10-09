@@ -29,7 +29,7 @@ export default function useNotification() {
 
   useEffect(() => {
     if (notificationStatus.response || notificationStatus.error) {
-      console.log(notificationStatus);
+      //console.log(notificationStatus);
       setNotificationStatus((prevState) => ({
         ...prevState,
         open: true,

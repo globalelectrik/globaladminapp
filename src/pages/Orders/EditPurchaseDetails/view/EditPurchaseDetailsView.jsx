@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useGet from '../../../../hooks/useGet/useGet';
-import { formatCurrency } from '../../../../helpers/formatCurrency';
+import { formatCurrency } from '../../../../utils/helpers/formatCurrency';
 import usePost from '../../../../hooks/usePost/usePost';
 import useDelete from '../../../../hooks/useDelete/useDelete';
 import { CrossIcon, DeleteIcon } from 'lucide-react';

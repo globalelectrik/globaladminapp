@@ -28,7 +28,6 @@ export default function PurchasesListView() {
     }));
   };
 
-  console.log("purchasesData--> ",purchasesData);
 
   return (
     <div className="p-6 space-y-4">

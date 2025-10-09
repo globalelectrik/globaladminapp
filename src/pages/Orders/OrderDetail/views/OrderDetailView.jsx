@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
-import { EditIcon } from 'lucide-react';
+import { EditIcon, PlusCircleIcon } from 'lucide-react';
 import useGet from '../../../../hooks/useGet/useGet.jsx';
 import usePut from './../../../../hooks/usePut/usePut';
 import usePost from '../../../../hooks/usePost/usePost.jsx';
-import { formatCurrency } from '../../../../helpers/formatCurrency.js';
+import { formatCurrency } from '../../../../utils/helpers/formatCurrency.js';
 import { formatDateToReadable } from '../../../../utils/helpers/formatDateToReadable.js';
 import OrderMaterialsTable from '../OrderDetailComponents/Materials/OrderMaterialsTable.jsx';
 import EditOrderMaterialRow from '../OrderDetailComponents/Materials/EditOrderMaterialRowModal.jsx';
@@ -15,6 +15,8 @@ import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/Ge
 import DetailPurchaseRowModal from '../OrderDetailComponents/Purchasing/DetailPurchaseRowModal.jsx';
 import ShipmentsTable from '../OrderDetailComponents/Shipments/ShipmentsTable.jsx';
 import ShipmentsDeliveryLinkModal from '../OrderDetailComponents/Shipments/ShipmentsDeliveryLinkModal.jsx';
+import useGetPdf from '../../../../hooks/useGetPdf/useGetPdf.jsx';
+import useGetXml from './../../../../hooks/useGetXml/useGetXml';
 
 export default function OrderDetailView() {
   const { id } = useParams();
@@ -31,8 +33,6 @@ export default function OrderDetailView() {
   const [editPuchaseIndex, setEditPurchaseIndex] = useState(null)
   const [openDeliveryLinkModal, setOpenDeliveryLinkModal] = useState(false)
   const [downloadDeliveryLink, setDownloadDeliveryLink] = useState(null)
-
-  console.log("orderSelected-->",orderSelected);
    
     
   const {
@@ -50,7 +50,6 @@ export default function OrderDetailView() {
     error: createDeliveryError,
     fetchPost: createDeliveryFetchPost,
   } = usePost();
-
 
   const { 
     putResponse: orderMaterialUpdatedData,
@@ -85,6 +84,18 @@ export default function OrderDetailView() {
     fetchGet: downloadDeliveryLinkFetchPut,
    } = useGet();
 
+  const {
+    data: pdfData,
+    isLoading: pdfIsLoading,
+    error: pdfError,
+    fetchPdf: fetchGetPdf,
+  } = useGetPdf();
+
+  const {
+    fetchXml,
+    loading: xmlIsLoading,
+    error: xmlError,
+  } = useGetXml();
 
 // Fetch order details on component mount
   useEffect(() => {
@@ -128,6 +139,16 @@ export default function OrderDetailView() {
     }
   }, [downloadDeliveryLinkData]);
 
+  // Cuando se añade nuevo material, refresca la order
+  useEffect(() => {
+    if (orderAddMaterialUpdatedData?.message === "Orden actualizada con éxito") {
+      setOrderSelected(orderAddMaterialUpdatedData.order)
+      setMaterials(orderAddMaterialUpdatedData.order.materials)
+      return alert("Orden actualizada con éxito");
+    } if (orderAddMaterialUpdatedData?.message === "Error al actualizar Orden") {
+      return alert("Error al actualizar Orden");
+    }
+  }, [orderAddMaterialUpdatedData]);
 
 // Saves changes made in Edit Material Modal
 const saveMaterialOrderChanges = async () => {
@@ -143,137 +164,156 @@ const saveMaterialOrderChanges = async () => {
   setOpenEditRowModal(false)
 };
 
-// Cuando se añade nuevo material, refresca la order
-useEffect(() => {
-  if (orderAddMaterialUpdatedData?.message === "Orden actualizada con éxito") {
-    setOrderSelected(orderAddMaterialUpdatedData.order)
-    setMaterials(orderAddMaterialUpdatedData.order.materials)
-    return alert("Orden actualizada con éxito");
-  } if (orderAddMaterialUpdatedData?.message === "Error al actualizar Orden") {
-    return alert("Error al actualizar Orden");
+const downloadInvoice = async (invoiceId) => {
+  try {
+    await fetchGetPdf(`/facturaCom/getInvoicePdf/${invoiceId}`, `invoice-${invoiceId}.pdf`);
+  } catch (error) {
+    console.error('PDF download error:', error);
   }
-}, [orderAddMaterialUpdatedData]);
+};
 
+const downloadXml = async (invoiceId) => {
+  try {
+    await fetchXml(`/facturaCom/getInvoiceXml/${invoiceId}`, `invoice-${invoiceId}.xml`);
+    console.log('XML download completed');
+  } catch (error) {
+    console.error('XML download error:', error);
+  }
+}
 
   return (
-    <div className="py-4 max-w-6xl mx-auto">
+    <div className='relative overflow-visible bg-gray-50 min-h-screen'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
 
-      <div className="flex items-center justify-between">
-        <div className='flex gap-4 items-end'>
-          <h1 className="text-2xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
-          <a className="text-indigo-600 underline"
-            href={orderSelected.sharepointWebURL}
-            target="_blank"
-            rel="noopener noreferrer"> Ir a Sharepoint</a>
-        </div>
-         <NavLink className="rounded bg-indigo-500 px-4 py-2 text-white hover:bg-indigo-600" to={'/orders'}> Pedidos </NavLink>
-       
-      </div>
-
-      {/* General Info */}
-     <div className="grid grid-cols-1 md:grid-cols-5 gap-4  mt-3">
-      <section className="bg-white p-4 shadow rounded-xl space-y-1 md:col-span-3">
-        <h2 className="text-lg font-semibold mb-2">Info General</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-4">
-          <div className="flex justify-between"><span className="font-medium">Cotización GE #:</span> {orderSelected?.quotNumGlobal}</div>
-          <div className="flex justify-between"><span className="font-medium">Orden de Compra:</span> {orderSelected?.pOClientNumber}</div>
-          <div className="flex justify-between"><span className="font-medium">Fecha OC:</span> {formatDateToReadable(orderSelected?.datePOClient)}</div>
-          <div className="flex justify-between"><span className="font-medium">Cliente:</span> {orderSelected?.client?.commercialClientName}</div>
-          <div className="flex justify-between"><span className="font-medium">Razón Social:</span><span className='text-right'>{orderSelected?.vatName}</span> </div>
-          <div className="flex justify-between"><span className="font-medium">RFC:</span> {orderSelected?.vatNumber}</div>
-          <div className="flex justify-between"><span className="font-medium">Días entrega:</span> {orderSelected?.deliverInDays ?? 'N/A'} días</div>
-          <div className="flex justify-between"><span className="font-medium">Día Entregado:</span> {orderSelected?.dateDeliveredToClient ?? 'Pending'}</div>
-          <div className="flex justify-between"><span className="font-medium">Días Credito:</span> {orderSelected?.clientCreditDays}</div>
-          <div className="flex justify-between"><span className="font-medium">Total Orden:</span> {formatCurrency(orderSelected?.orderTotal)}</div>
-          <div className="flex justify-between"><span className="font-medium">Total +IVA:</span> {formatCurrency(orderSelected?.orderTotalPlusTax)}</div>
-        </div>
-      </section>
-
-      {/* Delivery Address - takes 2/5 on md+ screens */}
-      <section className="bg-white p-4 shadow rounded-xl md:col-span-2">
-        <h2 className="text-lg font-semibold mb-2">Dirección de Entrega</h2>
-        <div className="space-y-1 text-sm">
-          <div><strong>Contacto Entrega:</strong> {orderSelected?.deliveryAddress?.deliveryContact?.contactName}</div>
-          <div><strong>Alias:</strong> {orderSelected?.deliveryAddress?.aliasDeliveryAddress}</div>
-          <div><strong>Teléfono:</strong> {orderSelected?.deliveryAddress?.deliveryContact?.telephone}</div>
-          <div><strong>Dirección:</strong> {orderSelected?.deliveryAddress?.deliveryAddress}</div>
-          <div><strong>Ciudad:</strong> {orderSelected?.deliveryAddress?.deliveryCity}</div>
-          <div><strong>Estado:</strong> {orderSelected?.deliveryAddress?.deliveryState}</div>
-          <div><strong>Código Postal:</strong> {orderSelected?.deliveryAddress?.deliveryZipCode}</div>
-        </div>
-      </section>
-    </div>
-
-      {/* Materials */}
-      <section className="bg-white p-4 shadow rounded-xl mt-3">
-        <div className='flex justify-between'>
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Materiales Solicitados</h2>
+        <div className="flex items-center justify-between pb-6">
+          <div className='flex gap-2 items-end'>
+            <h1 className="text-xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
+            <a className="text-indigo-600 underline hover:text-indigo-700 transition-colors duration-200"
+              href={orderSelected.sharepointWebURL}
+              target="_blank"
+              rel="noopener noreferrer"> Ir a Sharepoint</a>
+            </div>
+            <NavLink className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200" to={'/orders'}> 
+              Pedidos 
+            </NavLink>
           </div>
-          <div>
+
+        {/* General Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 mb-2">
+          <section className="bg-white rounded-xl shadow-md p-6 lg:col-span-3">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Información General</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Cliente:</span><span className='text-right text-gray-900 font-semibold text-sm'>{orderSelected?.client?.commercialClientName}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Razón Social:</span><span className='text-right text-gray-900 font-semibold text-sm'>{orderSelected?.vatName}</span> </div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Cotización GE #:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.quotNumGlobal}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Orden de Compra:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.pOClientNumber}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Fecha OC:</span> <span className='text-gray-900 font-semibold text-sm'>{formatDateToReadable(orderSelected?.datePOClient)}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">RFC:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.vatNumber}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Días entrega:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.deliverInDays ?? 'N/A'} días</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Día Entregado:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.dateDeliveredToClient ?? 'Pending'}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Días Credito:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.clientCreditDays}</span></div>
+            </div>
+            
+            {/* Totals Section with gradient background */}
+            <div className='bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200 p-2 shadow-sm mt-1'>
+              <h3 className='text-sm font-medium text-gray-700 mb-1'>Resumen de Totales</h3>
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm font-medium text-gray-600'>Total Orden:</span>
+                  <span className='text-sm font-semibold text-gray-900'>{formatCurrency(orderSelected?.orderTotal)}</span>
+                </div>
+                <div className='flex justify-between items-center border-t-2 border-indigo-300 pt-2'>
+                  <span className='text-sm font-bold text-indigo-800'>Total +IVA:</span>
+                  <span className='text-sm  font-bold text-indigo-800'>{formatCurrency(orderSelected?.orderTotalPlusTax)}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Delivery Address - takes 2/5 on lg+ screens */}
+          <section className="bg-white rounded-xl shadow-md p-6 lg:col-span-2">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Dirección de Entrega</h2>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between items-center"><strong className="text-gray-600">Contacto Entrega:</strong> <span className="text-gray-900 font-medium">{orderSelected?.deliveryAddress?.deliveryContact?.contactName}</span></div>
+              <div className="flex justify-between items-center"><strong className="text-gray-600">Alias:</strong> <span className="text-gray-900 font-medium">{orderSelected?.deliveryAddress?.aliasDeliveryAddress}</span></div>
+              <div className="flex justify-between items-center"><strong className="text-gray-600">Teléfono:</strong> <span className="text-gray-900 font-medium">{orderSelected?.deliveryAddress?.deliveryContact?.telephone}</span></div>
+              <div className="border-t pt-3 mt-3">
+                <div className="text-gray-600 font-medium mb-2">Dirección:</div>
+                <div className="text-gray-900 space-y-1">
+                  <div>{orderSelected?.deliveryAddress?.deliveryAddress}</div>
+                  <div>{orderSelected?.deliveryAddress?.deliveryCity}, {orderSelected?.deliveryAddress?.deliveryState}</div>
+                  <div>C.P. {orderSelected?.deliveryAddress?.deliveryZipCode}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Materials */}
+        <section className="bg-white rounded-xl shadow-md p-6 mb-2">
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className="text-lg font-semibold text-gray-800">Materiales Solicitados</h2>
             <button
-              className="rounded bg-indigo-500 px-4 py-1 text-white hover:bg-indigo-600"
+              className="inline-flex items-center px-2 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200"
               onClick={() => setOpenAddMaterialModal(true)}
             >
-              Añadir
+            <PlusCircleIcon className='h-4 w-4 mr-1' />
+              Añadir Material
             </button>
           </div>
-        </div>
-        <OrderMaterialsTable
-          orderSelected={orderSelected}
-          setOrderSelected={setOrderSelected}
-          setOpenEditRowModal={setOpenEditRowModal}
-          selectedMaterialRow={selectedMaterialRow}
-          setSelectedMaterialRow={setSelectedMaterialRow}
-          editMaterialIndex={editMaterialIndex}
-          setEditMaterialIndex={setEditMaterialIndex}
-        />
-      </section>
+          <OrderMaterialsTable
+            orderSelected={orderSelected}
+            setOrderSelected={setOrderSelected}
+            setOpenEditRowModal={setOpenEditRowModal}
+            selectedMaterialRow={selectedMaterialRow}
+            setSelectedMaterialRow={setSelectedMaterialRow}
+            editMaterialIndex={editMaterialIndex}
+            setEditMaterialIndex={setEditMaterialIndex}
+          />
+        </section>
 
-           {/* Purchases */}
-      <section className="bg-white p-4 shadow rounded-xl mt-3">
-        <div className='flex justify-between'>
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Compras Realizadas</h2>
-          </div>
-          <div>
+        {/* Purchases */}
+        <section className="bg-white rounded-xl shadow-md p-6 mb-2">
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className="text-lg font-semibold text-gray-800">Compras Realizadas</h2>
             <button
-              className="rounded bg-indigo-500 px-4 py-1 text-white hover:bg-indigo-600"
+              className="inline-flex items-center px-2 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200"
               onClick={() => {
                 setSelectedMaterialRow(null); // opción: puedes cambiar esto si quieres pasar un material
                 setOpenCreatePurchaseModal(true);
               }}
             >
-              Añadir
+              <PlusCircleIcon className='h-4 w-4 mr-1' />
+              Añadir Compra
             </button>
           </div>
-        </div>
-        <OrderMaterialsPurchasesTable
-          orderSelected={orderSelected}
-          setOrderSelected={setOrderSelected}
-          setOpenPuchaseRowModal={setOpenPuchaseRowModal}
-          selectedMaterialRow={selectedMaterialRow}
-          setSelectedPurchaseRow={setSelectedPurchaseRow}
-          editPuchaseIndex={editPuchaseIndex}
-          setEditPurchaseIndex={setEditPurchaseIndex}
-        />
-      </section>
+          <OrderMaterialsPurchasesTable
+            orderSelected={orderSelected}
+            setOrderSelected={setOrderSelected}
+            setOpenPuchaseRowModal={setOpenPuchaseRowModal}
+            selectedMaterialRow={selectedMaterialRow}
+            setSelectedPurchaseRow={setSelectedPurchaseRow}
+            editPuchaseIndex={editPuchaseIndex}
+            setEditPurchaseIndex={setEditPurchaseIndex}
+          />
+        </section>
 
-      {/* Envíos de Compras*/}
-
-     <section>
-      <ShipmentsTable 
-        orderSelected={orderSelected}
-        setOrderSelected={setOrderSelected}
-        openDeliveryLinkModal={openDeliveryLinkModal}
-        setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
-        downloadDeliveryLinkFetchPut={downloadDeliveryLinkFetchPut}
-        createDeliveryPostResponse={createDeliveryPostResponse}
-        createDeliveryIsLoading={createDeliveryIsLoading}
-        createDeliveryError={createDeliveryError}
-        createDeliveryFetchPost={createDeliveryFetchPost}
-        />
-     </section>         
+        {/* Envíos de Compras*/}
+        <section className="bg-white rounded-xl shadow-md mb-2">
+          <ShipmentsTable 
+            orderSelected={orderSelected}
+            setOrderSelected={setOrderSelected}
+            openDeliveryLinkModal={openDeliveryLinkModal}
+            setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
+            downloadDeliveryLinkFetchPut={downloadDeliveryLinkFetchPut}
+            createDeliveryPostResponse={createDeliveryPostResponse}
+            createDeliveryIsLoading={createDeliveryIsLoading}
+            createDeliveryError={createDeliveryError}
+            createDeliveryFetchPost={createDeliveryFetchPost}
+            downloadInvoice={downloadInvoice}
+            downloadXml={downloadXml}
+          />
+        </section>         
      
       {/* Incidences */}
       {/* <section className="bg-white p-4 shadow rounded-xl mt-3">
@@ -290,28 +330,28 @@ useEffect(() => {
         </div>
       </section> */}
 
-       {/* Comments */}
-      <section className="bg-white p-4 shadow rounded-xl mt-3">
-        <h2 className="text-lg font-semibold mb-2">Comentarios</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <strong>Comentarios Privados</strong>
-            <ul className="list-disc ml-5 mt-1 text-sm text-gray-700">
-              {orderSelected?.privateComments?.map((comment, i) => (
-                <li key={i}>{comment.privateComment}</li>
-              ))}
-            </ul>
+        {/* Comments */}
+        <section className="bg-white rounded-xl shadow-md p-6 mb-2">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Comentarios</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <strong className="text-gray-700 text-sm font-medium">Comentarios Privados</strong>
+              <ul className="list-disc ml-5 mt-2 text-sm text-gray-600 space-y-1">
+                {orderSelected?.privateComments?.map((comment, i) => (
+                  <li key={i}>{comment.privateComment}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-4">
+              <strong className="text-gray-700 text-sm font-medium">Comentarios Públicos</strong>
+              <ul className="list-disc ml-5 mt-2 text-sm text-gray-600 space-y-1">
+                {orderSelected?.publicComments?.map((comment, i) => (
+                  <li key={i}>{comment.publicComment}</li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div>
-            <strong>Comentarios Públicos</strong>
-            <ul className="list-disc ml-5 mt-1 text-sm text-gray-700">
-              {orderSelected?.publicComments?.map((comment, i) => (
-                <li key={i}>{comment.publicComment}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
 
       <EditOrderMaterialRow
         isOpen={openEditRowModal}
@@ -360,9 +400,10 @@ useEffect(() => {
         setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
         downloadDeliveryLink={downloadDeliveryLink} 
         setDownloadDeliveryLink={setDownloadDeliveryLink}
+        
       />
 
-      
+      </div>
     </div>
   );
 }

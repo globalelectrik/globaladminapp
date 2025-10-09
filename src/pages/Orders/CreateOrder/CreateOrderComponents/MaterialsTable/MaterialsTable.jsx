@@ -37,21 +37,22 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
   return (
     <div className="mt-5 relative">
       <div className="w-full pb-20 overflow-auto relative">
-        <table className="w-full mt-2 border border-gray-300 z-50">
-          <thead>
-            <tr className="bg-gray-100 text-left text-sm">
-              <th className="p-2 border border-gray-300 w-10"></th>
-              <th className="p-2 border border-gray-300">Nombre del Material</th>
-              <th className="p-2 border border-gray-300">Referencia</th>
-              <th className="p-2 border border-gray-300">Cant</th>
-              <th className="p-2 border border-gray-300">Precio Unitario</th>
-              <th className="p-2 border border-gray-300">Marca</th>
-              <th className="p-2 border border-gray-300">Clasificación</th>
-              <th className="p-2 border border-gray-300">Estado</th>
-              <th className="p-2 border border-gray-300">Referencia Cliente</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-indigo-50 to-blue-50 text-left text-sm">
+                <th className="p-3 font-semibold text-gray-700 w-10"></th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Nombre del Material</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Referencia</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Cant</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Precio Unitario</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Marca</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Clasificación</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Estado</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Referencia Cliente</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
             {materials.map((material, index) => {
               const brandName =
                 brandsData?.brands?.find((b) => b.id === material.materialBrand)?.brandName ||
@@ -62,63 +63,75 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   ?.classificationName || "Seleccionar Clasificación";
 
               return (
-                <tr key={index} className="border border-gray-300 relative text-sm">
-                  <td className="p-2 border border-gray-300 text-center">
-                    <button onClick={() => deleteMaterial(index)}>
-                      <XCircleIcon className="h-6 w-6 text-red-600 hover:text-red-800 cursor-pointer" />
+                <tr key={index} className="hover:bg-gray-50 transition-colors duration-150 text-sm">
+                  <td className="p-3 text-center">
+                    <button 
+                      onClick={() => deleteMaterial(index)}
+                      className="p-1 rounded-full hover:bg-red-50 transition-colors duration-150"
+                    >
+                      <XCircleIcon className="h-5 w-5 text-red-500 hover:text-red-700" />
                     </button>
                   </td>
-                  <td className="p-2 border border-gray-300">
+                  <td className="p-3 border-l border-gray-200">
                     <input
                       type="text"
-                      className="w-full border border-gray-300 p-1 rounded"
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                       value={material.materialName}
                       onChange={(e) => updateMaterial(index, "materialName", e.target.value)}
+                      placeholder="Nombre del material"
                     />
                   </td>
-                  <td className="p-2 border border-gray-300">
+                  <td className="p-3 border-l border-gray-200">
                     <input
                       type="text"
-                      className="w-full border border-gray-300 p-1 rounded"
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                       value={material.materialReference}
                       onChange={(e) => updateMaterial(index, "materialReference", e.target.value)}
+                      placeholder="Referencia"
                     />
                   </td>
-                  <td className="p-2 border border-gray-300">
+                  <td className="p-3 border-l border-gray-200">
                     <input
                       type="number"
-                      className="w-12 border border-gray-300 p-1 rounded"
+                      className="w-20 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-center"
                       value={material.quantity}
                       onChange={(e) => updateMaterial(index, "quantity", e.target.value)}
+                      min="1"
                     />
                   </td>
 
-                  <td className="p-2 border border-gray-300">
+                  <td className="p-3 border-l border-gray-200">
                     <input
                       type="number"
-                      className="w-12 border border-gray-300 p-1 rounded"
+                      className="w-24 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                       value={material.salePrice}
                       onChange={(e) => updateMaterial(index, "salePrice", e.target.value)}
+                      placeholder="0.00"
+                      step="0.01"
                     />
                   </td>
 
-                  <td
-                    className="p-2 border border-gray-300 cursor-pointer text-blue-600 underline"
+                  <td 
+                    className="p-3 border-l border-gray-200 cursor-pointer"
                     onClick={() => setBrandModalIndex(index)}
                   >
-                    {brandName}
+                    <div className="inline-flex items-center px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors duration-150 text-sm font-medium">
+                      {brandName}
+                    </div>
                   </td>
 
-                  <td
-                    className="p-2 border border-gray-300 cursor-pointer text-blue-600 underline"
+                  <td 
+                    className="p-3 border-l border-gray-200 cursor-pointer"
                     onClick={() => setClassificationModalIndex(index)}
                   >
-                    {classificationName}
+                    <div className="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-150 text-sm font-medium">
+                      {classificationName}
+                    </div>
                   </td>
 
-                  <td className="p-2 border border-gray-300">
+                  <td className="p-3 border-l border-gray-200">
                     <select
-                      className="w-full border border-gray-300 p-1 rounded text-sm"
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-sm bg-white"
                       value={material.materialStatusType}
                       onChange={(e) => updateMaterial(index, "materialStatusType", e.target.value)}
                     >
@@ -126,26 +139,31 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                       <option value="Reacondicionado">Reacondicionado</option>
                     </select>
                   </td>
-                  <td className="p-2 border border-gray-300">
+                  <td className="p-3 border-l border-gray-200">
                     <input
                       type="text"
-                      className="w-20 border border-gray-300 p-1 rounded"
+                      className="w-24 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                       value={material.materialClientReference}
                       onChange={(e) => updateMaterial(index, "materialClientReference", e.target.value)}
+                      placeholder="Ref."
                     />
                   </td>
                 </tr>
               );
             })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <button
-        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm"
+        className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 mt-4"
         onClick={addMaterial}
       >
-        + Agregar Material
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        Agregar Material
       </button>
 
       {/* Modals */}

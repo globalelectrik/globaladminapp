@@ -2,6 +2,7 @@ import { IconContract } from '@tabler/icons-react';
 import ModalAlbaran from '../ModalAlbaran/ModalAlbaran';
 import { useState } from 'react';
 import { generateDeliveryInstrucionsPDF } from '../../../../../utils/generateDeliveryInstructions';
+import { PlusCircleIcon } from 'lucide-react';
 
 export default function ShipmentsTable({
   orderSelected, 
@@ -12,7 +13,9 @@ export default function ShipmentsTable({
   createDeliveryPostResponse,
   createDeliveryIsLoading,
   createDeliveryError,
-  createDeliveryFetchPost
+  createDeliveryFetchPost,
+  downloadInvoice, 
+  downloadXml
 }) {
 
   const [openShipModal, setOpenShipModal] = useState(false);
@@ -22,13 +25,6 @@ export default function ShipmentsTable({
     downloadDeliveryLinkFetchPut(`/deliveries/deliveryNoteLink/${deliveryId}`)
   }
 
-  const downloadInvoicePDFHandler = (deliveryId) => {
-    // Logic to download the invoice PDF
-  }
-
-  const downloadInvoiceXMLHandler = (deliveryId) => {
-    // Logic to download the invoice XML
-  } 
 
   return (
     <div className="overflow-hidden rounded-lg bg-white shadow mt-2 ">
@@ -44,57 +40,54 @@ export default function ShipmentsTable({
           createDeliveryFetchPost={createDeliveryFetchPost}
       />
 
-      <div className='flex justify-between pt-4 px-4 rounded-xl'>
-        <div className='flex'>
-          <h2 className='text-lg font-semibold'>Envíos de Compras</h2>
+      <div className='flex justify-between items-center p-6'>
+        <div className='flex items-center gap-4'>
+          <h2 className='text-lg font-semibold text-gray-800'>Envíos de Compras</h2>
           <button 
             onClick={() => generateDeliveryInstrucionsPDF(orderSelected)}
-            className="px-4 py-1 text-indigo-600 underline"
+            className="text-indigo-600 underline hover:text-indigo-700 transition-colors duration-200 text-sm font-medium"
           >
             Instrucciones Entrega
           </button>
         </div>
-        <div>
-          
-          <button 
-            onClick={() => setOpenShipModal(true)}
-            className="rounded bg-indigo-500 px-4 py-1 text-white hover:bg-indigo-600"
-          >
-            Añadir
-          </button>
-        </div>
+        <button 
+          onClick={() => setOpenShipModal(true)}
+          className="inline-flex items-center px-2 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200">
+          <PlusCircleIcon className='h-4 w-4 mr-1' />
+          Añadir Envío
+        </button>
       </div>
       
-      <div className="px-4 sm:p-4">
-        <table className="min-w-full table-auto border rounded-md overflow-hidden text-sm">
-        <thead className="bg-indigo-600 text-center text-slate-50">
+      <div className="px-6 pb-6 overflow-auto">
+        <table className="min-w-full table-auto bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
+        <thead className="bg-gradient-to-r from-indigo-600 to-indigo-700">
           <tr>
-            <th className="px-4 py-1 border-b font-medium text-left">Paquetería</th>
-            <th className="px-4 py-1 border-b font-medium">Albarán Creado</th>
-            <th className="px-4 py-1 border-b font-medium">Albarán</th>
-            <th className="px-4 py-1 border-b font-medium">Factura Num</th>
-            <th className="px-4 py-1 border-b font-medium">Factura PDF</th>
-            <th className="px-4 py-1 border-b font-medium">Factura XML</th>
+            <th className="px-6 py-1 text-left text-xs font-semibold text-white uppercase tracking-wider">Paquetería</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Albarán Creado</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Albarán</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Factura Num</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Factura PDF</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider rounded-tr-lg">Factura XML</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-200">
           {orderSelected?.deliveries?.map((del, index) => (
-            <tr key={index} className="hover:bg-gray-200 cursor-pointer">
-              <td className="px-4 py-2 border-b text-left" >{del?.deliveryType}</td>
-              <td className="px-4 py-2 border-b text-center" >{del?.createdAt}</td>
-              <td className="px-4 py-2 border-b text-indigo-600 underline text-center">
-                <button type="button" onClick={()=>createLinkButtonHandler(del.id)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-indigo-600 underline shadow-sm hover:bg-indigo-400 hover:text-white">
+            <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
+              <td className="py-1 text-sm text-gray-900 font-medium">{del?.deliveryType}</td>
+              <td className="py-1 text-sm text-gray-900 text-center">{del?.createdAt}</td>
+              <td className="py-1 text-center">
+                <button type="button" onClick={()=>createLinkButtonHandler(del.id)} className="inline-flex items-center py-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200">
                    Albarán {del.deliveryNoteNumber}
                 </button>
               </td>
-              <td className="px-4 py-2 border-b text-center" >Fac Num {del?.invoiceNumGEPdf}</td>
-              <td className="px-4 py-2 border-b text-indigo-600 underline text-center">
-                <button type="button" onClick={()=>downloadInvoicePDFHandler(del.id)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-indigo-600 underline shadow-sm hover:bg-indigo-400 hover:text-white">
+              <td className="py-1 text-sm text-gray-900 text-center font-medium">F-{del?.invoice?.invoiceNumGE}</td>
+              <td className="py-1 text-center">
+                <button type="button" onClick={() => downloadInvoice(del?.invoice?.invoiceNumGEPdf)} className="inline-flex items-center py-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200">
                    PDF
                 </button>
               </td>
-              <td className="px-4 py-2 border-b text-indigo-600 underline text-center">
-                <button type="button" onClick={()=>downloadInvoiceXMLHandler(del.invoiceNumGEXml)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-indigo-600 underline shadow-sm hover:bg-indigo-400 hover:text-white">
+              <td className="py-1 text-center">
+                <button type="button" onClick={()=>downloadXml(del?.invoice?.invoiceNumGEXml)} className="inline-flex items-center py-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200">
                   XML
                 </button>
               </td>

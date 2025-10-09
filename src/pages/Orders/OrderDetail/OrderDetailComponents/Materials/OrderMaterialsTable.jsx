@@ -1,4 +1,4 @@
-import { formatCurrency } from "../../../../../helpers/formatCurrency";
+import { formatCurrency } from './../../../../../utils/helpers/formatCurrency';
 
 export default function OrderMaterialsTable({
   orderSelected,
@@ -28,29 +28,36 @@ export default function OrderMaterialsTable({
   };
 
   return (
-    <div className="overflow-x-auto rounded-md">
-      <table className="min-w-full table-auto border rounded-md overflow-hidden text-sm">
-        <thead className="bg-indigo-600 text-center text-slate-50">
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
+        <thead className="bg-gradient-to-r from-indigo-600 to-indigo-700">
           <tr>
-            <th className="px-4 py-1 border-b font-medium">Material</th>
-            <th className="px-4 py-1 border-b font-medium">Cant.</th>
-             <th className="px-4 py-1 border-b font-medium">Precio Unitario</th>
-            <th className="px-4 py-1 border-b font-medium">PorComprar</th>
-            <th className="px-4 py-1 border-b font-medium">RefMaterial</th>
-            <th className="px-4 py-1 border-b font-medium">Marca</th>
-            <th className="px-4 py-1 border-b font-medium rounded-tr-md">Acciones</th>
+            <th className="px-6 py-1 text-left text-xs font-semibold text-white uppercase tracking-wider">Material</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Cant.</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Precio Unitario</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">PorComprar</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">RefMaterial</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Marca</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider rounded-tr-lg">Acciones</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-200">
           {orderSelected?.materials?.map((mat, index) => (
-            <tr key={index} className="hover:bg-gray-200 cursor-pointer">
-              <td className="px-4 py-2 border-b text-left" >{mat?.material?.materialName || mat?.material}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.quantity}</td>
-              <td className="px-4 py-2 border-b text-center">{formatCurrency(mat?.salePrice)}</td>
-              <td className="px-4 py-2 border-b text-center">  {getPendingQuantity(mat)}</td>
-              <td className="px-4 py-2 border-b text-center">{mat?.material?.materialReference}</td>
-              <td className="px-4 py-2 border-b text-center text-xs">{mat?.material?.materialBrand?.brandName}</td>
-              <td className="px-4 py-2 border-b text-center text-indigo-600" onClick={() => handleRowClick(mat, index)} >Editar</td>          
+            <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
+              <td className="px-6 py-1 text-sm text-gray-900 font-medium">{mat?.material?.materialName || mat?.material}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.quantity}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{formatCurrency(mat?.salePrice)}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{getPendingQuantity(mat)}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.material?.materialReference}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.material?.materialBrand?.brandName}</td>
+              <td className="px-6 py-1 text-center">
+                <button 
+                  onClick={() => handleRowClick(mat, index)}
+                  className="inline-flex items-center px-3 py-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
+                >
+                  Editar
+                </button>
+              </td>          
             </tr>
           ))}
         </tbody>

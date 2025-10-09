@@ -12,7 +12,7 @@ export default function useDelete() {
 		try {
 			setIsLoading(true);
 			const response = await http.delete(url);
-			console.log('HOOK: delete', response);
+			//console.log('HOOK: delete', response);
 			setDeleteResponse(response);
 			setError(null);
 		} catch (err) {

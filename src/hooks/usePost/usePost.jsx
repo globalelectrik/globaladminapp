@@ -18,7 +18,7 @@ export default function usePost() {
       setIsLoading(true);
       setIsLoadingContext(true);
       const response = await http.post(url, data);
-      console.log('HOOK post', response);
+      //console.log('HOOK post', response);
       setPostResponse(response);
       setError(null);
     } catch (error) {

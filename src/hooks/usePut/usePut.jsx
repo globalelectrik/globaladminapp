@@ -18,11 +18,11 @@ export default function usePut() {
       setIsLoading(true);
       setIsLoadingContext(true);
       const response = await http.put(url, data);
-      console.log('HOOK put', response);
+      //console.log('HOOK put', response);
       setPutResponse(response);
       setError(null);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       setError(error.response.data);
     } finally {
       setIsLoading(false);

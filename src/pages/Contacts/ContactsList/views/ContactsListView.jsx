@@ -26,7 +26,6 @@ export default function ContactsListView() {
   };
 
   const editContactButtonHandler = async (updatedContact) => {
-    console.log("updatedContact... ",updatedContact);
     await contactUpdateFetchPut(
       `/contacts/contactUpdate/${updatedContact.id}`,
       updatedContact

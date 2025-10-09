@@ -20,7 +20,6 @@ export default function GeneradorAlbaranPDF({albaranNumber, client, clientOrderN
   // 1. Numero de albaran (se introduce en el formulario)
   const numeroAlbaran = albaranNumber;
 
-  console.log("client --> ", client);
 
   // 2. Informacion del cliente (se obtiene por parametros)
   const cliente = {

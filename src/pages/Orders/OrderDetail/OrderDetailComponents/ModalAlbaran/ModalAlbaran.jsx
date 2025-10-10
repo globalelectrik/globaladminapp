@@ -232,6 +232,7 @@ const schema = z.object({
       };
     });
 
+    const logisticsFolderName = "2. Logística"
 
     const deliveryData= {
       orderId: orderSelected.id,
@@ -240,7 +241,9 @@ const schema = z.object({
       materials: materials,
       pOClientNumber : orderSelected.pOClientNumber,
       orderNumGlobal : orderSelected.orderNumGlobal,
-      cfdiUse: cfdiUseInvoice
+      cfdiUse: cfdiUseInvoice, 
+      logisticsFolderName: logisticsFolderName,
+
     }
       await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
       setOpenShipModal(false);

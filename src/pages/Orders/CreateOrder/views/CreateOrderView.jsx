@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import usePost from "./../../../../hooks/usePost/usePost";
 import useGet from "./../../../../hooks/useGet/useGet";
+import usePostWithFiles from "./../../../../hooks/usePostWithFiles/usePostWithFiles";
 import ClientsComboBox from '../../../Clients/ClientsComponents/ClientsComboBox/ClientsComboBox';
 import CompaniesComboBox from '../../../Clients/ClientsComponents/CompaniesComboBox/CompaniesComboBox';
 import { formatCurrency } from './../../../../utils/helpers/formatCurrency';
@@ -11,6 +12,9 @@ import { Link } from 'react-router-dom';
 import DeliveryAddressComboBox from '../CreateOrderComponents/DeliveryAddressComboBox/DeliveryAddressComboBox';
 import { useAuthContext } from '../../../../context/AuthContext';
 import CreatedOrderModal from '../CreateOrderComponents/CreatedOrderModal/CreatedOrderModal';
+import Spin from '../../../../components/Spin/Spin';
+import { extractMaterialsXls } from '../helpers/extractMaterialsXls';
+
 
 export default function CreateOrderView() {
   const [clientSelected, setClientSelected] = useState(null);
@@ -32,6 +36,13 @@ export default function CreateOrderView() {
   const [validationErrors, setValidationErrors] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // File upload states
+  const [quotationFile, setQuotationFile] = useState(null);
+  const [purchaseOrderFile, setPurchaseOrderFile] = useState(null);
+  const [isDragOverQuotation, setIsDragOverQuotation] = useState(false);
+  const [isDragOverPurchaseOrder, setIsDragOverPurchaseOrder] = useState(false);
+  const [isExtractingMaterials, setIsExtractingMaterials] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -47,12 +58,13 @@ export default function CreateOrderView() {
   const {
     postResponse: createOrderPostResponse,
     isLoading: createOrderIsLoading,
-    fetchPost: createOrderFetchPost,
-  } = usePost();
+    error: createOrderError,
+    fetchPostWithFiles: createOrderFetchPost,
+  } = usePostWithFiles();
 
   useEffect(() => { clientsFetchGet("/clients"); }, []);
 
-  const handleCreateOrder = async () => {
+const handleCreateOrder = async () => {
 
     const errors = [];
 
@@ -86,6 +98,8 @@ export default function CreateOrderView() {
 
     setValidationErrors([]);
 
+    const quotationFolderLocation = "1. Cotización y Order del cliente"
+
     const dataToSend = {
       quotNumGlobal,
       datePOClient,
@@ -99,11 +113,43 @@ export default function CreateOrderView() {
       materials,
       clientCreditDays,
       user: user.email,
+      quotationFolderLocation: quotationFolderLocation
     };
 
     dataToSend.deliveryAddress.deliveryContact = deliveryAddressSelected.deliveryContact.id // se añade el id solamente para que en el back se crée correctamente
 
-   await createOrderFetchPost("/orders/createOrder", dataToSend);
+    // Prepare files object
+    const files = {};
+    if (quotationFile) files.quotationFile = quotationFile;
+    if (purchaseOrderFile) files.purchaseOrderFile = purchaseOrderFile;
+
+    // Send using the usePostWithFiles hook
+    try {
+      const result = await createOrderFetchPost("/orders/createOrder", dataToSend, files);
+      
+      if (result.message === "success") {
+        setIsModalOpen(true);
+        // Clear fields
+        setClientSelected(null);
+        setCompanySelected(null);
+        setOrderNumGlobal('');
+        setQuotNumGlobal('');
+        setDatePOClient(getCurrentDate());
+        setPOClientNumber('');
+        setClientCreditDays('');
+        setDeliverInDays(12);
+        setDeliveryAddresses('');
+        setDeliveryAddressSelected('');
+        setOrderTotal(0);
+        setOrderTotalPlusTax(0);
+        setMaterials([]);
+        setQuotationFile(null);
+        setPurchaseOrderFile(null);
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Error al crear la orden: ' + error.message);
+    }
   };
 
   useEffect(() => {
@@ -139,26 +185,120 @@ export default function CreateOrderView() {
     calculateTotal();
   }, [materials]);
 
+  // Handle order creation response
   useEffect(() => {
     if (createOrderPostResponse?.message === "success") {
       setIsModalOpen(true);
-
-      // Clear fields
-      setClientSelected(null);
-      setCompanySelected(null);
-      setOrderNumGlobal('');
-      setQuotNumGlobal('');
-      setDatePOClient(getCurrentDate());
-      setPOClientNumber('');
-      setClientCreditDays('');
-      setDeliverInDays(12);
-      setDeliveryAddresses('');
-      setDeliveryAddressSelected('');
-      setOrderTotal(0);
-      setOrderTotalPlusTax(0);
-      setMaterials([]);
+      // Clear fields are now handled in the handleCreateOrder function
     }
   }, [createOrderPostResponse]);
+
+  // File upload handlers
+  const handleDragEnter = (e, fileType) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (fileType === 'quotation') {
+      setIsDragOverQuotation(true);
+    } else {
+      setIsDragOverPurchaseOrder(true);
+    }
+  };
+
+  const handleDragLeave = (e, fileType) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (fileType === 'quotation') {
+      setIsDragOverQuotation(false);
+    } else {
+      setIsDragOverPurchaseOrder(false);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e, fileType) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (fileType === 'quotation') {
+      setIsDragOverQuotation(false);
+    } else {
+      setIsDragOverPurchaseOrder(false);
+    }
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 1) {
+      alert('Solo se puede subir un archivo por sección');
+      return;
+    }
+    
+    const file = files[0];
+    if (fileType === 'quotation') {
+      setQuotationFile(file);
+      // Automatically extract materials from quotation file
+      if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+        extractMaterialsFromExcel(file);
+      }
+    } else {
+      setPurchaseOrderFile(file);
+    }
+  };
+
+  const handleFileInput = (e, fileType) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 1) {
+      alert('Solo se puede subir un archivo por sección');
+      return;
+    }
+    
+    const file = files[0];
+    if (fileType === 'quotation') {
+      setQuotationFile(file);
+      // Automatically extract materials from quotation file
+      if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+        extractMaterialsFromExcel(file);
+      }
+    } else {
+      setPurchaseOrderFile(file);
+    }
+  };
+
+  const removeFile = (fileType) => {
+    if (fileType === 'quotation') {
+      setQuotationFile(null);
+    } else {
+      setPurchaseOrderFile(null);
+    }
+  };
+
+  // Function to extract materials from Excel file
+  const extractMaterialsFromExcel = async (file) => {
+    setIsExtractingMaterials(true);
+    
+    try {
+      const result = await extractMaterialsXls(file);
+      
+      if (result.success) {
+        if (result.materials.length > 0) {
+          setMaterials(result.materials);
+          alert(`Se extrajeron ${result.count} materiales de la hoja de cotización`);
+        } else {
+          alert('No se encontraron materiales en la hoja de cotización');
+        }
+      } else {
+        alert('Error al extraer materiales del archivo Excel. Verifique que el formato sea correcto.');
+      }
+      
+    } catch (error) {
+      console.error('Error extracting materials from Excel:', error);
+      alert('Error al extraer materiales del archivo Excel. Verifique que el formato sea correcto.');
+    } finally {
+      setIsExtractingMaterials(false);
+    }
+  };
 
   return (
     <>
@@ -166,6 +306,17 @@ export default function CreateOrderView() {
           isOpen={isModalOpen}
           createOrderPostResponse={createOrderPostResponse}
         />
+        
+        {/* Loading Spin for Excel Material Extraction */}
+        {isExtractingMaterials && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 flex flex-col items-center space-y-4">
+              <Spin />
+              <p className="text-gray-700 font-medium">Extrayendo materiales del archivo Excel...</p>
+            </div>
+          </div>
+        )}
+        
       <div className='relative overflow-visible bg-gray-50 min-h-screen'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
           <div className='flex justify-between items-center pb-6'>
@@ -217,17 +368,138 @@ export default function CreateOrderView() {
               <div className='bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-4 border border-slate-200 shadow-sm'>
                 { deliveryAddressSelected ? (
                   <div className='text-sm space-y-1'>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Contacto:</span> <span className='text-gray-800'>{deliveryAddressSelected.deliveryContact.contactName}</span></div>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Móvil:</span> <span className='text-gray-800'>{deliveryAddressSelected.deliveryContact.mobile}</span></div>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Alias:</span> <span className='text-gray-800'>{deliveryAddressSelected.aliasDeliveryAddress}</span></div>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Dirección:</span> <span className='text-gray-800'>{deliveryAddressSelected.deliveryAddress}</span></div>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Ciudad:</span> <span className='text-gray-800'>{deliveryAddressSelected.deliveryCity}</span></div>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Estado:</span> <span className='text-gray-800'>{deliveryAddressSelected.deliveryState}</span></div>
-                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>C.P.:</span> <span className='text-gray-800'>{deliveryAddressSelected.deliveryZipCode}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Contacto:</span> <span className='text-gray-800'>{deliveryAddressSelected?.deliveryContact?.contactName}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Móvil:</span> <span className='text-gray-800'>{deliveryAddressSelected?.deliveryContact?.mobile}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Alias:</span> <span className='text-gray-800'>{deliveryAddressSelected?.aliasDeliveryAddress}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Dirección:</span> <span className='text-gray-800'>{deliveryAddressSelected?.deliveryAddress}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Ciudad:</span> <span className='text-gray-800'>{deliveryAddressSelected?.deliveryCity}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>Estado:</span> <span className='text-gray-800'>{deliveryAddressSelected?.deliveryState}</span></div>
+                    <div className='flex justify-between items-center'><span className='font-semibold text-gray-600'>C.P.:</span> <span className='text-gray-800'>{deliveryAddressSelected?.deliveryZipCode}</span></div>
                   </div>
                     
                     ) : 
                 (<p className='text-sm text-gray-500 italic text-center py-8'> Selecciona una dirección de entrega </p>)}
+              </div>
+            </div>
+            
+            {/* File Upload Section */}
+            <div className="mt-6 border-t pt-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">Documentos de Entrega</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Hoja Cotización Upload */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-600 mb-2">Hoja Cotización</h4>
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors duration-200 ${
+                      isDragOverQuotation 
+                        ? 'border-indigo-400 bg-indigo-50' 
+                        : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                    }`}
+                    onDragEnter={(e) => handleDragEnter(e, 'quotation')}
+                    onDragLeave={(e) => handleDragLeave(e, 'quotation')}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, 'quotation')}
+                  >
+                    <div className="space-y-2">
+                      <svg className="mx-auto h-6 w-6 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <div className="text-xs text-gray-600">
+                        <span className="font-medium text-indigo-600">Arrastra archivo aquí</span> o{' '}
+                        <label className="cursor-pointer text-indigo-600 underline hover:text-indigo-700">
+                          selecciona archivo
+                          <input
+                            type="file"
+                            className="hidden"
+                            onChange={(e) => handleFileInput(e, 'quotation')}
+                            accept=".xlsx,.xls,.pdf,.doc,.docx"
+                          />
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500">Excel (.xlsx, .xls) recomendado para extracción automática</p>
+                    </div>
+                  </div>
+                  
+                  {/* Quotation File Display */}
+                  {quotationFile && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="text-sm text-gray-700 truncate">{quotationFile.name}</span>
+                        </div>
+                        <button
+                          onClick={() => removeFile('quotation')}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Orden de Compra Cliente Upload */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-600 mb-2">Orden de Compra Cliente</h4>
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors duration-200 ${
+                      isDragOverPurchaseOrder 
+                        ? 'border-indigo-400 bg-indigo-50' 
+                        : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                    }`}
+                    onDragEnter={(e) => handleDragEnter(e, 'purchaseOrder')}
+                    onDragLeave={(e) => handleDragLeave(e, 'purchaseOrder')}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, 'purchaseOrder')}
+                  >
+                    <div className="space-y-2">
+                      <svg className="mx-auto h-6 w-6 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <div className="text-xs text-gray-600">
+                        <span className="font-medium text-indigo-600">Arrastra archivo aquí</span> o{' '}
+                        <label className="cursor-pointer text-indigo-600 underline hover:text-indigo-700">
+                          selecciona archivo
+                          <input
+                            type="file"
+                            className="hidden"
+                            onChange={(e) => handleFileInput(e, 'purchaseOrder')}
+                            accept=".pdf,.doc,.docx,.jpg,.png,.xlsx"
+                          />
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500">PDF, DOC, IMG, XLS</p>
+                    </div>
+                  </div>
+                  
+                  {/* Purchase Order File Display */}
+                  {purchaseOrderFile && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="text-sm text-gray-700 truncate">{purchaseOrderFile.name}</span>
+                        </div>
+                        <button
+                          onClick={() => removeFile('purchaseOrder')}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

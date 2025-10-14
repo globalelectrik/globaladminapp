@@ -21,8 +21,9 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const logoutUser = () => {
-    logout(); // Clear your app's token
-    setUser(undefined);
+    logout(); // Clear your app's token and user data from localStorage
+    setUser(undefined); // Clear user from state
+    localStorage.setItem('justLoggedOut', 'true'); // Mark that user just logged out
 
     const currentAccount = instance.getActiveAccount() || instance.getAllAccounts()[0];
 
@@ -33,7 +34,7 @@ export const AuthContextProvider = ({ children }) => {
       });
     } else {
       // fallback, just redirect manually
-      window.location.href = '/';
+      navigate('/');
     }
   };
 

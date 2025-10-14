@@ -15,6 +15,7 @@ export const getAccessToken = () => {
 
 export const logout = () => {
 	localStorage.removeItem(ACCESS_TOKEN_KEY);
-	const navigate = useNavigate();
-	navigate('/');
+	localStorage.removeItem('user'); // Clear user data
+	localStorage.removeItem('justLoggedOut'); // Clear any logout flags
+	accessToken = ''; // Clear the in-memory token
 };

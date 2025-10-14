@@ -37,19 +37,19 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
   return (
     <div className="mt-5 relative">
       <div className="w-full pb-20 overflow-auto relative">
-        <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
-          <table className="w-full">
+        <div className="overflow-auto rounded-xl border border-gray-200 shadow-sm bg-white">
+          <table className="w-full min-w-[1400px]">
             <thead>
               <tr className="bg-gradient-to-r from-indigo-50 to-blue-50 text-left text-sm">
-                <th className="p-3 font-semibold text-gray-700 w-10"></th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Nombre del Material</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Referencia</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Cant</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Precio Unitario</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Marca</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Clasificación</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Estado</th>
-                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200">Referencia Cliente</th>
+                <th className="p-3 font-semibold text-gray-700 w-12"></th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 min-w-[280px]">Nombre del Material</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 min-w-[180px]">Referencia</th>
+                <th className="p-2 font-semibold text-gray-700 border-l border-gray-200 w-10">Cant</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 w-32">Precio Unitario</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 w-40">Marca</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 w-48">Clasificación</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 w-36">Estado</th>
+                <th className="p-3 font-semibold text-gray-700 border-l border-gray-200 min-w-[150px]">Referencia Cliente</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -63,7 +63,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   ?.classificationName || "Seleccionar Clasificación";
 
               return (
-                <tr key={index} className="hover:bg-gray-50 transition-colors duration-150 text-sm">
+                <tr key={index} className="hover:bg-gray-50 transition-colors duration-150 text-xs">
                   <td className="p-3 text-center">
                     <button 
                       onClick={() => deleteMaterial(index)}
@@ -75,7 +75,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   <td className="p-3 border-l border-gray-200">
                     <input
                       type="text"
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                      className="w-full min-w-[260px] border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-xs"
                       value={material.materialName}
                       onChange={(e) => updateMaterial(index, "materialName", e.target.value)}
                       placeholder="Nombre del material"
@@ -84,7 +84,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   <td className="p-3 border-l border-gray-200">
                     <input
                       type="text"
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                      className="w-full min-w-[160px] border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-xs"
                       value={material.materialReference}
                       onChange={(e) => updateMaterial(index, "materialReference", e.target.value)}
                       placeholder="Referencia"
@@ -93,7 +93,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   <td className="p-3 border-l border-gray-200">
                     <input
                       type="number"
-                      className="w-20 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-center"
+                      className="w-10 border border-gray-300 px-1 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-center text-xs"
                       value={material.quantity}
                       onChange={(e) => updateMaterial(index, "quantity", e.target.value)}
                       min="1"
@@ -103,8 +103,8 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   <td className="p-3 border-l border-gray-200">
                     <input
                       type="number"
-                      className="w-24 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                      value={material.salePrice}
+                      className="w-28 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-xs"
+                      value={material?.salePrice === "" || material?.salePrice == null ? "" : Number(material.salePrice)}
                       onChange={(e) => updateMaterial(index, "salePrice", e.target.value)}
                       placeholder="0.00"
                       step="0.01"
@@ -115,7 +115,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     className="p-3 border-l border-gray-200 cursor-pointer"
                     onClick={() => setBrandModalIndex(index)}
                   >
-                    <div className="inline-flex items-center px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors duration-150 text-sm font-medium">
+                    <div className="inline-flex items-center px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors duration-150 text-xs font-medium">
                       {brandName}
                     </div>
                   </td>
@@ -124,14 +124,14 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     className="p-3 border-l border-gray-200 cursor-pointer"
                     onClick={() => setClassificationModalIndex(index)}
                   >
-                    <div className="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-150 text-sm font-medium">
+                    <div className="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-150 text-xs font-medium">
                       {classificationName}
                     </div>
                   </td>
 
                   <td className="p-3 border-l border-gray-200">
                     <select
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-sm bg-white"
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-xs bg-white"
                       value={material.materialStatusType}
                       onChange={(e) => updateMaterial(index, "materialStatusType", e.target.value)}
                     >
@@ -142,7 +142,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                   <td className="p-3 border-l border-gray-200">
                     <input
                       type="text"
-                      className="w-24 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                      className="w-full min-w-[130px] border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-xs"
                       value={material.materialClientReference}
                       onChange={(e) => updateMaterial(index, "materialClientReference", e.target.value)}
                       placeholder="Ref."
@@ -157,7 +157,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
       </div>
 
       <button
-        className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 mt-4"
+        className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 mt-4"
         onClick={addMaterial}
       >
         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

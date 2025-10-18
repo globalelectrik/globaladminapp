@@ -15,6 +15,7 @@ import GeneradorAlbaranPDF from '../OrderDetailComponents/GeneradorAlbaranPDF/Ge
 import DetailPurchaseRowModal from '../OrderDetailComponents/Purchasing/DetailPurchaseRowModal.jsx';
 import ShipmentsTable from '../OrderDetailComponents/Shipments/ShipmentsTable.jsx';
 import ShipmentsDeliveryLinkModal from '../OrderDetailComponents/Shipments/ShipmentsDeliveryLinkModal.jsx';
+import FileDownloadModal from '../OrderDetailComponents/FileDownloadModal/FileDownloadModal.jsx';
 import useGetPdf from '../../../../hooks/useGetPdf/useGetPdf.jsx';
 import useGetXml from './../../../../hooks/useGetXml/useGetXml';
 
@@ -33,6 +34,10 @@ export default function OrderDetailView() {
   const [editPuchaseIndex, setEditPurchaseIndex] = useState(null)
   const [openDeliveryLinkModal, setOpenDeliveryLinkModal] = useState(false)
   const [downloadDeliveryLink, setDownloadDeliveryLink] = useState(null)
+  const [downloadFileLink, setDownloadFileLink] = useState(null)
+  const [openQuotationModal, setOpenQuotationModal] = useState(false)
+  const [openPurchaseOrderModal, setOpenPurchaseOrderModal] = useState(false)
+  const [openFileLinkModal, setOpenFileLinkModal] = useState(false)
    
     
   const {
@@ -84,6 +89,14 @@ export default function OrderDetailView() {
     fetchGet: downloadDeliveryLinkFetchPut,
    } = useGet();
 
+   
+   const { 
+    data: downloadFileLinkData,
+    isLoading: downloadFileLinkIsLoading,
+    error: downloadFileLinkError,
+    fetchGet: downloadFileLinkFetchPut,
+   } = useGet();
+
   const {
     data: pdfData,
     isLoading: pdfIsLoading,
@@ -132,12 +145,20 @@ export default function OrderDetailView() {
   }, [createPurchasePostResponse]);
 
   // When downloadDeliveryLinkData changes, open modal and set link
-    useEffect(() => {
+  useEffect(() => {
     if(downloadDeliveryLinkData?.message === "success"){
       setOpenDeliveryLinkModal(true)
       setDownloadDeliveryLink(downloadDeliveryLinkData.url)
     }
   }, [downloadDeliveryLinkData]);
+
+    // When downloadFileLinkData changes, open modal and set link
+  useEffect(() => {
+    if(downloadFileLinkData?.message === "success"){
+      setOpenFileLinkModal(true)
+      setDownloadFileLink(downloadFileLinkData.url)
+    }
+  }, [downloadFileLinkData]);
 
   // Cuando se añade nuevo material, refresca la order
   useEffect(() => {
@@ -181,6 +202,11 @@ const downloadXml = async (invoiceId) => {
   }
 }
 
+
+const createLinkFileAttached = (fileId) => {
+  downloadFileLinkFetchPut(`/orders/orderFileLink/${fileId}`)
+}
+
   return (
     <div className='relative overflow-visible bg-gray-50 min-h-screen'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
@@ -201,6 +227,7 @@ const downloadXml = async (invoiceId) => {
         {/* General Info */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 mb-2">
           <section className="bg-white rounded-xl shadow-md p-6 lg:col-span-3">
+
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Información General</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Cliente:</span><span className='text-right text-gray-900 font-semibold text-sm'>{orderSelected?.client?.commercialClientName}</span></div>
@@ -215,16 +242,57 @@ const downloadXml = async (invoiceId) => {
             </div>
             
             {/* Totals Section with gradient background */}
-            <div className='bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200 p-2 shadow-sm mt-1'>
-              <h3 className='text-sm font-medium text-gray-700 mb-1'>Resumen de Totales</h3>
-              <div className='space-y-1'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-sm font-medium text-gray-600'>Total Orden:</span>
-                  <span className='text-sm font-semibold text-gray-900'>{formatCurrency(orderSelected?.orderTotal)}</span>
-                </div>
-                <div className='flex justify-between items-center border-t-2 border-indigo-300 pt-2'>
-                  <span className='text-sm font-bold text-indigo-800'>Total +IVA:</span>
-                  <span className='text-sm  font-bold text-indigo-800'>{formatCurrency(orderSelected?.orderTotalPlusTax)}</span>
+            <div className='flex justify-between gap-2'>
+              <div className='w-full'>
+                  <div>
+                    <div className='bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200 p-2 shadow-sm mt-1'>
+                    <h3 className='text-sm font-medium text-gray-700 mb-2'>Archivos Adjuntos</h3>
+                    <div className='space-y-2'>
+                      {/* Quotation File Button */}
+                      {orderSelected?.quotationFile && (
+                        <button
+                          onClick={() => createLinkFileAttached(orderSelected?.quotationFile.sharepointId)}
+                          className='w-full flex items-center justify-between px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-xs'
+                        >
+                          <span className='text-gray-700 font-medium'>📄 Hoja Cotización</span>
+                          <svg className='h-4 w-4 text-red-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4' />
+                          </svg>
+                        </button>
+                      )}
+                      
+                      {/* Purchase Order File Button */}
+                      {orderSelected?.purchaseOrderFile && (
+                        <button
+                          onClick={() => createLinkFileAttached(orderSelected?.purchaseOrderFile.sharepointId)}
+                          className='w-full flex items-center justify-between px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-xs'
+                        >
+                          <span className='text-gray-700 font-medium'>📋 Orden de Compra</span>
+                          <svg className='h-4 w-4 text-red-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4' />
+                          </svg>
+                        </button>
+                      )}
+
+                      {/* Show message if no file */}
+                      {!orderSelected?.quotationFile && !orderSelected?.purchaseOrderFile && (
+                        <p className='text-xs text-gray-500 italic'>No hay archivos adjuntos</p>
+                      )}
+                    </div>
+                  </div>
+                  </div>
+              </div>
+              <div className='bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200 p-2 shadow-sm mt-1 w-full'>
+                <h3 className='text-sm font-medium text-gray-700 mb-1'>Resumen de Totales</h3>
+                <div className='space-y-1'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm font-medium text-gray-600'>Total Orden:</span>
+                    <span className='text-sm font-semibold text-gray-900'>{formatCurrency(orderSelected?.orderTotal)}</span>
+                  </div>
+                  <div className='flex justify-between items-center border-t-2 border-indigo-300 pt-2'>
+                    <span className='text-sm font-bold text-indigo-800'>Total +IVA:</span>
+                    <span className='text-sm  font-bold text-indigo-800'>{formatCurrency(orderSelected?.orderTotalPlusTax)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -314,21 +382,6 @@ const downloadXml = async (invoiceId) => {
             downloadXml={downloadXml}
           />
         </section>         
-     
-      {/* Incidences */}
-      {/* <section className="bg-white p-4 shadow rounded-xl mt-3">
-        <h2 className="text-lg font-semibold mb-2">Incidencias</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <strong>Incidencia Proveedor:</strong> {orderSelected?.incidenceSupplier ? 'Yes' : 'No'}
-            {orderSelected?.incidenceSupplierCause && <div><strong>Cause:</strong> {orderSelected.incidenceSupplierCause}</div>}
-          </div>
-          <div>
-            <strong>Incidencia GE:</strong> {orderSelected?.incidenceGE ? 'Yes' : 'No'}
-            {orderSelected?.incidenceGECause && <div><strong>Cause:</strong> {orderSelected.incidenceGECause}</div>}
-          </div>
-        </div>
-      </section> */}
 
         {/* Comments */}
         <section className="bg-white rounded-xl shadow-md p-6 mb-2">
@@ -400,7 +453,13 @@ const downloadXml = async (invoiceId) => {
         setOpenDeliveryLinkModal={setOpenDeliveryLinkModal}
         downloadDeliveryLink={downloadDeliveryLink} 
         setDownloadDeliveryLink={setDownloadDeliveryLink}
-        
+      />
+
+      <FileDownloadModal
+        openFileLinkModal={openFileLinkModal}
+        setOpenFileLinkModal={setOpenFileLinkModal}
+        downloadFileLink={downloadFileLink}
+        setDownloadFileLink={setDownloadFileLink}
       />
 
       </div>

@@ -163,8 +163,10 @@ const handleCreateOrder = async () => {
 
 
   useEffect(() => {
-    setDeliveryAddressSelected("");
-    setDeliveryAddresses(companySelected?.deliveryAddresses);
+    if(companySelected){
+      setDeliveryAddressSelected("");
+      setDeliveryAddresses(companySelected?.deliveryAddresses);
+    }
   }, [companySelected]);
 
   useEffect(() => {

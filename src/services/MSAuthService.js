@@ -10,7 +10,7 @@ export const msalConfig = {
     //TESTING PURPOSES ONLY
     //redirectUri: "http://localhost:3000",
     //PRODUCTION PURPOSES ONLY
-    redirectUri: "http://globaladminapp.vercel.app",
+    redirectUri: "https://globaladminapp.vercel.app",
   },
 };
 

@@ -7,7 +7,10 @@ export const msalConfig = {
   auth: {
     clientId: CLIENTID,
     authority: `https://login.microsoftonline.com/${TENATNTID}`,
-    redirectUri: "http://localhost:3000",
+    //TESTING PURPOSES ONLY
+    //redirectUri: "http://localhost:3000",
+    //PRODUCTION PURPOSES ONLY
+    redirectUri: "http://globaladminapp.vercel.app",
   },
 };
 

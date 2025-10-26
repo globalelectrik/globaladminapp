@@ -23,6 +23,7 @@ import OrderDetailRoute from './pages/Orders/OrderDetail/route/OrderDetailRoute.
 import MaterialDetailRoute from './pages/Materials/MaterialDetail/route/MaterialDetailRoute.jsx';
 import EditPurchaseDetailsRoute from './pages/Orders/EditPurchaseDetails/route/EditPurchaseDetailsRoute';
 import PurchasesListRoute from './pages/Purchases/PurchasesList/route/PurchasesListRoute.jsx';
+import UserRoute from './pages/Profile/route/UserRoute.jsx';
 
 
 function App() {
@@ -48,6 +49,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path='/profile'
+            element={
+              <ProtectedRoute>
+                <UserRoute />
+              </ProtectedRoute>
+            }
+          />
+
+
 
 
 {/* Orders */}

@@ -87,6 +87,10 @@ const toggleContactsButtonHandler = () => {
     setNewCompany({
       vatName: "",
       vatNumber: "",
+      companyCountry: "MEX",
+      companyRegime: "",
+      companyZipCode: "",
+      companyEmail: "",
       deliveryAddresses: [],
     });
     setShowCompanyModal(true);
@@ -134,6 +138,8 @@ const toggleContactsButtonHandler = () => {
     await clientUpdateFetchPut(`/clients/clientUpdate/${params.id}`, clientToEdit);
   };
 
+  console.log("clientToEdit --> ",clientToEdit);
+
   const saveEditedAddress = () => {
     const updatedClient = { ...clientToEdit };
     newAddress.deliveryContact = deliveryContactSelected
@@ -173,68 +179,131 @@ const toggleContactsButtonHandler = () => {
   }, [updatedClientData])
 
 
+    const regimeOptions = [
+    { value: "601", label: "601 — General de Ley Personas Morales" },
+    { value: "603", label: "603 — Personas Morales con Fines no Lucrativos" },
+    { value: "605", label: "605 — Sueldos y Salarios e Ingresos Asimilados a Salarios" },
+    { value: "606", label: "606 — Arrendamiento" },
+    { value: "607", label: "607 — Régimen de Enajenación o Adquisición de Bienes" },
+    { value: "608", label: "608 — Demás ingresos" },
+    { value: "610", label: "610 — Residentes en el Extranjero sin EP en México" },
+    { value: "611", label: "611 — Ingresos por Dividendos (socios y accionistas)" },
+    { value: "612", label: "612 — Personas Físicas con Actividades Empresariales y Profesionales" },
+    { value: "614", label: "614 — Ingresos por intereses" },
+    { value: "615", label: "615 — Régimen de los ingresos por obtención de premios" },
+    { value: "616", label: "616 — Sin obligaciones fiscales" },
+    { value: "620", label: "620 — Sociedades Cooperativas de Producción (diferimiento)" },
+    { value: "621", label: "621 — Incorporación Fiscal" },
+    { value: "622", label: "622 — Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras" },
+    { value: "623", label: "623 — Opcional para Grupos de Sociedades" },
+    { value: "624", label: "624 — Coordinados" },
+    { value: "625", label: "625 — Actividades Empresariales vía Plataformas Tecnológicas" },
+    { value: "626", label: "626 — Régimen Simplificado de Confianza" },
+  ];
+
+
+
 
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Header */}
-      <div className="rounded border p-4 bg-white shadow-sm">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-500">Detalles Cliente</h2>
-          <Link
-            className="rounded bg-indigo-500 px-2 py-1.5 text-xs text-white hover:bg-indigo-600"
-            to="/clients"
-          >
-            Ir a Clientes
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-2">
+        
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">
+                Detalles del Cliente
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">Información completa y gestión del cliente</p>
+            </div>
+            <Link
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 transform hover:scale-105"
+              to="/clients"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Ir a Clientes
+            </Link>
+          </div>
         </div>
-      </div>
 
-      {/* Client Information */}
-      <div className="rounded border p-6 bg-white shadow-sm space-y-6">
+        {/* Client Information */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-4 space-y-2">
 
         {/* Commercial Client Name */}
-        <div>
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-gray-500">Cliente:</h3>
-            <button className="text-indigo-600 text-sm" onClick={toggleContactsButtonHandler}>
-              {showContacts ? "Ocultar Contactos" : "Ver Contactos"}
+        <div className="bg-gradient-to-br from-indigo-50 to-white rounded-lg p-6 border border-indigo-100">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold text-gray-700 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Nombre Comercial del Cliente:
+            </h3>
+            <button 
+              className="inline-flex items-center px-4 py-2 bg-white text-indigo-600 text-sm font-medium rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-all duration-200 transform hover:scale-105 shadow-sm"
+              onClick={toggleContactsButtonHandler}
+            >
+              {showContacts ? (
+                <>
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                  Ocultar Contactos
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Ver Contactos
+                </>
+              )}
             </button>
           </div>
-          <p className="text-lg font-bold text-gray-900 mt-1">
+          <p className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             {clientToEdit?.commercialClientName || "N/A"}
           </p>
 
           {/* SHOW Contacts */}
-
-
           {showContacts && contactsData && (
-            <div className="mt-1 border-t pt-2">
-              <h3 className="text-md font-medium text-gray-500 mb-2">Contactos Relacionados</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full border rounded shadow-sm bg-white">
-                  <thead className="bg-gray-100 text-left">
-                    <tr className='text-sm'>
-                      <th className="p-3">Nombre</th>
-                      <th className="p-3">Correo</th>
-                      <th className="p-3">Móvil</th>
-                      <th className="p-3">Teléfono</th>
-                      <th className="p-3">Cargo</th>
+            <div className="mt-6 border-t border-indigo-100 pt-4">
+              <h3 className="text-md font-semibold text-gray-700 mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Contactos Relacionados
+              </h3>
+              <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                <table className="min-w-full bg-white">
+                  <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                    <tr className='text-sm text-gray-700'>
+                      <th className="p-4 text-left font-semibold">Nombre</th>
+                      <th className="p-4 text-left font-semibold">Correo</th>
+                      <th className="p-4 text-left font-semibold">Móvil</th>
+                      <th className="p-4 text-left font-semibold">Teléfono</th>
+                      <th className="p-4 text-left font-semibold">Cargo</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-200">
                     {contactsData?.map((contact) => (
-                      <tr key={contact.id} className="border-t text-sm">
-                        <td className="p-3">{contact.contactName}</td>
-                        <td className="p-3">{contact.email}</td>
-                        <td className="p-3">{contact.mobile}</td>
-                        <td className="p-3">{contact.telephone}</td>
-                        <td className="p-3">{contact.position}</td>
+                      <tr key={contact.id} className="text-sm hover:bg-gray-50 transition-colors duration-150">
+                        <td className="p-4 font-medium text-gray-900">{contact.contactName}</td>
+                        <td className="p-4 text-gray-600">{contact.email}</td>
+                        <td className="p-4 text-gray-600">{contact.mobile}</td>
+                        <td className="p-4 text-gray-600">{contact.telephone}</td>
+                        <td className="p-4 text-gray-600">{contact.position}</td>
                       </tr>
                     ))}
                     {!contactsData?.length && (
                       <tr>
-                        <td colSpan="5" className="p-3 text-center text-gray-500">
+                        <td colSpan="5" className="p-8 text-center text-gray-500">
+                          <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
                           No hay contactos asociados a este cliente.
                         </td>
                       </tr>
@@ -250,106 +319,144 @@ const toggleContactsButtonHandler = () => {
 {/* Company Information */}
 
         {clientToEdit?.companyName?.map((company, index) => (
-          <div key={index} className="border-t py-4">
-            <h3 className="text-lg font-medium text-gray-500">Razón Social {index + 1}</h3>
-            <div className="pl-4">
-              <p className="text-base text-gray-800">
-                <span className="font-semibold">Nombre fiscal:</span> {company.vatName || "N/A"}
-              </p>
-              <p className="text-base text-gray-800">
-                <span className="font-semibold">Número fiscal RFC:</span> {company.vatNumber || "N/A"}
-              </p>
-               <p className="text-base text-gray-800">
-                <span className="font-semibold">Régimen:</span> {company.companyRegime || "N/A"}
-              </p>
-              <p className="text-base text-gray-800">
-                <span className="font-semibold">País:</span> {company.companyCountry || "N/A"}
-              </p>
-               <button
+          <div key={index} className="bg-gradient-to-br from-indigo-50 to-white rounded-lg p-4 border border-indigo-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-lg font-semibold text-gray-700 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                Razón Social {index + 1}
+              </h3>
+              <button
                 type="button"
                 onClick={() => openEditCompanyModal(index)}
-                className="mt-2 text-sm text-blue-500 hover:underline"
+                className="inline-flex items-center px-3 py-1.5 bg-white text-indigo-600 text-sm font-medium rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-all duration-200 transform hover:scale-105 shadow-sm"
               >
-                Editar Razón Social
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Editar
               </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="bg-white rounded-lg p-4 border border-gray-100">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Nombre fiscal</p>
+                <p className="text-base font-semibold text-gray-800">{company.vatName || "N/A"}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-gray-100">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Número fiscal RFC</p>
+                <p className="text-base font-semibold text-gray-800">{company.vatNumber || "N/A"}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-gray-100">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Régimen</p>
+                <p className="text-base font-semibold text-gray-800">{company.companyRegime || "N/A"}</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-gray-100">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">País</p>
+                <p className="text-base font-semibold text-gray-800">{company.companyCountry || "N/A"}</p>
+              </div>
             </div>
 
 {/* Delivery Addresses */}
 
             {company.deliveryAddresses?.map((address, addressIndex) => (
-              <div key={addressIndex} className="pl-4 space-y-2 border-t pt-4">
-                <h4 className="text-base font-medium text-gray-500">
-                  Dirección de entrega {addressIndex + 1}
-                </h4>
-                <div className="space-y-1 lg:flex lg:justify-left lg: space-x-10">
-                  <div>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Alias:</span>{" "}
-                      {address.aliasDeliveryAddress || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Contacto Entrega:</span>{" "}
-                      {address?.deliveryContact?.contactName || ">>> N/A <<<"}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Dirección:</span>{" "}
-                      {address.deliveryAddress || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Teléfono:</span>{" "}
-                      {address?.deliveryContact?.telephone || "N/A"}
-                    </p>
+              <div key={addressIndex} className="mt-4 bg-gradient-to-br from-green-50 to-white rounded-lg p-5 border border-green-100 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <h4 className="text-base font-semibold text-gray-700 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Dirección de entrega {addressIndex + 1}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => openEditAddressModal(index, addressIndex)}
+                    className="inline-flex items-center px-3 py-1.5 bg-white text-green-600 text-sm font-medium rounded-lg border border-green-200 hover:bg-green-50 transition-all duration-200 transform hover:scale-105 shadow-sm"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Editar
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Alias</p>
+                      <p className="text-sm font-semibold text-gray-800">{address.aliasDeliveryAddress || "N/A"}</p>
+                    </div>
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Contacto Entrega</p>
+                      <p className="text-sm font-semibold text-gray-800">{address?.deliveryContact?.contactName || "N/A"}</p>
+                    </div>
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Dirección</p>
+                      <p className="text-sm font-semibold text-gray-800">{address.deliveryAddress || "N/A"}</p>
+                    </div>
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Teléfono</p>
+                      <p className="text-sm font-semibold text-gray-800">{address?.deliveryContact?.telephone || "N/A"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Estado:</span> {address.deliveryState || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Ciudad:</span> {address.deliveryCity || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">Código postal:</span>{" "}
-                      {address.deliveryZipCode || "N/A"}
-                    </p>
+                  <div className="space-y-3">
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Estado</p>
+                      <p className="text-sm font-semibold text-gray-800">{address.deliveryState || "N/A"}</p>
+                    </div>
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Ciudad</p>
+                      <p className="text-sm font-semibold text-gray-800">{address.deliveryCity || "N/A"}</p>
+                    </div>
+                    <div className="bg-white rounded-md p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Código postal</p>
+                      <p className="text-sm font-semibold text-gray-800">{address.deliveryZipCode || "N/A"}</p>
+                    </div>
                   </div>
                 </div>
-                {/* Edit Delivery Address Button */}
-                <button
-                  type="button"
-                  onClick={() => openEditAddressModal(index, addressIndex)}  // Open edit modal for this address
-                  className="mt-4 text-sm text-blue-500 hover:underline"
-                >
-                  Editar Dirección
-                </button>
               </div>
             ))}
 
             {/* Add New Delivery Address Button */}
-            <button
-              type="button"
-              onClick={() => openNewDeliveryAddressModal(index)}
-              className="mt-4 text-sm text-blue-500 hover:underline"
-            >
-              + Agregar Dirección de Entrega
-            </button>
+            <div className='flex justify-end'>
+              <button
+                type="button"
+                onClick={() => openNewDeliveryAddressModal(index)}
+                className="mt-4 inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-medium rounded-lg shadow-sm hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Agregar Dirección de Entrega
+              </button>
+            </div>
+
           </div>
         ))}
 
         {/* Add New Company Button */}
-        <button
-          type="button"
-          onClick={openCompanyModal}
-          className="mt-6 text-sm text-blue-500 hover:underline"
-        >
-          + Añadir Nueva Razón Social
-        </button>
+        <div className='flex justify-center'>
+          <button
+            type="button"
+            onClick={openCompanyModal}
+            className="mt-6 inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 transform hover:scale-105"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Agregar Nueva Razón Social
+          </button>
+        </div>
 
         {/* Save Changes Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-8">
           <button
             onClick={saveClientChanges}
-            className="text-sm rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white text-base font-medium rounded-lg shadow-md hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105"
           >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
             Guardar Cambios
           </button>
         </div>
@@ -414,6 +521,7 @@ const toggleContactsButtonHandler = () => {
         />
       )}
 
+      </div>
     </div>
   );
 }

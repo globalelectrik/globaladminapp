@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { setToken, getAccessToken, logout } from '../utils/store/AccessTokenStore';
-import { getCurrentUser } from '../services/AuthServices';
+import { getCurrentUser, verifyMicrosoftUser } from '../services/AuthServices';
 import { verifyJWT } from '../utils/helpers/jwtHelper';
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../services/MSAuthService';
@@ -46,18 +46,41 @@ export const AuthContextProvider = ({ children }) => {
       });
 
       const accessToken = response.accessToken;
+      const userEmail = accounts[0]?.username;
 
-      const newUser = {
-        name: accounts[0]?.name,
-        email: accounts[0]?.username,
-        source: 'microsoft',
-        token: accessToken,
-      };
+      // Verify if the Microsoft user exists in your database
+      try {
+        await verifyMicrosoftUser(userEmail);
+        
+        // If verification succeeds (200), create user session
+        const newUser = {
+          name: accounts[0]?.name,
+          email: userEmail,
+          source: 'microsoft',
+          token: accessToken,
+        };
 
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+        setUser(newUser);
+        localStorage.setItem('user', JSON.stringify(newUser));
 
-      navigate('/dashboard'); // <-- auto-redirect after Microsoft login
+        navigate('/dashboard');
+      } catch (verifyError) {
+        // If user is not found in database (404 or any error)
+        console.error('User not registered in database:', verifyError);
+        
+        // Log out from Microsoft
+        const currentAccount = instance.getActiveAccount() || instance.getAllAccounts()[0];
+        if (currentAccount) {
+          await instance.logoutRedirect({
+            account: currentAccount,
+            postLogoutRedirectUri: '/',
+          });
+        }
+        
+        // Show error message (you can customize this)
+        alert('Tu cuenta de Microsoft no está registrada en el sistema. Por favor contacta al administrador.');
+        navigate('/');
+      }
     } catch (error) {
       instance.loginRedirect(loginRequest); // fallback if session expired
     }

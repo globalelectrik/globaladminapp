@@ -98,7 +98,7 @@ export default function CreateClientView() {
   };
 
   useEffect(() => {
-    if (createClientPostResponse?.message === "success") {
+    if (createClientPostResponse?.message === "Cliente creado exitosamente") {
       setShowSuccessModal(true);
       setUrlToClient(
         `/clients/clientDetail/${createClientPostResponse.client.id}`
@@ -118,6 +118,8 @@ export default function CreateClientView() {
       });
     }
   }, [createClientPostResponse]);
+
+
 
   const regimeOptions = [
     { value: "601", label: "601 — General de Ley Personas Morales" },

@@ -15,3 +15,12 @@ export const getCurrentUser = async () => {
     console.log(error);
   }
 };
+
+export const verifyMicrosoftUser = async (email) => {
+  try {
+    const response = await http.post('/auth/verify-microsoft-user', { email });
+    return response;
+  } catch (error) {
+    console.log(error);
+  } 
+}

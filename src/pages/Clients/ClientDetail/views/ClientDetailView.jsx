@@ -138,8 +138,6 @@ const toggleContactsButtonHandler = () => {
     await clientUpdateFetchPut(`/clients/clientUpdate/${params.id}`, clientToEdit);
   };
 
-  console.log("clientToEdit --> ",clientToEdit);
-
   const saveEditedAddress = () => {
     const updatedClient = { ...clientToEdit };
     newAddress.deliveryContact = deliveryContactSelected

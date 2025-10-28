@@ -238,6 +238,20 @@ const handleCreateOrder = async () => {
     }
     
     const file = files[0];
+    
+    // Check total file size (4.5 MB = 4.5 * 1024 * 1024 bytes)
+    const maxTotalSize = 4.5 * 1024 * 1024;
+    const existingFileSize = fileType === 'quotation' 
+      ? (purchaseOrderFile ? purchaseOrderFile.size : 0)
+      : (quotationFile ? quotationFile.size : 0);
+    const newTotalSize = file.size + existingFileSize;
+    
+    if (newTotalSize > maxTotalSize) {
+      const totalSizeMB = (newTotalSize / (1024 * 1024)).toFixed(2);
+      alert(`El tamaño total de los archivos (${totalSizeMB} MB) excede el límite de 4.5 MB. Por favor, reduce el tamaño de los archivos.`);
+      return;
+    }
+    
     if (fileType === 'quotation') {
       setQuotationFile(file);
       // Automatically extract materials from quotation file
@@ -257,6 +271,23 @@ const handleCreateOrder = async () => {
     }
     
     const file = files[0];
+    if (!file) return;
+    
+    // Check total file size (4.5 MB = 4.5 * 1024 * 1024 bytes)
+    const maxTotalSize = 4.5 * 1024 * 1024;
+    const existingFileSize = fileType === 'quotation' 
+      ? (purchaseOrderFile ? purchaseOrderFile.size : 0)
+      : (quotationFile ? quotationFile.size : 0);
+    const newTotalSize = file.size + existingFileSize;
+    
+    if (newTotalSize > maxTotalSize) {
+      const totalSizeMB = (newTotalSize / (1024 * 1024)).toFixed(2);
+      alert(`El tamaño total de los archivos (${totalSizeMB} MB) excede el límite de 4.5 MB. Por favor, reduce el tamaño de los archivos.`);
+      // Clear the file input
+      e.target.value = '';
+      return;
+    }
+    
     if (fileType === 'quotation') {
       setQuotationFile(file);
       // Automatically extract materials from quotation file

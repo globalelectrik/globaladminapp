@@ -41,6 +41,8 @@ export default function ClientDetailView() {
    
   const { 
     putResponse: updatedClientData, 
+    isLoading: clientUpdateIsLoading,
+    error: clientUpdateError,
     fetchPut: clientUpdateFetchPut 
   } = usePut();
 
@@ -170,8 +172,11 @@ const toggleContactsButtonHandler = () => {
 
 
   useEffect(()=> {
-    if(updatedClientData){
+    if(updatedClientData.message === "Cliente actualizado correctamente"){
       setBackendMessage(updatedClientData.message)
+      setShowResultMessageBox(true)
+    } else if (clientUpdateError) {
+      setBackendMessage(clientUpdateError)
       setShowResultMessageBox(true)
     }
   }, [updatedClientData])

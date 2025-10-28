@@ -12,20 +12,33 @@ const usePostWithFiles = () => {
     setPostResponse(null);
 
     try {
-      // Create FormData
       const formData = new FormData();
-      
-      // Append data as JSON string
       formData.append('data', JSON.stringify(data));
       
-      // Append files if they exist
       Object.keys(files).forEach(key => {
         if (files[key]) {
           formData.append(key, files[key]);
         }
       });
 
-      const response = await fetch(`${import.meta.env.VITE_URL_BACKEND}${endpoint}`, {
+      // Handle URL concatenation like axios does
+      const baseUrl = import.meta.env.VITE_URL_BACKEND;
+      let fullUrl;
+      
+      // If baseUrl ends with / and endpoint starts with /, remove one /
+      if (baseUrl.endsWith('/') && endpoint.startsWith('/')) {
+        fullUrl = baseUrl + endpoint.slice(1);
+      } else if (!baseUrl.endsWith('/') && !endpoint.startsWith('/')) {
+        // If neither ends/starts with /, add one
+        fullUrl = baseUrl + '/' + endpoint;
+      } else {
+        // Otherwise, just concatenate
+        fullUrl = baseUrl + endpoint;
+      }
+
+      console.log('🔵 Full URL:', fullUrl);
+
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${getAccessToken()}`
@@ -42,6 +55,7 @@ const usePostWithFiles = () => {
         throw new Error(result.message || 'Error en la petición');
       }
     } catch (err) {
+      console.error('❌ Error:', err);
       setError(err.message);
       throw err;
     } finally {

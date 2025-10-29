@@ -172,8 +172,8 @@ const toggleContactsButtonHandler = () => {
 
 
   useEffect(()=> {
-    if(updatedClientData.message === "Cliente actualizado correctamente"){
-      setBackendMessage(updatedClientData.message)
+    if(updatedClientData?.message === "Cliente actualizado correctamente"){
+      setBackendMessage(updatedClientData?.message)
       setShowResultMessageBox(true)
     } else if (clientUpdateError) {
       setBackendMessage(clientUpdateError)

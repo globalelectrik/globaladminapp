@@ -454,7 +454,7 @@ const handleCreateOrder = async () => {
                     </div>
                   </div>
                   
-                  {/* Quotation File Display */}
+                {/* Quotation File Display */}
                   {quotationFile && (
                     <div className="mt-2">
                       <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">

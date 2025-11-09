@@ -174,18 +174,20 @@ const handleCreateOrder = async () => {
   }, [orderTotal]);
 
   // Calculate total automatically from materials
-  useEffect(() => {
-    const calculateTotal = () => {
-      const total = materials.reduce((sum, material) => {
-        const salePrice = parseFloat(material.salePrice) || 0;
-        const quantity = parseFloat(material.quantity) || 0;
-        return sum + (salePrice * quantity);
-      }, 0);
-      setOrderTotal(total);
-    };
+    useEffect(() => {
+      const calculateTotal = () => {
+        const total = materials.reduce((sum, material) => {
+          const salePrice = parseFloat(material.salePrice) || 0;
+          const quantity = parseFloat(material.quantity) || 0;
+          return sum + (salePrice * quantity);
+        }, 0);
+        
+        // Round the final total to 2 decimals
+        setOrderTotal(parseFloat(total.toFixed(2)));
+      };
 
-    calculateTotal();
-  }, [materials]);
+      calculateTotal();
+    }, [materials]);
 
   // Handle order creation response
   useEffect(() => {

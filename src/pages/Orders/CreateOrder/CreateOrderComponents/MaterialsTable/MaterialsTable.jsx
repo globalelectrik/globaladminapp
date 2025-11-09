@@ -94,7 +94,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     <input
                       type="number"
                       className="w-10 border border-gray-300 px-1 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-center text-xs"
-                      value={material.quantity}
+                      value={material.quantity.toFixed(0)}
                       onChange={(e) => updateMaterial(index, "quantity", e.target.value)}
                       min="1"
                     />
@@ -104,7 +104,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                     <input
                       type="number"
                       className="w-28 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-xs"
-                      value={material?.salePrice === "" || material?.salePrice == null ? "" : Number(material.salePrice)}
+                      value={material?.salePrice || ""}
                       onChange={(e) => updateMaterial(index, "salePrice", e.target.value)}
                       placeholder="0.00"
                       step="0.01"

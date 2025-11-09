@@ -33,8 +33,7 @@ export const extractMaterialsXls = async (file) => {
           materialReference: referencia || '',
           materialName: materialName || '',
           quantity: quantity || 0,
-          salePrice: salePrice || 0,
-          // Default values for required fields
+          salePrice: salePrice ? Math.ceil(parseFloat(salePrice)) : 0,          // Default values for required fields
           materialBrand: '',
           materialClassification: '',
           materialStatusType: 'Nuevo',

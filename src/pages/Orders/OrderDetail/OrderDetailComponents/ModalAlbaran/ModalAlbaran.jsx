@@ -222,6 +222,7 @@ const schema = z.object({
         materialId: original?.material?.id || '',
         materialClientReference: mat.materialClientReference,
         materialName: original?.material?.materialName || '',
+        materialReference: original?.material?.materialReference || '',
         quantityDelivered: mat.quantity,
         materialSerialNumber: mat?.materialSerialNumber || '',
         salePrice: original?.salePrice,

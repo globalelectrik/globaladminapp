@@ -1,19 +1,5 @@
 import { jsPDF } from "jspdf";
 
-/*
-1. Numero de albaran (se introduce en el formulario)
-2. Informacion del client (se obtiene por parametros)
-3. Fecha (se obtiene la fecha actual del sistema)
-4. Pedido del client (se introduce en el formulario)
-5. Articulos (se obtiene por parametros)
-  5.1 Codígo (manual, se introduce en el formulario)
-  5.2 Descripción (se obtiene por parametros)
-  5.3 Cantidad (se introduce en el formulario)
-  5.4 Serial (se introduce en el formulario)
-  5.5 Revision (OK)
-  5.6 Firma OK (Según login del usuario, se obtiene del contexto de sesión)
-*/
-
 const globatik = {
   address: "FUNDIDORES NO. 57 TRABAJADORES DEL HIERRO",
   ciudad: "AZCAPOTZALCO, CIUDAD DE MEXICO",
@@ -32,17 +18,20 @@ export function generarPDF({
   materials
 }) {
 
+  console.log('🔍 PDF Generation - Full params:', materials);
 
   const doc = new jsPDF({ format: 'a4', unit: 'mm' });
+  const pageWidth = doc.internal.pageSize.getWidth(); // 210mm for A4
   const margin = 15;
   let y = margin;
+  
   doc.setFontSize(20);
-  doc.text('ALBARÁN', 105, y, { align: 'center' });
+  doc.text('ALBARÁN', pageWidth / 2, y, { align: 'center' });
   y += 12;
 
   // Datos de la empresa (globatik)
   doc.setFontSize(10);
-  doc.text('GLOBAL ELECTRIK', margin, y);
+  doc.text('Globatik®', margin, y);
   doc.text(`Dirección: ${globatik.address}`, margin, y + 5);
   doc.text(`Ciudad: ${globatik.ciudad}`, margin, y + 10);
   doc.text(`Estado: ${globatik.estado}`, margin, y + 15);
@@ -50,12 +39,12 @@ export function generarPDF({
   doc.text(`Tel: ${globatik.telefono}`, margin, y + 25);
   doc.text(`Email: ${globatik.email}`, margin, y + 30);
 
-  // Datos del client
+  // Datos del cliente
   let xCliente = 120;
   doc.setFontSize(10);
   doc.text('Cliente:', xCliente, y);
   doc.text(`Razón Social: ${client.vatName}`, xCliente, y + 5);
-  doc.text(`RFC: ${client.vatNumber }`, xCliente, y + 10);
+  doc.text(`RFC: ${client.vatNumber}`, xCliente, y + 10);
   doc.text(`Dirección: ${client.deliveryAddress}`, xCliente, y + 15);
   doc.text(`Ciudad: ${client.deliveryCity}`, xCliente, y + 20);
   doc.text(`Estado: ${client.deliveryState}`, xCliente, y + 25);
@@ -73,36 +62,86 @@ export function generarPDF({
   // Línea separadora
   y += 8;
   doc.setLineWidth(0.5);
-  doc.line(margin, y, 210 - margin, y);
-  y += 6;
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 8;
 
-  // Tabla de artículos
-  doc.setFontSize(11);
-  doc.text('Artículos:', margin, y);
-  y += 6;
+  // ✅ Simplified table with fixed column positions
+  doc.setFontSize(9);
+  
+  // Column X positions (in mm from left edge)
+  const colX = {
+    codigo: 15,        // Código
+    descripcion: 35,   // Descripción  
+    referencia: 90,    // Referencia ✅
+    cantidad: 120,     // Cantidad
+    serial: 140,       // Serial
+    revision: 165,     // Revisión
+    firma: 185         // Firma
+  };
+
+  // ✅ Draw table headers
   doc.setFontSize(10);
-  // Encabezados
-  doc.text('Código', margin, y);
-  doc.text('Descripción', margin + 30, y);
-  doc.text('Cantidad', margin + 100, y);
-  doc.text('Serial', margin + 120, y);
-  doc.text('Revisión', margin + 150, y);
-  doc.text('Firma', margin + 175, y);
-  y += 5;
+  doc.setFont(undefined, 'bold');
+  doc.text('Código', colX.codigo, y);
+  doc.text('Descripción', colX.descripcion, y);
+  doc.text('Referencia', colX.referencia, y); // ✅ This should appear
+  doc.text('Cantidad', colX.cantidad, y);
+  doc.text('Serial', colX.serial, y);
+  doc.text('Revisión', colX.revision, y);
+  doc.text('Firma', colX.firma, y);
+  
+  y += 2;
   doc.setLineWidth(0.1);
-  doc.line(margin, y, 210 - margin, y);
+  doc.line(margin, y, pageWidth - margin, y);
   y += 5;
-  // Filas
-  materials.forEach((articulo) => {
-    doc.text(articulo.materialClientReference, margin, y);
-    doc.text(articulo.materialName, margin + 30, y);
-    doc.text(String(articulo.quantity), margin + 100, y);
-    doc.text(articulo.serial, margin + 120, y);
-    doc.text(articulo.revision, margin + 150, y);
-    doc.text(articulo.firma, margin + 175, y);
+
+  // ✅ Draw table rows
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(9);
+  
+  materials.forEach((articulo, index) => {
+    console.log(`🔍 Material ${index}:`, articulo);
+    
+    const codigo = String(articulo.materialClientReference || '-');
+    const descripcion = String(articulo.materialName || '-');
+    const referencia = String(articulo.materialReference || 'N/A'); // ✅ Different fallback
+    const cantidad = String(articulo.quantity || '0');
+    const serial = String(articulo.serial || '-');
+    const revision = String(articulo.revision || '-');
+    const firma = String(articulo.firma || '-');
+
+    console.log(`  📝 Referencia value: "${referencia}"`);
+    console.log(`  📝 Position: x=${colX.referencia}, y=${y}`);
+
+    // ✅ Draw each cell explicitly
+    doc.text(codigo, colX.codigo, y);
+    
+    // Truncate description if too long
+    const maxDescLength = 25;
+    const shortDesc = descripcion.length > maxDescLength 
+      ? descripcion.substring(0, maxDescLength) + '...' 
+      : descripcion;
+    doc.text(shortDesc, colX.descripcion, y);
+    
+    // ✅ EXPLICITLY draw referencia
+    doc.text(referencia, colX.referencia, y);
+    
+    doc.text(cantidad, colX.cantidad, y);
+    doc.text(serial, colX.serial, y);
+    doc.text(revision, colX.revision, y);
+    doc.text(firma, colX.firma, y);
+    
     y += 7;
+    
+    // Add new page if needed
+    if (y > 270) {
+      doc.addPage();
+      y = margin;
+    }
   });
 
   // Guardar el PDF
-  doc.save('albaran.pdf');
+  const filename = `Albarán-${numeroAlbaran}.pdf`;
+  console.log('💾 Saving PDF as:', filename);
+  doc.save(filename);
 }

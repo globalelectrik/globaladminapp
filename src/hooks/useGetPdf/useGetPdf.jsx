@@ -11,7 +11,7 @@ export default function useGetPdf() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
- const fetchPdf = async (url, fileName = 'document.pdf') => {
+  const fetchPdf = async (url, fallbackFileName = 'document.pdf') => {
     try {
       setIsLoading(true);
       setIsLoadingContext(true);
@@ -35,10 +35,27 @@ export default function useGetPdf() {
         throw new Error('Invalid or empty PDF file');
       }
 
+      // ✅ Extract filename from Content-Disposition header (from backend)
+      let fileName = fallbackFileName;
+      const contentDisposition = response.headers['content-disposition'];
+      
+      if (contentDisposition) {
+        // Try to match filename="F-8.pdf" or filename=F-8.pdf
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          // Remove quotes and use the extracted filename
+          fileName = match[1].replace(/['"]/g, '');
+          console.log("✅ Extracted filename from backend:", fileName);
+        }
+      }
+
+      console.log("📥 Downloading PDF as:", fileName);
+
+      // Create blob URL and trigger download
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = fileName;
+      link.download = fileName; // ✅ Use extracted filename
       document.body.appendChild(link);
       link.click();
       link.remove();

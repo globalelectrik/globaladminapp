@@ -1,24 +1,28 @@
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import useGet from '../../../../hooks/useGet/useGet';
 import { addWorkingDays } from '../../../../utils/helpers/addWorkingDaysToDate';
 import { formatCurrency } from '../../../../utils/helpers/formatCurrency';
+import { generateMonthOptions, getCurrentYYMM } from '../../CreateOrder/helpers/getMonthYear';
+
 
 export default function OrdersListView() {
   const [highlightDeliveryStatus, setHighlightDeliveryStatus] = useState(false);
+  const [monthFiltered, setMonthFiltered] = useState(getCurrentYYMM());
 
   const {
-    data: ordersData,
-    isLoading: ordersIsLoading,
-    error: ordersError,
-    fetchGet: ordersFetchGet,
+    data: ordersFilteredData,
+    isLoading: ordersFilteredIsLoading,
+    error: ordersFilteredError,
+    fetchGet: ordersFilteredFetchGet,
   } = useGet();
 
-  const getOrdersButtonHandler = async () => {
-    ordersFetchGet("/orders");
-  };
+  useEffect(() => {
+    ordersFilteredFetchGet(`/orders/${monthFiltered}`);
+  }, [monthFiltered]);
 
+  const monthOptions = generateMonthOptions();
   const now = new Date();
 
   return (
@@ -32,26 +36,59 @@ export default function OrdersListView() {
             <PlusCircleIcon className='h-5 w-5 text-white' aria-hidden='true' />
             Nuevo Pedido
           </NavLink>
-
-          <button
-            onClick={getOrdersButtonHandler}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-sm text-gray-700 transition"
-          >
-            Cargar Pedidos
-          </button>
         </div>
 
-        <div>
+        <div className="flex items-center gap-3">
+          {/* Month/Year Filter */}
+          <div className="flex items-center gap-2">
+            
+            <select
+              id="monthFilter"
+              value={monthFiltered}
+              onChange={(e) => setMonthFiltered(e.target.value)}
+              className="pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            >
+              {monthOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Color Toggle Button */}
           <button
             onClick={() => setHighlightDeliveryStatus(!highlightDeliveryStatus)}
-            className="px-4 py-2 bg-yellow-50 hover:bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800 transition"
+            className="px-4 py-2 bg-yellow-50 hover:bg-yellow-100 border border-yellow-300 rounded-lg text-sm text-yellow-800 transition"
           >
             {highlightDeliveryStatus ? "Ocultar Colores" : "Mostrar Colores"}
           </button>
         </div>
       </div>
 
-      {ordersData?.orders?.length > 0 && (
+      {/* Loading State */}
+      {ordersFilteredIsLoading && (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Cargando pedidos...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {ordersFilteredError && (
+        <div className="text-center py-8">
+          <p className="text-red-500">Error al cargar los pedidos</p>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!ordersFilteredIsLoading && !ordersFilteredError && ordersFilteredData?.orders?.length === 0 && (
+        <div className="text-center py-8 bg-gray-50 rounded-lg">
+          <p className="text-gray-500">No hay pedidos para el mes seleccionado</p>
+        </div>
+      )}
+
+      {/* Orders Table */}
+      {!ordersFilteredIsLoading && ordersFilteredData?.orders?.length > 0 && (
         <div className="overflow-x-auto border rounded-lg shadow-sm">
           <table className="min-w-full text-left border-collapse rounded-lg">
             <thead className="bg-indigo-600 text-white text-sm">
@@ -68,7 +105,7 @@ export default function OrdersListView() {
               </tr>
             </thead>
             <tbody>
-              {ordersData.orders.map((order, idx) => {
+              {ordersFilteredData?.orders?.map((order, idx) => {
                 const promiseDate = order.datePOClient
                   ? addWorkingDays(new Date(order.datePOClient), order.deliverInDays || 0)
                   : null;

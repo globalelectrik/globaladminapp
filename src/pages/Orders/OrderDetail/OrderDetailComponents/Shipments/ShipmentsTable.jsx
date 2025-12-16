@@ -3,6 +3,7 @@ import ModalAlbaran from '../ModalAlbaran/ModalAlbaran';
 import { useState } from 'react';
 import { generateDeliveryInstrucionsPDF } from '../../../../../utils/generateDeliveryInstructions';
 import { PlusCircleIcon } from 'lucide-react';
+import ShipmentInfoModal from './ShipmentModal';
 
 export default function ShipmentsTable({
   orderSelected, 
@@ -15,7 +16,12 @@ export default function ShipmentsTable({
   createDeliveryError,
   createDeliveryFetchPost,
   downloadInvoice, 
-  downloadXml
+  downloadXml,
+  openShipmentInfoModal,
+  setOpenShipmentInfoModal,
+  orderShipmentInfoFetchPut,
+  selectedDeliveryId,
+  setSelectedDeliveryId
 }) {
 
   const [openShipModal, setOpenShipModal] = useState(false);
@@ -38,6 +44,14 @@ export default function ShipmentsTable({
           createDeliveryIsLoading={createDeliveryIsLoading}
           createDeliveryError={createDeliveryError}
           createDeliveryFetchPost={createDeliveryFetchPost}
+      />
+
+      <ShipmentInfoModal
+          openShipmentInfoModal={openShipmentInfoModal} 
+          setOpenShipmentInfoModal={setOpenShipmentInfoModal}
+          orderShipmentInfoFetchPut={orderShipmentInfoFetchPut}
+          orderSelected={orderSelected}
+          selectedDeliveryId={selectedDeliveryId}
       />
 
       <div className='flex justify-between items-center p-6'>
@@ -63,18 +77,32 @@ export default function ShipmentsTable({
         <thead className="bg-gradient-to-r from-indigo-600 to-indigo-700">
           <tr>
             <th className="px-6 py-1 text-left text-xs font-semibold text-white uppercase tracking-wider">Paquetería</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Guía</th>
             <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Albarán Creado</th>
             <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Albarán</th>
             <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Factura Num</th>
             <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Factura PDF</th>
-            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider rounded-tr-lg">Factura XML</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider">Factura XML</th>
+            <th className="px-6 py-1 text-center text-xs font-semibold text-white uppercase tracking-wider rounded-tr-lg">Estatus Entrega</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {orderSelected?.deliveries?.map((del, index) => (
             <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-              <td className="py-1 text-sm text-gray-900 font-medium">{del?.deliveryType}</td>
-              <td className="py-1 text-sm text-gray-900 text-center">{del?.createdAt}</td>
+              <td className="px-2 py-1 text-sm text-gray-900 font-medium">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setSelectedDeliveryId(del.id);
+                    setOpenShipmentInfoModal(true);
+                  }} 
+                  className="inline-flex items-center py-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
+                >
+                  {del?.deliveryType || 'Actualizar'}
+                </button>
+              </td>
+              <td className="py-1 text-sm text-gray-900 text-center font-medium">{del?.trackingNumber}</td>
+              <td className="py-1 text-sm text-gray-900 text-center">{del?.createdAt.slice(0, 10)}</td>
               <td className="py-1 text-center">
                 <button type="button" onClick={()=>createLinkButtonHandler(del.id)} className="inline-flex items-center py-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200">
                    Albarán {del.deliveryNoteNumber}
@@ -91,6 +119,7 @@ export default function ShipmentsTable({
                   XML
                 </button>
               </td>
+              <td className="py-1 text-sm text-gray-900 text-center font-medium">{del?.deliveryStatus}</td>
             </tr> 
           ))}
         </tbody>

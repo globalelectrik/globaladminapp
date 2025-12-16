@@ -204,7 +204,7 @@ export default function EditPurchaseDetailsView() {
                   onChange={e => setNewDelivery({ ...newDelivery, deliveryId: e.target.value })}
                 />
               </div>
-
+      
               <div className="flex items-center space-x-2 mt-6">
                 <input
                   type="checkbox"

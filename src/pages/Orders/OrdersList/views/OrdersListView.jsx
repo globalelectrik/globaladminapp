@@ -18,6 +18,8 @@ export default function OrdersListView() {
     fetchGet: ordersFilteredFetchGet,
   } = useGet();
 
+  console.log(ordersFilteredData);
+
   useEffect(() => {
     ordersFilteredFetchGet(`/orders/${monthFiltered}`);
   }, [monthFiltered]);
@@ -110,19 +112,8 @@ export default function OrdersListView() {
                   ? addWorkingDays(new Date(order.datePOClient), order.deliverInDays || 0)
                   : null;
 
-                let rowColor = '';
-                if (highlightDeliveryStatus) {
-                  if (order.delivered) {
-                    rowColor = 'bg-green-50';
-                  } else if (promiseDate && new Date(promiseDate) < now) {
-                    rowColor = 'bg-red-50';
-                  } else {
-                    rowColor = 'bg-yellow-50';
-                  }
-                }
-
                 return (
-                  <tr key={idx} className={`border-b text-sm ${rowColor} hover:bg-gray-50`}>
+                  <tr key={idx} className={`border-b text-sm hover:bg-gray-50`}>
                     <td className="px-4 py-3">{order.orderNumGlobal}</td>
                     <td className="px-4 py-3">{order.quotNumGlobal}</td>
                     <td className="px-4 py-3">{order.user?.name || '—'}</td>

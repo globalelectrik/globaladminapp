@@ -38,6 +38,9 @@ export default function OrderDetailView() {
   const [openQuotationModal, setOpenQuotationModal] = useState(false)
   const [openPurchaseOrderModal, setOpenPurchaseOrderModal] = useState(false)
   const [openFileLinkModal, setOpenFileLinkModal] = useState(false)
+  const [openShipmentInfoModal, setOpenShipmentInfoModal] = useState(false)
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState(null)
+
    
     
   const {
@@ -61,6 +64,13 @@ export default function OrderDetailView() {
     isLoading: orderMaterialUpdateIsLoading,
     error: orderMaterialUpdateError,
     fetchPut: orderMaterialUpdateFetchPut,
+   } = usePut();
+
+  const { 
+    putResponse:orderShipmentInfoData,
+    isLoading:orderShipmentInfoIsLoading,
+    error:orderShipmentInfoError,
+    fetchPut:orderShipmentInfoFetchPut,
    } = usePut();
 
   const { 
@@ -171,6 +181,14 @@ export default function OrderDetailView() {
     }
   }, [orderAddMaterialUpdatedData]);
 
+// cuando se añade el número de guía y el courier, se debe de cambiar esto en solamente ese delivery
+  useEffect(() => {
+    if(orderShipmentInfoData?.message === "success"){
+      setOrderSelected(orderShipmentInfoData.order)
+    }
+  }, [orderShipmentInfoData]);
+
+  
 // Saves changes made in Edit Material Modal
 const saveMaterialOrderChanges = async () => {
   const updatedMaterials = [...orderSelected.materials];
@@ -215,7 +233,7 @@ const createLinkFileAttached = (fileId) => {
           <div className='flex gap-2 items-end'>
             <h1 className="text-xl font-bold">Orden: {orderSelected?.orderNumGlobal}</h1>
             <a className="text-indigo-600 underline hover:text-indigo-700 transition-colors duration-200"
-              href={orderSelected.sharepointWebURL}
+              href={orderSelected?.sharepointWebURL}
               target="_blank"
               rel="noopener noreferrer"> Ir a Sharepoint</a>
             </div>
@@ -378,8 +396,13 @@ const createLinkFileAttached = (fileId) => {
             createDeliveryIsLoading={createDeliveryIsLoading}
             createDeliveryError={createDeliveryError}
             createDeliveryFetchPost={createDeliveryFetchPost}
+            openShipmentInfoModal={openShipmentInfoModal} 
+            setOpenShipmentInfoModal={setOpenShipmentInfoModal} 
             downloadInvoice={downloadInvoice}
             downloadXml={downloadXml}
+            orderShipmentInfoFetchPut={orderShipmentInfoFetchPut}
+            selectedDeliveryId={selectedDeliveryId}
+            setSelectedDeliveryId={setSelectedDeliveryId}
           />
         </section>         
 

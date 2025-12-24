@@ -3,6 +3,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import { EditIcon, PlusCircleIcon } from 'lucide-react';
 import useGet from '../../../../hooks/useGet/useGet.jsx';
 import usePut from './../../../../hooks/usePut/usePut';
+import { useAuthContext } from '../../../../context/AuthContext';
 import usePost from '../../../../hooks/usePost/usePost.jsx';
 import { formatCurrency } from '../../../../utils/helpers/formatCurrency.js';
 import { formatDateToReadable } from '../../../../utils/helpers/formatDateToReadable.js';
@@ -21,6 +22,7 @@ import useGetXml from './../../../../hooks/useGetXml/useGetXml';
 
 export default function OrderDetailView() {
   const { id } = useParams();
+  const { user } = useAuthContext();
   const [orderSelected, setOrderSelected] = useState("")
   const [openEditRowModal, setOpenEditRowModal] = useState(false);
   const [selectedMaterialRow, setSelectedMaterialRow] = useState(null)
@@ -40,6 +42,8 @@ export default function OrderDetailView() {
   const [openFileLinkModal, setOpenFileLinkModal] = useState(false)
   const [openShipmentInfoModal, setOpenShipmentInfoModal] = useState(false)
   const [selectedDeliveryId, setSelectedDeliveryId] = useState(null)
+  const [newComment, setNewComment] = useState('')
+  const [isPublicComment, setIsPublicComment] = useState(false)
 
    
     
@@ -87,9 +91,18 @@ export default function OrderDetailView() {
     fetchGet: orderFetchGet,
   } = useGet();
 
-  const {
+  const {    
     putResponse: orderAddMaterialUpdatedData,
+    isLoading: orderAddMaterialUpdateIsLoading,
+    error: orderAddMaterialUpdateError,
     fetchPut: orderAddMaterialUpdateFetchPut,
+  } = usePut();
+
+  const {
+    putResponse: orderCommentUpdatedData,
+    isLoading: orderCommentUpdateIsLoading,
+    error: orderCommentUpdateError,
+    fetchPut: orderCommentUpdateFetchPut,
   } = usePut();
 
    const { 
@@ -188,6 +201,13 @@ export default function OrderDetailView() {
     }
   }, [orderShipmentInfoData]);
 
+  // When a comment is added, refresh the order
+  useEffect(() => {
+    if(orderCommentUpdatedData?.message === "success"){
+      setOrderSelected(orderCommentUpdatedData.order)
+    }
+  }, [orderCommentUpdatedData]);
+
   // Update browser tab title with order number
   useEffect(() => {
     if (orderSelected?.orderNumGlobal) {
@@ -234,6 +254,18 @@ const downloadXml = async (invoiceId) => {
 const createLinkFileAttached = (fileId) => {
   downloadFileLinkFetchPut(`/orders/orderFileLink/${fileId}`)
 }
+
+const saveComment = async () => {
+  console.log("CLICK  ----------------", newComment, isPublicComment, "user", user);  
+  
+  await orderCommentUpdateFetchPut(`/order/createComment/${id}`, { 
+    comment: newComment,
+    publicComment: isPublicComment,
+    userName: user.name
+  });
+  setNewComment('');
+  setIsPublicComment(false);
+};
 
   return (
     <div className='relative overflow-visible bg-gray-50 min-h-screen'>
@@ -418,23 +450,74 @@ const createLinkFileAttached = (fileId) => {
 
         {/* Comments */}
         <section className="bg-white rounded-xl shadow-md p-6 mb-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Comentarios</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">Comentarios</h2>
+
+          {/* Display Comments */}
+          <div className="grid md:grid-cols-2 gap-6 mb-3">
             <div className="bg-gray-50 rounded-lg p-4">
               <strong className="text-gray-700 text-sm font-medium">Comentarios Privados</strong>
-              <ul className="list-disc ml-5 mt-2 text-sm text-gray-600 space-y-1">
-                {orderSelected?.privateComments?.map((comment, i) => (
-                  <li key={i}>{comment.privateComment}</li>
+              <ul className="ml-2 mt-3 text-sm text-gray-600 space-y-1">
+                {orderSelected?.comments?.filter(comment => !comment.publicComment).map((comment, i) => (
+                  <li key={i}>
+                    {comment.user && (
+                      <span className="text-sm text-indigo-500">{comment.user.name}: </span>
+                    )}
+                    {comment.commentText}
+                  </li>
                 ))}
+                {orderSelected?.comments?.filter(comment => !comment.publicComment).length === 0 && (
+                  <p className="text-xs text-gray-500 italic">No hay comentarios privados</p>
+                )}
               </ul>
             </div>
             <div className="bg-blue-50 rounded-lg p-4">
               <strong className="text-gray-700 text-sm font-medium">Comentarios Públicos</strong>
-              <ul className="list-disc ml-5 mt-2 text-sm text-gray-600 space-y-1">
-                {orderSelected?.publicComments?.map((comment, i) => (
-                  <li key={i}>{comment.publicComment}</li>
+              <ul className="list-disc ml-5 mt-3 text-sm text-gray-600 space-y-1">
+                {orderSelected?.comments?.filter(comment => comment.publicComment).map((comment, i) => (
+                  <li key={i}>
+                    {comment.comment}
+                    {comment.user && (
+                      <span className="text-xs text-gray-500 ml-2">- {comment.user.name}</span>
+                    )}
+                  </li>
                 ))}
+                {orderSelected?.comments?.filter(comment => comment.publicComment).length === 0 && (
+                  <p className="text-xs text-gray-500 italic">No hay comentarios públicos</p>
+                )}
               </ul>
+            </div>
+          </div>
+
+           <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
+            <strong className="text-gray-700 text-sm font-medium">Agregar Comentario</strong>
+            <div className="mt-3 space-y-3">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Escribe un comentario..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                rows="3"
+              />
+              <div className="flex items-center justify-between">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPublicComment}
+                    onChange={(e) => setIsPublicComment(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <span className="text-xs text-gray-700">
+                   <span className='text-[10px] text-gray-500 italic'>Comentario Público *(podrá verlo el CLIENTE en un futuro)</span>
+                  </span>
+                </label>
+                <button
+                  onClick={saveComment}
+                  disabled={!newComment.trim()}
+                  className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  Guardar Comentario
+                </button>
+              </div>
             </div>
           </div>
         </section>

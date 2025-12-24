@@ -188,6 +188,16 @@ export default function OrderDetailView() {
     }
   }, [orderShipmentInfoData]);
 
+  // Update browser tab title with order number
+  useEffect(() => {
+    if (orderSelected?.orderNumGlobal) {
+      document.title = `Orden ${orderSelected.orderNumGlobal}`;
+    }
+    return () => {
+      document.title = 'Global Admin';
+    };
+  }, [orderSelected]);
+
   
 // Saves changes made in Edit Material Modal
 const saveMaterialOrderChanges = async () => {

@@ -101,6 +101,7 @@ export default function OrdersListView() {
                 <th className="px-4 py-3">Cliente</th>
                 <th className="px-4 py-3">Fecha Pedido</th>
                 <th className="px-4 py-3">Entrega Promesa</th>
+                <th className="px-4 py-3">Entregas</th>
                 <th className="px-4 py-3">Promesa de Pago</th>
                 <th className="px-4 py-3">Total + IVA</th>
                 <th className="px-4 py-3">Detalles</th>
@@ -112,8 +113,20 @@ export default function OrdersListView() {
                   ? addWorkingDays(new Date(order.datePOClient), order.deliverInDays || 0)
                   : null;
 
+                const isExpired = promiseDate && promiseDate < now;
+                const hasNoDeliveries = order.deliveries.length === 0;
+
+                let rowBgColor = '';
+                if (highlightDeliveryStatus) {
+                  if (isExpired && hasNoDeliveries) {
+                    rowBgColor = 'bg-red-200';
+                  } else if (hasNoDeliveries) {
+                    rowBgColor = 'bg-yellow-200';
+                  }
+                }
+
                 return (
-                  <tr key={idx} className={`border-b text-sm hover:bg-gray-50`}>
+                  <tr key={idx} className={`border-b text-sm hover:bg-gray-50 ${rowBgColor}`}>
                     <td className="px-4 py-3">{order.orderNumGlobal}</td>
                     <td className="px-4 py-3">{order.quotNumGlobal}</td>
                     <td className="px-4 py-3">{order.user?.name || '—'}</td>
@@ -123,6 +136,9 @@ export default function OrdersListView() {
                     </td>
                     <td className="px-4 py-3">
                       {promiseDate ? promiseDate.toISOString().slice(0, 10) : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {order.deliveries.length}
                     </td>
                     <td className="px-4 py-3">
                       {order.clientPaymentPromiseDate?.slice(0, 10) || '—'}

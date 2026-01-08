@@ -120,18 +120,18 @@ export default function GeneradorAlbaranPDF({albaranNumber, client, clientOrderN
     doc.setFontSize(11);
     doc.text('Artículos:', margin, y);
     y += 6;
-    doc.setFontSize(10);
+    doc.setFontSize(8);
     // Encabezados
     doc.text('Código', margin, y);
     doc.text('Descripción', margin + 30, y);
     doc.text('Cantidad', margin + 100, y);
     doc.text('Serial', margin + 120, y);
     doc.text('Revisión', margin + 150, y);
-    doc.text('Firma', margin + 175, y);
+    doc.text('Firma', margin + 170, y);
     y += 5;
     doc.setLineWidth(0.1);
     doc.line(margin, y, 210 - margin, y);
-    y += 5;
+    y += 6;
     // Filas
     articulos.forEach((articulo) => {
       doc.text(articulo.codigo, margin, y);
@@ -139,8 +139,8 @@ export default function GeneradorAlbaranPDF({albaranNumber, client, clientOrderN
       doc.text(String(articulo.cantidad), margin + 100, y);
       doc.text(articulo.serial, margin + 120, y);
       doc.text(articulo.revision, margin + 150, y);
-      doc.text(articulo.firma, margin + 175, y);
-      y += 7;
+      doc.text(articulo.firma, margin + 170, y);
+      y += 10;
     });
 
     // Guardar el PDF

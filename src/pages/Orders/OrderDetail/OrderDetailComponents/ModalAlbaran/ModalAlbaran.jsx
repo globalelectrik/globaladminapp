@@ -40,21 +40,11 @@ const schema = z.object({
       checked: z.boolean(),
       materialClientReference: z.string(),
       quantity: z.coerce.number(),
+      maxQuantity: z.number(),
       materialSerialNumber: z.string().optional(),
       codigoSATKey: z.string().optional(),
       codigoSATName: z.string().optional(),
     }).superRefine((val, ctx) => {
-      // índice de la fila en el array
-      const rowIdxRaw = ctx.path[0];
-      const index = Number.isFinite(Number(rowIdxRaw)) ? Number(rowIdxRaw) : 0;
-
-      // Coaccionar purchasingQuantity a número
-      const raw = Array.isArray(orderSelected?.purchases)
-        ? orderSelected.purchases[index]?.purchasingQuantity
-        : undefined;
-      const maxQtyNum = raw !== undefined && raw !== null ? Number(raw) : undefined;
-      const hasMax = Number.isFinite(maxQtyNum);
-
       if (!val.checked) return;
 
       if (!val.materialClientReference || val.materialClientReference.trim() === '') {
@@ -73,11 +63,10 @@ const schema = z.object({
         });
       }
 
-      // ✅ Sin TypeScript cast
-      if (hasMax && val.quantity > maxQtyNum) {
+      if (Number.isFinite(val.maxQuantity) && val.quantity > val.maxQuantity) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `No puede ser mayor que ${maxQtyNum}`,
+          message: `No puede ser mayor que ${val.maxQuantity}`,
           path: ['quantity'],
         });
       }
@@ -108,6 +97,7 @@ const schema = z.object({
     checked: false,
     materialClientReference: element?.material?.materialClientReference || '',
     quantity: element?.quantity || 1,
+    maxQuantity: element?.purchasingQuantity || element?.quantity || 1,
     materialSerialNumber: element?.material?.materialSerialNumber || '',
     codigoSATKey: element?.material?.codigoSATKey || '',  // <- if you store it already, else ''
     codigoSATName: element?.material?.codigoSATName || '',
@@ -119,7 +109,8 @@ const schema = z.object({
     control,
     handleSubmit,
     reset,
-    setValue,              
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -158,11 +149,11 @@ const schema = z.object({
   // 2) Mirror into parent state so the UI span reflects the choice immediately
   if (typeof setOrderSelected === 'function') {
     setOrderSelected(prev => {
-      if (!prev || !Array.isArray(prev.materials)) return prev;
+      if (!prev || !Array.isArray(prev.purchases)) return prev;
 
-      const nextMaterials = [...prev.materials];
-      const currentRow = nextMaterials[activeIndex] || {};
-      nextMaterials[activeIndex] = {
+      const nextPurchases = [...prev.purchases];
+      const currentRow = nextPurchases[activeIndex] || {};
+      nextPurchases[activeIndex] = {
         ...currentRow,
         material: {
           ...(currentRow.material || {}),
@@ -171,7 +162,7 @@ const schema = z.object({
         },
       };
 
-      return { ...prev, materials: nextMaterials };
+      return { ...prev, purchases: nextPurchases };
     });
   }
 
@@ -181,13 +172,13 @@ const schema = z.object({
 
 
   const onSubmit = async (values) => {
-    // Filtrar solo los materiales marcados
+    // Filtrar solo los materiales marcados y con cantidad mayor a 0
     const materialesMarcados = values.materials
       .map((mat, idx) => ({
         ...mat,
         _originalIdx: idx,
       }))
-      .filter((mat) => mat.checked);
+      .filter((mat) => mat.checked && mat.quantity > 0);
 
     if (materialesMarcados.length === 0) {
       alert('Debes seleccionar al menos un material para generar el albarán.');
@@ -217,15 +208,22 @@ const schema = z.object({
 
     // Artículos para el PDF
     const materials = materialesMarcados.map((mat) => {
-      const original = orderSelected?.materials?.[mat._originalIdx];
+      const original = orderSelected?.purchases?.[mat._originalIdx];
+      const materialId = original?.material?.id;
+      
+      // Find the correct material data by matching material ID
+      const materialData = orderSelected?.materials?.find(
+        m => m?.material?.id === materialId
+      );
+      
       return {
-        materialId: original?.material?.id || '',
+        materialId: materialId || '',
         materialClientReference: mat.materialClientReference,
         materialName: original?.material?.materialName || '',
         materialReference: original?.material?.materialReference || '',
         quantityDelivered: mat.quantity,
         materialSerialNumber: mat?.materialSerialNumber || '',
-        salePrice: original?.salePrice,
+        salePrice: materialData?.salePrice || 0,
         codigoSATKey: mat.codigoSATKey || '', 
         codigoSATName: mat.codigoSATName || '',
         revision: 'OK',
@@ -246,6 +244,8 @@ const schema = z.object({
       logisticsFolderName: logisticsFolderName,
 
     }
+
+    console.log("deliverydata--->> ",deliveryData);
       await createDeliveryFetchPost("/orders/deliveries/create", deliveryData)
       setOpenShipModal(false);
     };
@@ -345,7 +345,7 @@ const cfdiUse = [
                     <label className="block text-sm/6 font-medium text-zinc-900">
                       Materiales comprados:
                     </label>
-                    <table className="min-w-[500px] w-full divide-y divide-zinc-200 border rounded-md mt-2">
+                    <table className="min-w-[700px] w-full divide-y divide-zinc-200 border rounded-md mt-2">
                       <thead className="bg-zinc-50">
                         <tr>
                           <th className="px-1 py-2 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-6"></th>
@@ -353,13 +353,24 @@ const cfdiUse = [
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-32">Descripción</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-32">Referencia Producto</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-20">Cantidad</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Precio Unit.</th>
+                          <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Total</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-24">Seriales</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">CódigoSAT</th>
                           <th className="px-1 py-2 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider w-40">Asignar Código</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-zinc-200">
-                        {fields.map((field, index) => (
+                        {fields.map((field, index) => {
+                          // Find matching material data by material ID
+                          const purchase = orderSelected?.purchases?.[index];
+                          const materialId = purchase?.material?.id;
+                          const materialData = orderSelected?.materials?.find(
+                            m => m?.material?.id === materialId
+                          );
+                          const salePrice = materialData?.salePrice || 0;
+                          
+                          return (
                           <tr key={field.id}>
                             <td className="px-1 py-1">
                               <input
@@ -379,10 +390,10 @@ const cfdiUse = [
                               )}
                             </td>
                             <td className="px-1 py-1 text-center">
-                              <span className="text-xs text-zinc-900">{orderSelected?.materials?.[index]?.material?.materialName}</span>
+                              <span className="text-xs text-zinc-900">{orderSelected?.purchases?.[index]?.material?.materialName}</span>
                             </td>
                             <td className="px-1 py-1 text-center">
-                              <span className="text-xs text-zinc-900">{orderSelected?.materials?.[index]?.material?.materialReference}</span>
+                              <span className="text-xs text-zinc-900">{orderSelected?.purchases?.[index]?.material?.materialReference}</span>
                             </td>
                            <td className="px-1 py-1 text-center align-middle">
                             <div className="flex flex-col items-center justify-center w-full whitespace-nowrap">
@@ -407,6 +418,18 @@ const cfdiUse = [
                           </td>
 
                             <td className="px-1 py-1 text-center">
+                              <span className="text-xs text-zinc-900">
+                                ${salePrice.toFixed(2)}
+                              </span>
+                            </td>
+
+                            <td className="px-1 py-1 text-center">
+                              <span className="text-xs font-semibold text-zinc-900">
+                                ${(salePrice * (watch(`materials.${index}.quantity`) || 0)).toFixed(2)}
+                              </span>
+                            </td>
+
+                            <td className="px-1 py-1 text-center">
                               <input
                                 type="text"
                                 {...register(`materials.${index}.materialSerialNumber`)}
@@ -417,10 +440,10 @@ const cfdiUse = [
                             <td className="px-1 py-1 text-center">
                               
                               <span className="text-xs text-zinc-900">
-                                {orderSelected?.materials?.[index]?.material?.codigoSATName || "Sin asignar"}
-                                {orderSelected?.materials?.[index]?.material?.codigoSATKey && (
+                                {orderSelected?.purchases?.[index]?.material?.codigoSATName || "Sin asignar"}
+                                {orderSelected?.purchases?.[index]?.material?.codigoSATKey && (
                                   <span className="ml-1 font-mono text-[11px] text-zinc-600">
-                                    ({orderSelected.materials[index].material.codigoSATKey})
+                                    ({orderSelected.purchases[index].material.codigoSATKey})
                                   </span>
                                 )}
                               </span>
@@ -445,7 +468,7 @@ const cfdiUse = [
 
 
                           </tr>
-                        ))}
+                        )})}
                       </tbody>
                     </table>
                   </div>

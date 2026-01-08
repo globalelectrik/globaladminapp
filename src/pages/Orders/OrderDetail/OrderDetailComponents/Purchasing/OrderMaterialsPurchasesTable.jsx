@@ -22,6 +22,7 @@ export default function OrderMaterialsPurchasesTable({
             <th className="px-6 py-2 text-center text-xs font-semibold text-white uppercase tracking-wider">Cant.</th>
             <th className="px-6 py-2 text-center text-xs font-semibold text-white uppercase tracking-wider">Tipo Proveedor</th>
             <th className="px-6 py-2 text-center text-xs font-semibold text-white uppercase tracking-wider">En Almacén</th>
+            <th className="px-6 py-2 text-center text-xs font-semibold text-white uppercase tracking-wider">RefMat</th>
             <th className="px-6 py-2 text-center text-xs font-semibold text-white uppercase tracking-wider">Enviado al cliente</th>
             <th className="px-6 py-2 text-center text-xs font-semibold text-white uppercase tracking-wider rounded-tr-lg">Detalles</th>
           </tr>
@@ -31,8 +32,9 @@ export default function OrderMaterialsPurchasesTable({
             <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
               <td className="px-6 py-1 text-sm text-gray-900 font-medium">{mat?.material?.materialName || mat?.material}</td>
               <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.purchasingQuantity}</td>
-              <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.supplierType}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.supplierType}</td> 
               <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.deliveredToWarehouse ? "SI" : "NO"}</td>
+              <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.material?.materialReference || mat?.material}</td>
               <td className="px-6 py-1 text-sm text-gray-900 text-center">{mat?.deliveredToWarehouse ? "SI" : "NO"}</td>
               <td className="px-6 py-1 text-center">
                 <button 

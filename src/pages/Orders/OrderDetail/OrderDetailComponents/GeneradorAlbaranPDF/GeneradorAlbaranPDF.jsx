@@ -131,7 +131,7 @@ export default function GeneradorAlbaranPDF({albaranNumber, client, clientOrderN
     y += 5;
     doc.setLineWidth(0.1);
     doc.line(margin, y, 210 - margin, y);
-    y += 6;
+    y += 8;
     // Filas
     articulos.forEach((articulo) => {
       doc.text(articulo.codigo, margin, y);
@@ -140,7 +140,7 @@ export default function GeneradorAlbaranPDF({albaranNumber, client, clientOrderN
       doc.text(articulo.serial, margin + 120, y);
       doc.text(articulo.revision, margin + 150, y);
       doc.text(articulo.firma, margin + 170, y);
-      y += 10;
+      y += 15;
     });
 
     // Guardar el PDF

@@ -193,7 +193,7 @@ export default function OrdersListView() {
                 return (
                   <React.Fragment key={order.id || idx}>
                     <tr 
-                      className={`border-b text-xs hover:bg-gray-50 cursor-pointer ${rowBgColor}`}
+                      className={`border-b text-xs cursor-pointer ${rowBgColor}`}
                       onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
                     >
                       <td className="px-4 py-3">{order.orderNumGlobal}</td>

@@ -95,7 +95,7 @@ export default function MaterialsTable({ materials, setMaterials, brandsData, cl
                       type="number"
                       className="w-10 border border-gray-300 px-1 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-center text-xs"
                       value={material.quantity.toFixed(0)}
-                      onChange={(e) => updateMaterial(index, "quantity", e.target.value)}
+                      onChange={(e) => updateMaterial(index, "quantity", parseInt(e.target.value, 10) || 1)}
                       min="1"
                     />
                   </td>

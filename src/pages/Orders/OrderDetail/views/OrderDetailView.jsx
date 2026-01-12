@@ -472,20 +472,20 @@ const saveComment = async () => {
             </div>
             <div className="bg-blue-50 rounded-lg p-4">
               <strong className="text-gray-700 text-sm font-medium">Comentarios Públicos</strong>
-              <ul className="list-disc ml-5 mt-3 text-sm text-gray-600 space-y-1">
+              <ul className="ml-2 mt-3 text-sm text-gray-600 space-y-1">
                 {orderSelected?.comments?.filter(comment => comment.publicComment).map((comment, i) => (
                   <li key={i}>
-                    {comment.comment}
                     {comment.user && (
-                      <span className="text-xs text-gray-500 ml-2">- {comment.user.name}</span>
+                      <span className="text-sm text-indigo-500">{comment.user.name}: </span>
                     )}
+                    {comment.commentText}
                   </li>
                 ))}
-                {orderSelected?.comments?.filter(comment => comment.publicComment).length === 0 && (
-                  <p className="text-xs text-gray-500 italic">No hay comentarios públicos</p>
+                {orderSelected?.comments?.filter(comment => !comment.publicComment).length === 0 && (
+                  <p className="text-xs text-gray-500 italic">No hay comentarios privados</p>
                 )}
               </ul>
-            </div>
+            </div>           
           </div>
 
            <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">

@@ -183,6 +183,8 @@ export default function OrdersListView() {
                     rowBgColor = 'bg-red-200';
                   } else if (hasNoDeliveries) {
                     rowBgColor = 'bg-yellow-200';
+                  } else if (order.deliveries.length > 0) {
+                    rowBgColor = 'bg-green-200';
                   }
                 }
 

@@ -460,7 +460,7 @@ const saveComment = async () => {
                 {orderSelected?.comments?.filter(comment => !comment.publicComment).map((comment, i) => (
                   <li key={i}>
                     {comment.user && (
-                      <span className="text-sm text-indigo-500">{comment.user.name}: </span>
+                      <span className="text-sm text-indigo-500">{comment.createdAt.slice(0,10)} - {comment.user.name}: </span>
                     )}
                     {comment.commentText}
                   </li>

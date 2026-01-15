@@ -116,7 +116,10 @@ const handleCreateOrder = async () => {
       quotationFolderLocation: quotationFolderLocation
     };
 
-    dataToSend.deliveryAddress.deliveryContact = deliveryAddressSelected.deliveryContact.id // se añade el id solamente para que en el back se crée correctamente
+    // se añade el id solamente para que en el back se crée correctamente
+    if (deliveryAddressSelected?.deliveryContact?.id) {
+      dataToSend.deliveryAddress.deliveryContact = deliveryAddressSelected.deliveryContact.id;
+    }
 
     // Prepare files object
     const files = {};

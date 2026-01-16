@@ -19,6 +19,7 @@ import ShipmentsDeliveryLinkModal from '../OrderDetailComponents/Shipments/Shipm
 import FileDownloadModal from '../OrderDetailComponents/FileDownloadModal/FileDownloadModal.jsx';
 import useGetPdf from '../../../../hooks/useGetPdf/useGetPdf.jsx';
 import useGetXml from './../../../../hooks/useGetXml/useGetXml';
+import DeliveredModal from '../OrderDetailComponents/DeliveredModal/DeliveredModal.jsx';
 
 export default function OrderDetailView() {
   const { id } = useParams();
@@ -44,6 +45,7 @@ export default function OrderDetailView() {
   const [selectedDeliveryId, setSelectedDeliveryId] = useState(null)
   const [newComment, setNewComment] = useState('')
   const [isPublicComment, setIsPublicComment] = useState(false)
+  const [openDeliveredModal, setOpenDeliveredModal] = useState(false)
 
    
     
@@ -75,6 +77,14 @@ export default function OrderDetailView() {
     isLoading:orderShipmentInfoIsLoading,
     error:orderShipmentInfoError,
     fetchPut:orderShipmentInfoFetchPut,
+   } = usePut();
+
+   
+  const { 
+    putResponse:orderMarkDeliveredData,
+    isLoading:orderMarkDeliveredIsLoading,
+    error:orderMarkDeliveredError,
+    fetchPut:orderMarkDeliveredFetchPut,
    } = usePut();
 
   const { 
@@ -208,6 +218,13 @@ export default function OrderDetailView() {
     }
   }, [orderCommentUpdatedData]);
 
+  // When an order is marked as delivered, refresh the order
+  useEffect(() => {
+    if(orderMarkDeliveredData?.message === "success"){
+      setOrderSelected(orderMarkDeliveredData.order)
+    } 
+  }, [orderMarkDeliveredData]);
+
   // Update browser tab title with order number
   useEffect(() => {
     if (orderSelected?.orderNumGlobal) {
@@ -250,13 +267,22 @@ const downloadXml = async (invoiceId) => {
   }
 }
 
+const markDeliveredButtonHandler = async (id, dateDeliveredToClient) => {
+  try {
+  await orderMarkDeliveredFetchPut(`/orders/markOrderAsDelivered/${id}`, { orderDelivered: true, dateDeliveredToClient: dateDeliveredToClient});
+  alert('Orden marcada como entregada.');
+  } catch (error) {
+    console.error('Error al marcar la orden como entregada:', error);
+    alert('Error al marcar la orden como entregada.');
+  }
+}
+
 
 const createLinkFileAttached = (fileId) => {
   downloadFileLinkFetchPut(`/orders/orderFileLink/${fileId}`)
 }
 
 const saveComment = async () => {
-  console.log("CLICK  ----------------", newComment, isPublicComment, "user", user);  
   
   await orderCommentUpdateFetchPut(`/order/createComment/${id}`, { 
     comment: newComment,
@@ -288,7 +314,7 @@ const saveComment = async () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 mb-2">
           <section className="bg-white rounded-xl shadow-md p-6 lg:col-span-3">
 
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Información General</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">Información General</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Cliente:</span><span className='text-right text-gray-900 font-semibold text-sm'>{orderSelected?.client?.commercialClientName}</span></div>
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Razón Social:</span><span className='text-right text-gray-900 font-semibold text-sm'>{orderSelected?.vatName}</span> </div>
@@ -297,7 +323,14 @@ const saveComment = async () => {
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Fecha OC:</span> <span className='text-gray-900 font-semibold text-sm'>{formatDateToReadable(orderSelected?.datePOClient)}</span></div>
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">RFC:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.vatNumber}</span></div>
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Días entrega:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.deliverInDays ?? 'N/A'} días</span></div>
-              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Día Entregado:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.dateDeliveredToClient ?? 'Pending'}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Día Entregado:</span> 
+              
+                { orderSelected?.orderDelivered ?
+                  (<span className='text-gray-900 font-semibold text-sm bg-green-400 p-2 rounded-md'>{orderSelected?.dateDeliveredToClient.slice(0,10)}</span>)
+                  :(<span className='text-gray-900 font-semibold text-sm  bg-red-400 p-2 rounded-md'>Pendiente</span>)
+                }
+              
+              </div>
               <div className="flex justify-between items-center py-1"><span className="text-sm text-gray-600">Días Credito:</span> <span className='text-gray-900 font-semibold text-sm'>{orderSelected?.clientCreditDays}</span></div>
             </div>
             
@@ -360,7 +393,20 @@ const saveComment = async () => {
 
           {/* Delivery Address - takes 2/5 on lg+ screens */}
           <section className="bg-white rounded-xl shadow-md p-6 lg:col-span-2">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Dirección de Entrega</h2>
+          <div className='flex justify-between items-center'>
+            <h2 className="text-lg font-semibold text-gray-800">Dirección de Entrega</h2>
+            <div className='flex items-center'>
+            { orderSelected?.orderDelivered ? (
+              <p></p>
+              ) 
+            : (<button 
+               onClick={() => setOpenDeliveredModal(true)}
+               className="px-2 py-1 bg-indigo-600 text-white text-xs font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200"
+             >
+               Marcar Entregado
+             </button>)}
+            </div>
+          </div>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center"><strong className="text-gray-600">Contacto Entrega:</strong> <span className="text-gray-900 font-medium">{orderSelected?.deliveryAddress?.deliveryContact?.contactName}</span></div>
               <div className="flex justify-between items-center"><strong className="text-gray-600">Alias:</strong> <span className="text-gray-900 font-medium">{orderSelected?.deliveryAddress?.aliasDeliveryAddress}</span></div>
@@ -576,6 +622,13 @@ const saveComment = async () => {
         setOpenFileLinkModal={setOpenFileLinkModal}
         downloadFileLink={downloadFileLink}
         setDownloadFileLink={setDownloadFileLink}
+      />
+
+      <DeliveredModal
+        isOpen={openDeliveredModal}
+        onClose={() => setOpenDeliveredModal(false)}
+        onSave={markDeliveredButtonHandler}
+        orderId={id}
       />
 
       </div>

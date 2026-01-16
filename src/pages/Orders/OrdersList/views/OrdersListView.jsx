@@ -163,7 +163,7 @@ export default function OrdersListView() {
                 <th className="px-4 py-3">Fecha Pedido</th>
                 <th className="px-4 py-3">Entrega Promesa</th>
                 <th className="px-4 py-3">Entregas</th>
-                <th className="px-4 py-3">Promesa de Pago</th>
+                <th className="px-4 py-3">Estatus<br/>Envíos</th>
                 <th className="px-4 py-3">Total + IVA</th>
                 <th className="px-4 py-3">Detalles</th>
               </tr>
@@ -210,7 +210,7 @@ export default function OrdersListView() {
                         {order.deliveries.length}
                       </td>
                       <td className="px-4 py-3">
-                        {order.clientPaymentPromiseDate?.slice(0, 10) || '—'}
+                        {order.orderDelivered ? (<p className='text-green-600 font-semibold text-sm'>✅</p>) : (<p className='text-red-600 font-semibold text-sm'>❌</p>)}
                       </td>
                       <td className="px-4 py-3">
                         {formatCurrency(order.orderTotalPlusTax?.toFixed(2))}

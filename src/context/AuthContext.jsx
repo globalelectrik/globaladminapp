@@ -63,7 +63,13 @@ export const AuthContextProvider = ({ children }) => {
         setUser(newUser);
         localStorage.setItem('user', JSON.stringify(newUser));
 
-        navigate('/dashboard');
+        // Navigate to the intended destination or dashboard
+        const intendedPath = window.location.pathname;
+        if (intendedPath && intendedPath !== '/') {
+          navigate(intendedPath);
+        } else {
+          navigate('/dashboard');
+        }
       } catch (verifyError) {
         // If user is not found in database (404 or any error)
         console.error('User not registered in database:', verifyError);

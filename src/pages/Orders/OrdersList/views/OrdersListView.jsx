@@ -158,7 +158,6 @@ export default function OrdersListView() {
               <tr>
                 <th className="px-4 py-3">#Ord GE</th>
                 <th className="px-4 py-3">#OC Cliente</th>
-                <th className="px-4 py-3">Usuario</th>
                 <th className="px-4 py-3">Cliente</th>
                 <th className="px-4 py-3">Fecha Pedido</th>
                 <th className="px-4 py-3">Entrega Promesa</th>
@@ -198,7 +197,6 @@ export default function OrdersListView() {
                     >
                       <td className="px-4 py-3">{order.orderNumGlobal}</td>
                       <td className="px-4 py-3">{order.pOClientNumber}</td>
-                      <td className="px-4 py-3">{order.user?.name || '—'}</td>
                       <td className="px-4 py-3">{order.vatName || '—'}</td>
                       <td className="px-4 py-3">
                         {order.datePOClient?.slice(0, 10) || '—'}

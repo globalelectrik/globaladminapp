@@ -20,6 +20,8 @@ export const AuthContextProvider = ({ children }) => {
     getUser();
   };
 
+  console.log("user-->> ",user);
+
   const logoutUser = () => {
     logout(); // Clear your app's token and user data from localStorage
     setUser(undefined); // Clear user from state
@@ -48,16 +50,26 @@ export const AuthContextProvider = ({ children }) => {
       const accessToken = response.accessToken;
       const userEmail = accounts[0]?.username;
 
+      console.log("accounts[0]-->  ",accounts[0]);
+
+
       // Verify if the Microsoft user exists in your database
       try {
-        await verifyMicrosoftUser(userEmail);
+        const userData = await verifyMicrosoftUser(userEmail);
+
+        console.log("userData--->>> ",userData);
+
+        if (userData.success===false) {
+          throw new Error('User role not found');
+        }
         
-        // If verification succeeds (200), create user session
+        // If verification succeeds (200), create user session with role
         const newUser = {
           name: accounts[0]?.name,
           email: userEmail,
           source: 'microsoft',
           token: accessToken,
+          userType: accounts[0]?.idTokenClaims?.roles[0]
         };
 
         setUser(newUser);

@@ -70,7 +70,7 @@ export default function PurchasesListView() {
                 <React.Fragment key={order.id}>
                   {/* Fila principal del pedido */}
                   <tr className="border-t border-gray-200">
-                    <td className="p-2 text-center">
+                    <td className="text-center">
                       <button onClick={() => toggleRow(order.id)}>
                         {expandedRows[order.id] ? "▼" : "▶"}
                       </button>
@@ -88,17 +88,19 @@ export default function PurchasesListView() {
                         <table className="w-full border border-gray-300 text-sm">
                           <thead>
                             <tr className="bg-gray-200">
-                              <th className="p-2 text-left">Nombre</th>
-                              <th className="p-2 text-left">Referencia</th>
-                              <th className="p-2 text-left">Cantidad</th>
+                              <th className="pt-1 text-left w-60">Nombre</th>
+                              <th className="pt-1 text-center">Referencia</th>
+                              <th className="pt-1 text-center">Cantidad</th>
+                              <th className="pt-1 text-center">Coste</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {order.materials.map((mat, idx) => (
+                            {order?.purchases?.map((purchase, idx) => (
                               <tr key={idx} className="border-t border-gray-200">
-                                <td className="p-2">{mat.materialName}</td>
-                                <td className="p-2">{mat.materialReference}</td>
-                                <td className="p-2">{mat.quantity}</td>
+                                <td className="p-2">{purchase.material.materialName}</td>
+                                <td className="p-2 text-center">{purchase.material.materialReference}</td>
+                                <td className="p-2 text-center">{purchase.purchasingQuantity}</td>
+                                <td className="p-2 text-center">{formatCurrency(purchase.purchasingTotal)}</td>
                               </tr>
                             ))}
                           </tbody>
